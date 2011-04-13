@@ -5,7 +5,7 @@
     This is my really horrifying implementation of in-place quicksort. 
     It uses a naive pivot scheme, but seems to run about as fast as the 
     gnu c++ STL sort() on large vectors of ints so far. Use with caution. 
-    Working on better pivoting scheme (see find_pivot()).
+    Working on pivot sampling (see find_pivot) and 3-way pivot.
 
     The quicksort_simple() function contains all the logic and the rest
     of the functions are utilities for tests and debugging.
@@ -127,12 +127,13 @@ void printVec ( const vector<Comparable> & v , int left=0, int right=-1 )
     cout << endl;
 }
 
-#define NUMSORTS 100000 // default number of sorts to run 
-#define VECSIZE  50000  // default vector size to test on (50k)
+#define NUMSORTS 10000  // default number of sorts to run 
+#define VECSIZE  1000   // default vector size to test on (10k)
+#define MAXINT   10000  // default max integer size for element
 
 // Fill a vector with random numbers
 //   Arguments are randomness factor and max value of element
-void make_random_vector ( vector<int> & v, int size = VECSIZE, int randomness = 1, int max = 10000 )
+void make_random_vector ( vector<int> & v, int size = VECSIZE, float randomness = 1, int max = MAXINT )
 {
     randomness = (randomness > 1 || randomness < 0) ? 1 : randomness; // randomness is 0..1
     v.clear();
@@ -143,28 +144,26 @@ void make_random_vector ( vector<int> & v, int size = VECSIZE, int randomness = 
     }
 
     // Fill the rest of the array (non-random portion) with the same number
-    while(i++ < v.size())
+    while(i++ < size)
         v.push_back(max/2);
 }
 
 
 // run a batch of tests on quicksort_simple by comparing to sort()
-void do_test ( const int numSorts = NUMSORTS )
+void do_test ( vector< vector<int> > & vv )
 {
-    // Run 10k tests on quicksort_simple with random vectors of random length
-    vector<int> v(VECSIZE);
-    for (int test=0; test < numSorts; test++)          // 100k tests
+    vector< vector<int> >::iterator it;
+    for (it=vv.begin(); it < vv.end(); it++)
     {
-        make_random_vector(v);
-        vector<int> v_quicksort_simple = v;
-        vector<int> v_sort = v;
+        vector<int> v_quicksort_simple = *it;
+        vector<int> v_sort = *it;
         quicksort_simple(v_quicksort_simple);
         sort(v_sort.begin(), v_sort.end());
         if (! equal(v_quicksort_simple.begin(), v_quicksort_simple.end(), v_sort.begin()) )
         {
             cout << "FAIL!" << endl;
             cout << "Original: ";
-            printVec(v);
+            printVec(*it);
             cout << "Sort: ";
             printVec(v_sort);
             cout << "Quicksort_simple: ";
@@ -176,42 +175,44 @@ void do_test ( const int numSorts = NUMSORTS )
 }
 
 
-void do_sort ( const int numSorts = NUMSORTS )
+void do_sort ( vector< vector<int> > & vv )
 {
-    vector<int> v(VECSIZE);
-    for (int test=0; test < numSorts ; test++)         
-    {
-        make_random_vector(v);
-        quicksort_simple(v);
-    }
+    vector< vector<int> >::iterator it;
+    for (it=vv.begin(); it < vv.end(); it++)
+        quicksort_simple(*it);
 }
 
-void do_quicksort ( const int numSorts = NUMSORTS )
+void do_quicksort ( vector< vector<int> > & vv )
 {
-    vector<int> v(VECSIZE);
-    for (int test=0; test < numSorts ; test++)          
-    {
-        make_random_vector(v);
-        cout << v[v.size()-1] << endl;
-        sort(v.begin(), v.end());
-    }
+    vector< vector<int> >::iterator it;
+    for (it=vv.begin(); it <= vv.end(); it++)
+        sort((*it).begin(), (*it).end());
 }
 
 
 int main ( int argc, const char* argv[] )
 {
-    srand ( time(NULL) );
+    srand ( time(NULL) );                           // omg. so random!
+
      // Do sorting requested on command line. Second arg is number of sort jobs to perform.
     if (argv[1] != NULL)
     {
+        // Generate our test data
         int numSorts = (argv[2] != NULL) ? atoi(argv[2]) : NUMSORTS; // size of job
+        vector< vector<int> > vv;
+        for (int test=0; test < numSorts; test++)
+        {
+            vector<int> v; 
+            make_random_vector(v);
+            vv.push_back(v);
+        }
 
         if (strcmp(argv[1], "test")==0)
-            do_test(numSorts);                       // test quicksort_simple() against sort()
+            do_test(vv);                          // test quicksort_simple() against sort()
         else if (strcmp(argv[1], "sort")==0)
-            do_sort(numSorts);                       // run a batch of sort() routines
+            do_sort(vv);                          // run a batch of sort() routines
         else if (strcmp(argv[1], "quicksort")==0)
-            do_quicksort(numSorts);                  // run a batch of quicksort_simple() routines
+            do_quicksort(vv);                     // run a batch of quicksort_simple() routines
         else // no valid argument
             printf("INVALID OPTION (use test or sort or quicksort)\n");
     }
