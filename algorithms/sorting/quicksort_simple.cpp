@@ -127,8 +127,8 @@ void printVec ( const vector<Comparable> & v , int left=0, int right=-1 )
     cout << endl;
 }
 
-#define NUMSORTS 10000  // default number of sorts to run 
-#define VECSIZE  1000   // default vector size to test on (10k)
+#define NUMSORTS 1000   // default number of sorts to run 
+#define VECSIZE  10000  // default vector size to test on 
 #define MAXINT   10000  // default max integer size for element
 
 // Fill a vector with random numbers
@@ -179,14 +179,14 @@ void do_sort ( vector< vector<int> > & vv )
 {
     vector< vector<int> >::iterator it;
     for (it=vv.begin(); it < vv.end(); it++)
-        quicksort_simple(*it);
+        sort((*it).begin(), (*it).end());
 }
 
 void do_quicksort ( vector< vector<int> > & vv )
 {
     vector< vector<int> >::iterator it;
     for (it=vv.begin(); it <= vv.end(); it++)
-        sort((*it).begin(), (*it).end());
+        quicksort_simple(*it);
 }
 
 
@@ -215,6 +215,8 @@ int main ( int argc, const char* argv[] )
             do_quicksort(vv);                     // run a batch of quicksort_simple() routines
         else // no valid argument
             printf("INVALID OPTION (use test or sort or quicksort)\n");
+
+        // for (int test=0; test < numSorts; test++) printVec(vv[test]); // make sure it's really sorted
     }
     else
         printf("ERROR: NO SORT SELECTED (test or sort or quicksort)\n");
