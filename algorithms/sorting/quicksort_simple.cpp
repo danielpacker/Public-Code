@@ -53,76 +53,98 @@ Comparable find_pivot ( vector<Comparable> & unsorted )
 
 
 template <typename Comparable>
-void quicksort_simple ( vector<Comparable> & vec, int a=0, int b=0 )
+void quicksort_simple ( vector<Comparable> & vec, int a=0, int b=-100 )
 {
-    if (b==0)
+    //cout << "a: " << a << " b: " << b << endl;
+    if (b==-100)
         b = vec.size()-1;      // default index of last element
 
     if (vec.size() <= 1)
         return;                     // abort if vector is empty
 
+     if (a < 0 || b < 0 || b <= a)
+         return;
+
     // Choose the middle of three values, first, last, and middle
     //Comparable pivot = find_pivot(vec);
     int pivot = a;        // use first element as pivot
-    cout << "Pivot: " << vec[pivot] << endl;
+    cout << "Pivot is: " << vec[pivot] << endl << endl;
+    cout << "Total vec: "; printVec(vec, a, b);
 
     int i = a+1;
-    int j = b;
-    int x = 0;
+    int k = b;
     for (;;)
-    {
-        cout << vec[i] << " vs " << vec[j] << "       (vec[" << i << "] vs vec[" << j << "])" << endl;
-        if (vec[i] <= vec[pivot]) // advance, element already in order
-            i++;
-         else   // we found a leftside value greater than pivot ( need to swap )
-             if (vec[j] <= vec[pivot]) // we found a right side value less than pivot
+    { 
+            cout << vec[i] << " vs " << vec[k] << "           (i = " << i << " k = " << k << ")" << endl;
+
+           if (vec[i] < vec[pivot])               // advance, element already in order
+                i++;
+            else                                    // i is out of order
+                if (vec[k] < vec[pivot])           // j is also out of order. swap!
+                {
+                     swap( vec[i], vec[k] );
+                     printVec(vec, a, b);
+                }
+                else
+                     k--;
+         if (k < i)                                 // sort done, do swap
+         {
+             while (k >= a && vec[k] > vec[pivot]) { k--; }
+             cout << "final k: " << k << endl;
+             if (k >= a)
              {
-                 // do swap
-                 cout << "SWAP\n";
-                 Comparable temp = vec[j];
-                 vec[j--] = vec[i];
-                 vec[i++] = temp;
-                 printVec(vec);
+                 swap( vec[pivot], vec[k] );        // avoid out of bounds
+                 printVec(vec, a, b);
              }
-             else
-                 j--;
-
-         if (j < i)
              break;
-    }
+         }
 
-    cout << "final j: " << j << " final i: " << i << endl;
-    // swap middle with last
-    if (vec[pivot] > vec[j])
-    {
-        Comparable temp = vec[pivot];
-        vec[pivot] = vec[j];
-        vec[j] = temp;
-    }
+    } // end infinite for
+
+    // only recurse if we have lists greater than len 2
+    quicksort_simple(vec, a, k-1); quicksort_simple(vec, k+1, b);
+
+}
+
+// Swap two Comparables
+template <class Comparable>
+void swap( Comparable & lhs, Comparable & rhs )
+{
+    Comparable temp = lhs;
+    lhs = rhs;
+    rhs = temp;
 }
 
 template <typename Comparable>
-void printVec ( const vector<Comparable> & v )
+void printVec ( const vector<Comparable> & v , int left=0, int right=-1 )
 {
+    if (right == -1)
+        right = v.size()-1;
+
     typename std::vector<Comparable>::const_iterator it;
-    for (it = v.begin(); it < v.end(); it++)
-        cout << *it << " ";
+    for (int i=left; i <= right && i < v.size(); i++)
+        cout << v[i] << " ";
     cout << endl;
 }
 
 
 
-int main ( )
+int main ( int argc, const char* argv[] )
 {
 
     vector<int> v;
-    srand ( time(NULL) );
-    for (int i=0; i < 8; i++)
-        v.push_back(rand() % 10);
 
+    srand ( time(NULL) );
+    for (int i=0; i < 6; i++) v.push_back(rand() % 10);
+    //v.push_back(7); v.push_back(4); v.push_back(9); v.push_back(7); v.push_back(9); v.push_back(7); v.push_back(1); v.push_back(8);
+    //v.push_back(8); v.push_back(5); v.push_back(8); v.push_back(5); v.push_back(7); v.push_back(8); v.push_back(1); v.push_back(0);
+    //v.push_back(0); v.push_back(5); v.push_back(1); v.push_back(5); v.push_back(7); v.push_back(3); v.push_back(2);
+
+    cout << "original list: ";
     printVec(v);
+    cout << endl;
     quicksort_simple(v);
-    cout << "sorted list: ";
+    cout << endl << "sorted list: ";
     printVec(v);
 
     return 0;
