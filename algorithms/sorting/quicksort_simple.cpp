@@ -2,7 +2,13 @@
 
     All code by Daniel Packer.
 
-    This is my really horrifying implementation of in-place quicksort. It uses a naive pivot scheme, but seems to run about as fast as the gnu c++ STL sort() on large vectors of ints so far. Use with caution. Working on better pivoting scheme.
+    This is my really horrifying implementation of in-place quicksort. 
+    It uses a naive pivot scheme, but seems to run about as fast as the 
+    gnu c++ STL sort() on large vectors of ints so far. Use with caution. 
+    Working on better pivoting scheme (see find_pivot()).
+
+    The quicksort_simple() function contains all the logic and the rest
+    of the functions are utilities for tests and debugging.
 
 */
 
