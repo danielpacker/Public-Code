@@ -2,7 +2,7 @@
 #include <vector>
 #include <math.h>
 
-#include "DisjSets.h"
+#include "DisjSets.cpp" // disjoint set implementation
 
 using namespace std;
 
@@ -11,17 +11,13 @@ using namespace std;
 bool everyNodeInfected( const DisjSets & dj, int infected_node=1 )
 {
 //    for (int i=0; i < NETWORK_SIZE; i++) if (dj.find(i) 
-    return false;
+    return true;
 }
 
 int main ( int argc, char * argv[] )
 {
     srand ( time(NULL) );
     DisjSets dj(NETWORK_SIZE);
-
-    dj.unionSets(3, 1);
-    dj.unionSets(1, 3);
-    cout << dj.find(1);
 
     return 0;
 
@@ -31,8 +27,6 @@ int main ( int argc, char * argv[] )
         int random_node_1 = rand() % NETWORK_SIZE;
         int random_node_2 = rand() % NETWORK_SIZE;
 
-        dj.unionSets(random_node_1, random_node_2);
-        dj.unionSets(random_node_2, random_node_1);
         ticks++;
 
         // if every node is infected, stop simulation
@@ -47,6 +41,8 @@ int main ( int argc, char * argv[] )
          << hours << " hours, "
          << minutes << " minutes, "
          << seconds << " seconds" << endl;
+    cout << "Total random connections for complete infection: "
+         << ticks << endl;
 
     return 0;
 }
