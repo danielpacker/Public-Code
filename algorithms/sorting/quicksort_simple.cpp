@@ -3,9 +3,10 @@
     All code by Daniel Packer.
 
     This is my really horrifying implementation of in-place quicksort. 
-    It uses a naive pivot scheme, but seems to run about as fast as the 
+    It uses a naive pivot scheme, but seems to run about %65 as fast as the 
     gnu c++ STL sort() on large vectors of ints so far. Use with caution. 
-    Working on pivot sampling (see find_pivot) and 3-way pivot.
+    Working on pivot sampling (see find_pivot) and 3-way pivot. Pure
+    quicksort with no last-mile insertion sort. Pure, baby!
 
     The quicksort_simple() function contains all the logic and the rest
     of the functions are utilities for tests and debugging.
@@ -185,7 +186,7 @@ void do_sort ( vector< vector<int> > & vv )
 void do_quicksort ( vector< vector<int> > & vv )
 {
     vector< vector<int> >::iterator it;
-    for (it=vv.begin(); it <= vv.end(); it++)
+    for (it=vv.begin(); it < vv.end(); it++)
         quicksort_simple(*it);
 }
 
