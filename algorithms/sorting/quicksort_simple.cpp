@@ -129,10 +129,9 @@ void printVec ( const vector<Comparable> & v , int left=0, int right=-1 )
     cout << endl;
 }
 
-
-int main ( int argc, const char* argv[] )
+// run a batch of tests on quicksort_simple by comparing to sort()
+void do_test ( )
 {
-
     // Run 10k tests on quicksort_simple with random vectors of random length
     vector<int> v;
     for (int test=0; test < 100000; test++)          // 100k tests
@@ -154,9 +153,56 @@ int main ( int argc, const char* argv[] )
             printVec(v_sort);
             cout << "Quicksort_simple: ";
             printVec(v_quicksort_simple);
-            break;
+            return;
         }
     }
+    cout << "Tests passed!" << endl;
+}
+
+#define NUMSORTS 100000 // default number of sorts to run 
+
+void do_sort ( int numSorts = NUMSORTS )
+{
+    vector<int> v;
+    for (int test=0; test < numSorts ; test++)         
+    {
+        srand ( time(NULL) );
+        v.clear();
+        for (int i=0; i < rand() % 50000; i++)       // up to 50k elements per vector
+            v.push_back(rand() % 10000);             // int values up to 10k
+        quicksort_simple(v);
+    }
+}
+
+void do_quicksort ( int numSorts = NUMSORTS )
+{
+    vector<int> v;
+    for (int test=0; test < numSorts ; test++)          
+    {
+        srand ( time(NULL) );
+        v.clear();
+        for (int i=0; i < rand() % 50000; i++)       // up to 50k elements per vector
+            v.push_back(rand() % 10000);             // int values up to 10k
+        sort(v.begin(), v.end());
+    }
+}
+
+
+int main ( int argc, const char* argv[] )
+{
+    
+ // Do sort requested on command line
+    if (argv[1] != NULL)
+        if (strcmp(argv[1], "test")==0)
+            do_test();                              // test quicksort_simple() against sort()
+        else if (strcmp(argv[1], "sort")==0)
+            do_sort();                              // run a batch of sort() routines
+        else if (strcmp(argv[1], "quicksort")==0)
+            do_quicksort();                         // run a batch of quicksort_simple() routines
+        else // no valid argument
+        ;
+    else
+        printf("ERROR: NO SORT SELECTED (test or sort or quicksort)\n");
 
     return 0;
 }
