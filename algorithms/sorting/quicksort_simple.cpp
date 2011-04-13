@@ -128,8 +128,8 @@ void printVec ( const vector<Comparable> & v , int left=0, int right=-1 )
     cout << endl;
 }
 
-#define NUMSORTS 1000   // default number of sorts to run 
-#define VECSIZE  10000  // default vector size to test on 
+#define NUMSORTS 100    // default number of sorts to run 
+#define VECSIZE  100000 // default vector size to test on 
 #define MAXINT   10000  // default max integer size for element
 
 // Fill a vector with random numbers
