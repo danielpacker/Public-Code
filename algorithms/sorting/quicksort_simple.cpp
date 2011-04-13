@@ -133,15 +133,14 @@ void printVec ( const vector<Comparable> & v , int left=0, int right=-1 )
 int main ( int argc, const char* argv[] )
 {
 
-    // Run 10k tests on quicksort_simple with vectors of random length
-
+    // Run 10k tests on quicksort_simple with random vectors of random length
     vector<int> v;
-    for (int test=0; test < 10000; test++)
+    for (int test=0; test < 100000; test++)          // 100k tests
     {
         srand ( time(NULL) );
         v.clear();
-        for (int i=0; i < rand() % 1000; i++) 
-            v.push_back(rand() % 100);
+        for (int i=0; i < rand() % 50000; i++)       // up to 50k elements per vector
+            v.push_back(rand() % 10000);             // int values up to 10k
         vector<int> v_quicksort_simple = v;
         vector<int> v_sort = v;
         quicksort_simple(v_quicksort_simple);
