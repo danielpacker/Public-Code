@@ -128,18 +128,34 @@ void printVec ( const vector<Comparable> & v , int left=0, int right=-1 )
 }
 
 #define NUMSORTS 100000 // default number of sorts to run 
+#define VECSIZE  50000  // default vector size to test on (50k)
+
+// Fill a vector with random numbers
+//   Arguments are randomness factor and max value of element
+void make_random_vector ( vector<int> & v, int size = VECSIZE, int randomness = 1, int max = 10000 )
+{
+    randomness = (randomness > 1 || randomness < 0) ? 1 : randomness; // randomness is 0..1
+    v.clear();
+    int i;
+    for (i=0; i < (size * randomness); i++)
+    {
+        v.push_back(rand() % max);
+    }
+
+    // Fill the rest of the array (non-random portion) with the same number
+    while(i++ < v.size())
+        v.push_back(max/2);
+}
+
 
 // run a batch of tests on quicksort_simple by comparing to sort()
 void do_test ( const int numSorts = NUMSORTS )
 {
     // Run 10k tests on quicksort_simple with random vectors of random length
-    vector<int> v;
+    vector<int> v(VECSIZE);
     for (int test=0; test < numSorts; test++)          // 100k tests
     {
-        srand ( time(NULL) );
-        v.clear();
-        for (int i=0; i < rand() % 50000; i++)       // up to 50k elements per vector
-            v.push_back(rand() % 10000);             // int values up to 10k
+        make_random_vector(v);
         vector<int> v_quicksort_simple = v;
         vector<int> v_sort = v;
         quicksort_simple(v_quicksort_simple);
@@ -162,26 +178,21 @@ void do_test ( const int numSorts = NUMSORTS )
 
 void do_sort ( const int numSorts = NUMSORTS )
 {
-    vector<int> v;
+    vector<int> v(VECSIZE);
     for (int test=0; test < numSorts ; test++)         
     {
-        srand ( time(NULL) );
-        v.clear();
-        for (int i=0; i < rand() % 50000; i++)       // up to 50k elements per vector
-            v.push_back(rand() % 10000);             // int values up to 10k
+        make_random_vector(v);
         quicksort_simple(v);
     }
 }
 
 void do_quicksort ( const int numSorts = NUMSORTS )
 {
-    vector<int> v;
+    vector<int> v(VECSIZE);
     for (int test=0; test < numSorts ; test++)          
     {
-        srand ( time(NULL) );
-        v.clear();
-        for (int i=0; i < rand() % 50000; i++)       // up to 50k elements per vector
-            v.push_back(rand() % 10000);             // int values up to 10k
+        make_random_vector(v);
+        cout << v[v.size()-1] << endl;
         sort(v.begin(), v.end());
     }
 }
@@ -189,6 +200,7 @@ void do_quicksort ( const int numSorts = NUMSORTS )
 
 int main ( int argc, const char* argv[] )
 {
+    srand ( time(NULL) );
      // Do sorting requested on command line. Second arg is number of sort jobs to perform.
     if (argv[1] != NULL)
     {
