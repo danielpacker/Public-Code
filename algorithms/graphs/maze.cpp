@@ -206,10 +206,6 @@ int main ( int argc, char * argv[] )
             width = height;
     }
 
-    // For any given cell, the value is a binary bitmap
-    //   top is 0x01, right is 0x02, bottom is 0x04, left is 0x08
-    int start_val = TOP + BOTTOM + LEFT + RIGHT;
-
     // Create NxM matrix to hold maze and initialize
     Maze m(height, width);
 
