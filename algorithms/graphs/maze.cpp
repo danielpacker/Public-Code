@@ -205,30 +205,20 @@ int main ( int argc, char * argv[] )
         else
             width = height;
     }
-    //cout << "HEIGHT: " << height << " WIDTH: " << width << endl;
-    int total_size = height*width;
 
     // For any given cell, the value is a binary bitmap
-    // top is 1000, bottom is 0001, left is 0100, right is 0010
+    //   top is 0x01, right is 0x02, bottom is 0x04, left is 0x08
     int start_val = TOP + BOTTOM + LEFT + RIGHT;
 
     // Create NxM matrix to hold maze and initialize
     Maze m(height, width);
 
-    //m.draw(); m.dump();
-
-    // Create a disjoint set object to track connections between
-    // the cells
-
     // Randomly break down walls between adjacent cells 
-    // until startCell (0, 0) is connected to endCell (n-1, m-1)
-    int count;
+    //   until cell 0 is connected to cell size-1
     while (! m.mazeComplete())
-    {
         m.randomKnockdown();
 
-    }
-    m.draw();
+    m.draw();   // Now display the complete maze 
 
     return 0;
 }
