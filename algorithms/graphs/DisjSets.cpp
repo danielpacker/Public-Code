@@ -10,6 +10,8 @@
 // No error checking is performed
 
 #include <vector>
+#include <iostream>
+using namespace std;
 
 /**
  * Disjoint set class.
@@ -24,10 +26,15 @@ class DisjSets
      * Construct the disjoint sets object.
      * numElements is the initial number of disjoint sets.
      */
-    DisjSets( int numElements ) : s( numElements )
+    DisjSets( int numElements = 10 ) : s( numElements = 1 )
     {
         for( int i = 0; i < s.size( ); i++ )
             s[ i ] = -1;
+    }
+
+    void resize ( int newSize )
+    {
+        s.resize(newSize);
     }
 
     /**
@@ -39,6 +46,7 @@ class DisjSets
      */
     void unionSets( int root1, int root2 )
     {
+        //cout << "root1: " << root1 << " root2: " << root2 << endl;
         if( s[ root2 ] < s[ root1 ] )  // root2 is deeper
             s[ root1 ] = root2;        // Make root2 new root
         else
@@ -75,6 +83,17 @@ class DisjSets
             return x;
         else
             return s[ x ] = find( s[ x ] );
+    }
+
+    void dump( )
+    {
+        cout << "Dumping set:" << endl;
+        for (int i=0; i < s.size(); i++)
+            printf("%4d", s[i]);
+        cout << endl;
+        for (int i=0; i < s.size(); i++)
+            printf("%4d", i);
+        cout << endl;
     }
 
     private:
