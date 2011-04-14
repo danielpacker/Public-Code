@@ -52,13 +52,45 @@ class Maze
         // randomly knock down a wall between cells
         void random_knockdown ( )
         {
+            int c1 = (rand() % height) * (rand() % width);
+            vector<int> adj = find_adjacent_cells(c1);
+            int c2 = adj[rand() % adj.size()];
 
-            int rand_cell_1 = (rand() % height) * (rand() % width);
-            int rand_cell_2 = (rand() % height) * (rand() % width);
-            if (sets.find(rand_cell_1) != sets.find(rand_cell_2))
+            if (sets.find(c1) != sets.find(c2))
             {
-            }
+                // they're not already connected
+                // we have to find their common walls, knock them down
+                // and then join them in union
+                
+                int diff = c1 - c2;
+                // c2 below c1 - if c1-c2 == -width
+                if (diff == -1*width)
+                {
+                    cells[c2] -= TOP;       // remove top wall
+                    cells[c1] -= BOTTOM;    // remove bottom wall
+                }
+                // c1 below c2 - if c1-c2 == width
+                else if (diff == width)
+                {
+                    cells[c1] -= TOP;       // remove top
+                    cells[c2] -= BOTTOM;    // remove bottom
+                }
+                // c1 to left of c2 - if c1-c2 == -1
+                else if (diff == -1)
+                {
+                    cells[c1] -= RIGHT;     // remove right
+                    cells[c2] -= LEFT;      // remove left
+                }
+                // c2 to left of c1 - if c1-c2 == 1
+                else if (diff == 1)
+                {
+                    cells[c1] -= LEFT;      // remove left;
+                    cells[c2] -= RIGHT;     // remove right;
+                }
 
+                sets.unionSets(sets.find(c1), sets.find(c2)); // record relation
+
+            }
         }
 
         vector<int> find_adjacent_cells ( int cell )
@@ -84,6 +116,17 @@ class Maze
             if ((cell % width) > 1)
                 adj.push_back(cell-1);
         }
+
+        // Check to see if cell 0,0 is in the same set as cell height,width
+        // If it is, we can complete the maze!
+        bool maze_complete ( )
+        {
+            if (sets.find(0) == sets.find(height*width))
+                return true;
+            else
+                return false;
+        }
+
 
     private:
         vector<int> cells; // hold cell wall info
@@ -116,16 +159,11 @@ int main ( int argc, char * argv[] )
     Maze m(total_size);
     // Create a disjoint set object to track connections between
     // the cells
-    DisjSets dj(total_size);
 
     // Randomly break down walls between adjacent cells 
     // until startCell (0, 0) is connected to endCell (n-1, m-1)
     for (;;)
     {
-        // Choose a random cell
-        // choose a random cell adjacent to this one
-        // skip if already in the same set
-        // if not, break down the wall between them
     }
 
 
