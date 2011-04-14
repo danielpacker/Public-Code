@@ -24,18 +24,15 @@ the same set.
 
 using namespace std;
 
-// Top is    1000 (0x08)
-// Bottom is 0001 (0x01)
-// Left is   0100 (0x04)
-// Right is  0010 (0x02)
+// start with top and go clockwise to right, bottom, left
 #define TOP    0x01
+#define RIGHT  0x02
 #define BOTTOM 0x04
 #define LEFT   0x08
-#define RIGHT  0x02
 #define ALL    0x0F
 
-#define HEIGHT 5 // default height
-#define WIDTH  5 // default width
+#define HEIGHT 10 // default height
+#define WIDTH  10 // default width
 
 class Maze
 {
@@ -48,20 +45,31 @@ class Maze
             cells = vector<int>(size);
             for (int i=0; i < size; i++)
                 cells[i] = ALL;
+
+            // remove entry way of start and exit of finish
+            cells[0]      -= LEFT;
+            cells[size-1] -= RIGHT;
         }
 
         // randomly knock down a wall between cells
-        void randomKnockdown ( )
+        void randomKnockdown ( int c1_override = -1, int c2_override = -1 )
         {
-            int c1 = (rand() % height) * (rand() % width);
+            int c1 = (rand() % size);
             vector<int> adj = findAdjacentCells(c1);
             int c2 = adj[rand() % adj.size()];
 
+            c1 = (c1_override != -1) ? c1_override : c1;
+            c2 = (c2_override != -1) ? c2_override : c2;
+
             int c1_set = sets.find(c1), c2_set = sets.find(c2);
+
+            //cout << "c1: " << c1 << " c1_set: " << c1_set << " c2: " << c2 << " c2_set: " << c2_set << endl;
 
             // only connect if not already connected
             if (c1_set != c2_set)
             {
+                //cout << "knocking down wall\n";
+
                 // they're not already connected
                 // we have to find their common walls, knock them down
                 // and then join them in union
@@ -136,13 +144,14 @@ class Maze
         // draw maze as a grid
         void draw ( )
         {
-            cout << "DRAWING\n";
-            for (int i=0; i < height; i++)
+            cout << "\nDRAWING MAZE:\n";
+            for (int i=0; i < size; i++)
             {
-                for (int j=0; j < width; j++)
-                    drawCell(i*j);
-                 cout << endl;
+                drawCell(i);
+                if ((i+1) % width == 0)
+                    cout << endl;
             }
+            cout << endl;
         }
 
         // draw an indivual cell
@@ -196,7 +205,7 @@ int main ( int argc, char * argv[] )
         else
             width = height;
     }
-    cout << "HEIGHT: " << height << " WIDTH: " << width << endl;
+    //cout << "HEIGHT: " << height << " WIDTH: " << width << endl;
     int total_size = height*width;
 
     // For any given cell, the value is a binary bitmap
@@ -206,28 +215,20 @@ int main ( int argc, char * argv[] )
     // Create NxM matrix to hold maze and initialize
     Maze m(height, width);
 
-    m.dump(); m.draw();
-    vector<int> adj = m.findAdjacentCells(2);
-    cout << "adj: ";
-    printVec(adj);
-    m.randomKnockdown();
-    m.dump(); m.draw();
-
-    return 0;
+    //m.draw(); m.dump();
 
     // Create a disjoint set object to track connections between
     // the cells
 
     // Randomly break down walls between adjacent cells 
     // until startCell (0, 0) is connected to endCell (n-1, m-1)
-    int wait;
-    for (;;)
+    int count;
+    while (! m.mazeComplete())
     {
         m.randomKnockdown();
-        m.draw();
-        cin >> wait;
-    }
 
+    }
+    m.draw();
 
     return 0;
 }
