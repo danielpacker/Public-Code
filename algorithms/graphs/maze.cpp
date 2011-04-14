@@ -19,26 +19,20 @@ the same set.
 #include <vector>
 #include <math.h>
 
+#include "maze.h"           // constants for TOP, etc.
 #include "utility.cpp"      // import utility functions
 #include "DisjSets.cpp"     // disjoint set implementation
 
 using namespace std;
 
-// start with top and go clockwise to right, bottom, left
-#define TOP    0x01
-#define RIGHT  0x02
-#define BOTTOM 0x04
-#define LEFT   0x08
-#define ALL    0x0F
-
-#define HEIGHT 10 // default height
-#define WIDTH  10 // default width
+#define DEFAULT_MAZE_HEIGHT 10 // default height
+#define DEFAULT_MAZE_WIDTH  10 // default width
 
 class Maze
 {
     public:
 
-        Maze ( int h = HEIGHT, int w = WIDTH ) : height(h), width(w)
+        Maze ( int h = DEFAULT_MAZE_HEIGHT, int w = DEFAULT_MAZE_WIDTH ) : height(h), width(w)
         {
             size = height * width;
             sets.resize(size);
@@ -183,7 +177,26 @@ class Maze
             printVec(cells);
         }
 
-
+        vector<int> getCells ( )
+        {
+            return cells;
+        }
+	
+		int getSize ( )
+		{
+			return size;
+		}
+	
+		int getHeight ( )
+		{
+			return height;
+		}
+	
+		int getWidth ( )
+		{
+			return width;
+		}
+	
     private:
         vector<int> cells; // hold cell wall info
         DisjSets sets;     // hold sets of cells
@@ -192,29 +205,3 @@ class Maze
         int size;
 };
 
-int main ( int argc, char * argv[] )
-{
-    srand ( time(NULL) );
-
-    int height = HEIGHT, width = WIDTH;
-    if (argv[1] != NULL)
-    {
-        height = atoi(argv[1]);
-        if (argv[2] != NULL)
-            width = atoi(argv[2]);
-        else
-            width = height;
-    }
-
-    // Create NxM matrix to hold maze and initialize
-    Maze m(height, width);
-
-    // Randomly break down walls between adjacent cells 
-    //   until cell 0 is connected to cell size-1
-    while (! m.mazeComplete())
-        m.randomKnockdown();
-
-    m.draw();   // Now display the complete maze 
-
-    return 0;
-}

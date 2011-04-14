@@ -1,3 +1,5 @@
+#ifndef _UTILITY_STUFF_
+#define _UTILITY_STUFF_
 /*
 
     All code by Daniel Packer.
@@ -34,4 +36,4 @@ void printVec ( const vector<Comparable> & v , int left=0, int right=-1 )
         cout << v[i] << " ";
     cout << endl;
 }
-
+#endif
