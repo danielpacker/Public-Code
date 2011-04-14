@@ -28,9 +28,9 @@ using namespace std;
 // Bottom is 0001 (0x01)
 // Left is   0100 (0x04)
 // Right is  0010 (0x02)
-#define TOP    0x08
-#define BOTTOM 0x01
-#define LEFT   0x04
+#define TOP    0x01
+#define BOTTOM 0x04
+#define LEFT   0x08
 #define RIGHT  0x02
 #define ALL    0x0F
 
@@ -41,8 +41,9 @@ class Maze
 {
     public:
 
-        Maze ( int size = HEIGHT * WIDTH )
+        Maze ( int h = HEIGHT, int w = WIDTH ) : height(h), width(w)
         {
+            size = height * width;
             sets.resize(size);
             cells = vector<int>(size);
             for (int i=0; i < size; i++)
@@ -50,13 +51,16 @@ class Maze
         }
 
         // randomly knock down a wall between cells
-        void random_knockdown ( )
+        void randomKnockdown ( )
         {
             int c1 = (rand() % height) * (rand() % width);
-            vector<int> adj = find_adjacent_cells(c1);
+            vector<int> adj = findAdjacentCells(c1);
             int c2 = adj[rand() % adj.size()];
 
-            if (sets.find(c1) != sets.find(c2))
+            int c1_set = sets.find(c1), c2_set = sets.find(c2);
+
+            // only connect if not already connected
+            if (c1_set != c2_set)
             {
                 // they're not already connected
                 // we have to find their common walls, knock them down
@@ -88,12 +92,12 @@ class Maze
                     cells[c2] -= RIGHT;     // remove right;
                 }
 
-                sets.unionSets(sets.find(c1), sets.find(c2)); // record relation
+                sets.unionSets(c1_set, c2_set); // record relation
 
             }
         }
 
-        vector<int> find_adjacent_cells ( int cell )
+        vector<int> findAdjacentCells ( int cell )
         {
             vector<int> adj;
             // cell above exists if cell > width
@@ -115,16 +119,59 @@ class Maze
             //   left cell is cell - 1
             if ((cell % width) > 1)
                 adj.push_back(cell-1);
+
+            return adj;
         }
 
         // Check to see if cell 0,0 is in the same set as cell height,width
         // If it is, we can complete the maze!
-        bool maze_complete ( )
+        bool mazeComplete ( )
         {
-            if (sets.find(0) == sets.find(height*width))
+            if (sets.find(0) == sets.find(size-1))
                 return true;
             else
                 return false;
+        }
+
+        // draw maze as a grid
+        void draw ( )
+        {
+            cout << "DRAWING\n";
+            for (int i=0; i < height; i++)
+            {
+                for (int j=0; j < width; j++)
+                    drawCell(i*j);
+                 cout << endl;
+            }
+        }
+
+        // draw an indivual cell
+        void drawCell ( int c )
+        {
+            cout << hex << cells[c] << " ";
+            /*
+            if (c==TOP+BOTTOM+LEFT+RIGHT)
+            else if (c==TOP+BOTTOM+LEFT)
+            else if (c==TOP+BOTTOM+RIGHT)
+            else if (c==TOP+LEFT+RIGHT)
+            else if (c==BOTTOM+LEFT+RIGHT)
+            else if (c==BOTTOM+RIGHT)
+            else if (c==BOTTOM+LEFT)
+            else if (c==TOP+RIGHT)
+            else if (c==TOP+LEFT)
+            else if (c==TOP)
+            else if (c==RIGHT)
+            else if (c==LEFT)
+            else if (c==BOTTOM)
+            else if (c==TOP+BOTTOM)
+            else if (c==LEFT+RIGHT)
+            else if (c==0)
+                */
+        }
+
+        void dump ( )
+        {
+            printVec(cells);
         }
 
 
@@ -133,6 +180,7 @@ class Maze
         DisjSets sets;     // hold sets of cells
         int height;
         int width;
+        int size;
 };
 
 int main ( int argc, char * argv[] )
@@ -156,14 +204,28 @@ int main ( int argc, char * argv[] )
     int start_val = TOP + BOTTOM + LEFT + RIGHT;
 
     // Create NxM matrix to hold maze and initialize
-    Maze m(total_size);
+    Maze m(height, width);
+
+    m.dump(); m.draw();
+    vector<int> adj = m.findAdjacentCells(2);
+    cout << "adj: ";
+    printVec(adj);
+    m.randomKnockdown();
+    m.dump(); m.draw();
+
+    return 0;
+
     // Create a disjoint set object to track connections between
     // the cells
 
     // Randomly break down walls between adjacent cells 
     // until startCell (0, 0) is connected to endCell (n-1, m-1)
+    int wait;
     for (;;)
     {
+        m.randomKnockdown();
+        m.draw();
+        cin >> wait;
     }
 
 

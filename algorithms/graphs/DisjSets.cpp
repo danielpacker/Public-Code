@@ -34,7 +34,7 @@ class DisjSets
 
     void resize ( int newSize )
     {
-        s.resize(newSize);
+        s.resize(newSize, -1); // fill with -1's
     }
 
     /**
