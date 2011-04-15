@@ -16,6 +16,28 @@ The everyNodeInfected() function detects at any given
 time, if all nodes are in the infected group. It's a 
 slow, linear function, so total time to check is 
 quadratic, so have patience.
+ 
+Analysis:
+ 
+ Over 7 runs on 100k network size, average number of
+ connections was 602,842.4, or 60,284.2 seconds (if 
+ secs = connections * 1/10 sec).
+ 
+ Avg expected time is NETWORK_SIZE * 0.6 sec.
+ 
+ Over 7 runs on 10k network size, average number of
+ connections was 478,943.6 or 47,894.4 secs (if
+ secs = connections * 1/10 sec).
+ 
+ Avg expected time is NETWORKSIZE * 4.7 sec.
+ 
+ Over 7 runs on 1k network size, average number of
+ connections was 371,396.3, or 37,139.6 secs (if
+ secs = connections * 1/10 sec).
+ 
+ Avg expected time is NETWORKSIZE * 37.1 sec.
+ 
+ In general, run time is 1/10sec * (log10 N) * 10^6.
 
 */
 
@@ -34,10 +56,10 @@ using namespace std;
 /*
   Check if every node in dj set is infected. True or false.
 */
-bool everyNodeInfected( const DisjSets & dj )
+bool everyNodeInfected( DisjSets & dj, int network_size = NETWORK_SIZE )
 {
     int infected_network_root = dj.find(INFECTED_NODE);
-    for (int i=0; i < NETWORK_SIZE; i++) 
+    for (int i=0; i < network_size; i++) 
         if (dj.find(i) != infected_network_root)
             return false;
     return true;
@@ -47,7 +69,11 @@ bool everyNodeInfected( const DisjSets & dj )
 int main ( int argc, char * argv[] )
 {
     srand ( time(NULL) );
-    DisjSets dj(NETWORK_SIZE);
+	
+	int network_size = (argv[1] != NULL) ? atoi(argv[1]) : NETWORK_SIZE;
+    DisjSets dj(network_size);
+
+    dj.unionSets(dj.find(0), dj.find(2));
 
     int ticks = 0;      // track total connections made (10 per sec)
     for (;;)            // start simulation
@@ -66,7 +92,7 @@ int main ( int argc, char * argv[] )
 
         ticks++;
 
-        if (everyNodeInfected(dj))                  // stop, all infected.
+        if (everyNodeInfected(dj), network_size)                  // stop, all infected.
             break;
     }
 
@@ -74,13 +100,13 @@ int main ( int argc, char * argv[] )
     //dj.dump();
 
     int seconds = ticks/10;
-    int hours = (seconds/60)/60;
-    int minutes = (seconds/60) % (hours*60);
+    //int hours = (seconds/60)/60;
+    //int minutes = (seconds/60) % (hours*60);
 
     cout << "-------------------------------------------------------------------" << endl
          << "Total time for complete infection of " << NETWORK_SIZE << " nodes: "
-         << seconds << " seconds"
-         << " (" << hours << " hours, " << minutes << " minutes)" << endl;
+         << seconds << " seconds" << endl;
+         //<< " (" << hours << " hours, " << minutes << " minutes)" << endl;
     cout << "Total random connections made: "
          << ticks << endl
          << "-------------------------------------------------------------------" << endl;

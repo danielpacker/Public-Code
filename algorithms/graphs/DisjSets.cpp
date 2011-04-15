@@ -26,11 +26,11 @@ class DisjSets
      * Construct the disjoint sets object.
      * numElements is the initial number of disjoint sets.
      */
-    DisjSets( int numElements = 10 ) : s( numElements = 1 )
+    DisjSets( int numElements = 10 ) : s( numElements )
     {
         for( int i = 0; i < s.size( ); i++ )
             s[ i ] = -1;
-    }
+	}
 
     void resize ( int newSize )
     {
@@ -63,13 +63,6 @@ class DisjSets
      * Error checks omitted again for simplicity.
      * Return the set containing x.
      */
-    int find( int x ) const
-    {
-        if( s[ x ] < 0 )
-            return x;
-        else
-            return find( s[ x ] );
-    }
 
 
     /**
