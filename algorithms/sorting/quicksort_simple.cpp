@@ -15,6 +15,8 @@
 	The following run times are for 1000 sorts on vectors of size 1000
 	with random values from 0-999.
  
+	Times were measured with the unix 'time' command in a bash for loop.
+ 
 	Average run time for:
 		sort            0.42 seconds
 		quicksort       0.56 seconds
@@ -22,6 +24,14 @@
 
 	For less random arrays, average run times were the same, though
 	we would expect a lower run time for 3-way quicksort.
+ 
+	compile:
+		g++ quicksort_simple.cpp -o quicksort_simple
+ 
+	run:
+		./quicksort_simple test				- to run tests on sorting algorithms
+		./quicksort_simple quicksort3 100	- to run 100 quicksort 3way sorts (optional #)
+		./quicksort_simple quicksort  100   - to run 100 quicksort 2way sorts (optional #)
  
 */
 

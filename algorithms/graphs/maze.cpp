@@ -152,7 +152,7 @@ class Maze
         void drawCell ( int c )
         {
             cout << hex << cells[c] << " ";
-            /*
+            /* fancy drawing left for the opengl code
             if (c==TOP+BOTTOM+LEFT+RIGHT)
             else if (c==TOP+BOTTOM+LEFT)
             else if (c==TOP+BOTTOM+RIGHT)

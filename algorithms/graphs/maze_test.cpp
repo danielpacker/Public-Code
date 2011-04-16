@@ -11,6 +11,17 @@ can get to the exit cell from the
 start cell. When a wall is knocked 
 down between two cells, they join
 the same set.
+ 
+Each cell is represented in the output by a
+ hex digit. The hex digit represents the bitmask
+ for the cell walls:
+ top: 0x01, right: 0x02, bottom: 0x04, left: 0x08
+ 
+compile:
+	g++ maze.cpp maze_test.cpp -o maze_test
+ 
+run (for example for a 5x10 maze):
+	./maze_test 5 10
 
 */
 
@@ -29,6 +40,7 @@ int main ( int argc, char * argv[] )
 {
     srand ( time(NULL) );
 
+	// take height/width on command line
     int height = DEFAULT_MAZE_HEIGHT, width = DEFAULT_MAZE_WIDTH;
     if (argv[1] != NULL)
     {

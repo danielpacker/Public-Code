@@ -38,6 +38,12 @@ Analysis:
  Avg expected time is NETWORKSIZE * 37.1 sec.
  
  In general, run time is 1/10sec * (log10 N) * 10^6.
+ 
+ compile:
+ g++ utility.cpp DisjSets.cpp disjount.cpp -o disjoint
+ 
+ run (for example, to run on 100k nodes - takes a while):
+ ./disjoint 100000
 
 */
 
@@ -50,7 +56,7 @@ Analysis:
 
 using namespace std;
 
-#define NETWORK_SIZE 100000 // network size
+#define NETWORK_SIZE 1000   // network size
 #define INFECTED_NODE 0     // which node is infected first
 
 /*
@@ -60,9 +66,10 @@ bool everyNodeInfected( DisjSets & dj, int network_size = NETWORK_SIZE )
 {
     int infected_network_root = dj.find(INFECTED_NODE);
     for (int i=0; i < network_size; i++) 
-        if (dj.find(i) != infected_network_root)
+		if (dj.find(i) != infected_network_root)
             return false;
-    return true;
+	
+	return true;
 }
 
 
@@ -72,17 +79,15 @@ int main ( int argc, char * argv[] )
 	
 	int network_size = (argv[1] != NULL) ? atoi(argv[1]) : NETWORK_SIZE;
     DisjSets dj(network_size);
-
-    dj.unionSets(dj.find(0), dj.find(2));
-
+	
     int ticks = 0;      // track total connections made (10 per sec)
-    for (;;)            // start simulation
+    while (! everyNodeInfected(dj, network_size))    // start simulation
     {
         // randomly select two different nodes in network
-        int random_node_1 = rand() % NETWORK_SIZE;
-        int random_node_2 = rand() % NETWORK_SIZE;
+        int random_node_1 = rand() % network_size;
+        int random_node_2 = rand() % network_size;
         while (random_node_1 == random_node_2)
-            random_node_2 = rand() % NETWORK_SIZE;  //de-dupe
+            random_node_2 = rand() % network_size;  //de-dupe
 
         int set_1 = dj.find(random_node_1);
         int set_2 = dj.find(random_node_2);
@@ -91,22 +96,13 @@ int main ( int argc, char * argv[] )
             dj.unionSets(set_1, set_2);             // make connection
 
         ticks++;
-
-        if (everyNodeInfected(dj), network_size)                  // stop, all infected.
-            break;
     }
 
-    //cout << "infected node value: " << dj.find(INFECTED_NODE) << endl;
-    //dj.dump();
-
     int seconds = ticks/10;
-    //int hours = (seconds/60)/60;
-    //int minutes = (seconds/60) % (hours*60);
 
     cout << "-------------------------------------------------------------------" << endl
-         << "Total time for complete infection of " << NETWORK_SIZE << " nodes: "
+         << "Total time for complete infection of " << network_size << " nodes: "
          << seconds << " seconds" << endl;
-         //<< " (" << hours << " hours, " << minutes << " minutes)" << endl;
     cout << "Total random connections made: "
          << ticks << endl
          << "-------------------------------------------------------------------" << endl;
