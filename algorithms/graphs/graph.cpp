@@ -1,15 +1,13 @@
 /*
- *  graph.cpp
- *  
- *
- *  Created by Daniel Packer
- *
- *  Graph object implementation including adjacency list, disjkstra, and flow
- *
- */
 
-/*
+ graph.cpp - graph implementation by Daniel Packer
  
+ Features:
+ * adjacency list input from a file -- see readAdjacencyList()
+ * vertex construction from those adj. lists -- see vertexes private member
+ * display of vertices and edges -- see dump()
+ 
+ Details:
  
  Our graph needs to store edges and vertexes.
  
@@ -77,19 +75,28 @@ public:
 	}
 	
 	
-	
+	/*  Reads vertexes and edges from a data file and creates vertexes with
+		the adjacency lists in the file. Takes a filename arg.
+	 
+		This code does hardly any error checking so it requires the 
+		following format very strictly:
+	 
+		<integer of vertices to expect>
+		<vertex number (int)> [target vertex int (space) target vertex weight, ...] -1
+	    ... (until EOF)
+	*/
 	void readAdjacencyList (string fileName = string("input.txt"))
 	{
 		ifstream ifs(fileName.c_str());
 		string temp, word;
 		
-		int wordCount=0;		// use to delete every other word
-		int vertCount=0;		// count the vertices as we read them
-		int vertExpected=0;		// the number of vertices to expect
-		int vertNum=-1;			// number of vertex
-		int edgeTarget=-1;		// target of edge
-		float edgeWeight=-1;	// weight of edge
-		bool startVert=false;	// start reading vertices?
+		int wordCount    = 0;		// use to delete every other word
+		int vertCount    = 0;		// count the vertices as we read them
+		int vertExpected = 0;		// the number of vertices to expect
+		int vertNum      = -1;		// number of vertex
+		int edgeTarget   = -1;		// target of edge
+		float edgeWeight = -1;		// weight of edge
+		bool startVert   = false;	// start reading vertices?
 		
 		vector< pair< int, float > > adj;
 		
@@ -152,8 +159,6 @@ public:
 	}
 	
 	
-	
-	
 private:
 	
 	vector< vertex > vertexes;	// store adjacency list
@@ -162,8 +167,15 @@ private:
 
 int main ( )
 {
+	// Declare a graph object
 	graph g;
+	
+	// Graph will read the text file and instantiate vertexes with
+	//  the weighted adjacency lists read from the file.
 	g.readAdjacencyList("dgraph_test.txt");
+	
+	// Print out the graph as a set of vertices and edge targets/weights
 	g.dump();
+	
 	return 0;
 }
