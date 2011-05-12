@@ -57,6 +57,32 @@ public:
 	void dump ( )
 	{
 		// Display graph adjacency list
+		
+		vector< vertex >::iterator iv;
+		
+		int vertexCount=0;
+		
+		for ( iv=vertexes.begin() ; iv < vertexes.end(); iv++ )
+		{
+			
+			cout << "VERTEX: " << vertexCount << " :";
+			
+			vector< pair< int, float > > e = (*iv).edges;
+			
+			vector< pair< int, float > >::iterator ip;
+
+			for ( ip=e.begin() ; ip < e.end(); ip++ )
+			{
+				cout << "( ";
+				cout << (*ip).first;
+				cout << ", ";
+				cout << (*ip).second;
+				cout << " ) ";			
+			}
+			cout << endl;
+			
+			vertexCount++;
+		}
 	}
 	
 	
@@ -72,6 +98,7 @@ public:
 		int vertNum=-1;			// number of vertex
 		int edgeTarget=-1;		// target of edge
 		float edgeWeight=-1;	// weight of edge
+		bool startVert=false;	// start reading vertices?
 		
 		vector< pair< int, float > > adj;
 		
@@ -80,40 +107,53 @@ public:
 			// read line by line
 			while (getline(ifs, temp))
 			{
-				
 				stringstream ss(temp);
 				while (ss >> word)
 				{
 					wordCount++;
-					cout << "word: " << word << " WORDCOUNT: " << wordCount << endl;
+					//cout << "word: " << word << " WORDCOUNT: " << wordCount << endl;
 					
 					// base case for vertex count included in text file (first line probably)
 					if (vertCount==0)
 						if(atoi(word.c_str()))	
+						{
 							vertExpected = atoi(word.c_str());
-						else
-							
-							if (vertNum==-1)	// new vertnum
-								vertNum = atoi(word.c_str());
-							else if (edgeTarget==-1)
-								edgeTarget= atoi(word.c_str());	
-							else if (edgeWeight==-1)
-							{
-								// now we have a target and a weight pair
-								edgeWeight= atoi(word.c_str());
-								adj.push_back(make_pair(edgeTarget, edgeWeight));
-								edgeTarget = edgeWeight = -1; // reset to read next pair
-							}
+							continue;
+						}
+					
+					startVert = true;	// start reading vertexes
+					
+					if (word == "-1")	// base case for end of line
+						continue;
+			
+					if (vertNum==-1)	// new vertex
+					{
+						vertCount++;			// up the vertex count
+						vertNum = atoi(word.c_str());
+					}
+					else if (edgeTarget==-1)
+					{
+						edgeTarget= atoi(word.c_str());	
+					}
+					else if (edgeWeight==-1)
+					{
+						// now we have a target and a weight pair
+						edgeWeight= atof(word.c_str());
+						adj.push_back(make_pair(edgeTarget, edgeWeight));
+						edgeTarget = edgeWeight = -1; // reset to read next pair
+					}
 						
 				}			
 				
-				vertex v(adj);			// create a new vertex with an internal adj. list
-				vertexes.push_back(v);	// add vertex to graph
-				
-				adj.clear();			// reset adj list
-				wordCount=0;			// reset wordcout for line
-				vertCount++;			// up the vertex count
-				
+				// If we're reading vertices, create vertex with adj list and save it
+				if (startVert)
+				{
+					vertex v(adj);			// create a new vertex with an internal adj. list
+					vertexes.push_back(v);	// add vertex to graph
+					adj.clear();			// reset adj list
+				}
+				wordCount=0;				// reset wordcount for line
+								
 			}
 		}
 		else
@@ -133,6 +173,7 @@ private:
 int main ( )
 {
 	graph g;
-	g.readAdjacencyList("dgraph_333.txt");
+	g.readAdjacencyList("dgraph_test.txt");
+	g.dump();
 	return 0;
 }
