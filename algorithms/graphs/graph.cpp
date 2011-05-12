@@ -54,31 +54,22 @@ public:
 	{
 	}
 	
+	// Display graph adjacency list
 	void dump ( )
 	{
-		// Display graph adjacency list
-		
 		vector< vertex >::iterator iv;
-		
 		int vertexCount=0;
 		
 		for ( iv=vertexes.begin() ; iv < vertexes.end(); iv++ )
 		{
-			
-			cout << "VERTEX: " << vertexCount << " :";
+			cout << "VERTEX #: " << vertexCount << " :";
 			
 			vector< pair< int, float > > e = (*iv).edges;
-			
 			vector< pair< int, float > >::iterator ip;
 
 			for ( ip=e.begin() ; ip < e.end(); ip++ )
-			{
-				cout << "( ";
-				cout << (*ip).first;
-				cout << ", ";
-				cout << (*ip).second;
-				cout << " ) ";			
-			}
+				cout << "( " << (*ip).first << ", " << (*ip).second << " ) ";			
+			
 			cout << endl;
 			
 			vertexCount++;
@@ -164,7 +155,6 @@ public:
 	
 	
 private:
-	
 	
 	vector< vertex > vertexes;	// store adjacency list
 };
