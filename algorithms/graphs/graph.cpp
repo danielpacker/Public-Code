@@ -23,6 +23,7 @@
 
 #include <vector>
 #include <iostream>
+#include <iomanip>
 #include <fstream>
 #include <vector>
 #include <sstream>
@@ -31,7 +32,7 @@
 
 using namespace std;
 
-#define INFINITY 1000000
+#define INFINITY 0xFFFF
 
 /*
  Vertex contains a vector of target/weight edge data as pairs of ints/floats
@@ -44,12 +45,27 @@ struct vertex {
 	vector< pair< int, float > > edges;
 	
 	// properties to support shortest path
-	bool known;
-	int dist;
-	vertex * path;
+	bool known;			// dist known?
+	int dist;			// distance from start
+	int id;				// numeric node id
+	vertex * path;		// path from this vertex
 	
-	vertex ( vector< pair< int, float > > e) : known(false), dist(INFINITY), edges(e) { }
+	vertex ( vector< pair< int, float > > e, int num ) : known(false), dist(INFINITY), edges(e), id(num) { }
 	
+	void dump ( )
+	{
+		cout << "VERTEX " << id << ": " << endl <<
+		" known: " << (int)known << fixed << setprecision(2) <<
+				", dist: " << dist <<
+		//		" path:  " << path->id <<
+		endl;
+		
+		for (int i=0; i < edges.size(); i++)
+		{
+			pair<int, float> e = edges[i];
+			cout << " edge: (target " << e.first << ", weight " << e.second << ")" << endl;
+		}
+	}
 };
 
 
@@ -87,6 +103,10 @@ public:
 		vector< vertex >::iterator iv;
 		int vertexCount=0;
 		
+		for (int i=0; i < vertexes.size(); i++)
+			vertexes[i].dump();
+		/*
+		
 		for ( iv=vertexes.begin() ; iv < vertexes.end(); iv++ )
 		{
 			cout << "VERTEX #: " << vertexCount << " :";
@@ -101,6 +121,7 @@ public:
 			
 			vertexCount++;
 		}
+		 */
 	}
 	
 	
@@ -167,7 +188,10 @@ public:
 				// If we're reading vertices, create vertex with adj list and save it
 				if (startVert)
 				{
-					vertex v(adj);			// create a new vertex with an internal adj. list
+					//cout << "adding vertex" << endl;
+					vertex v(adj, vertNum);			// create a new vertex with an internal adj. list
+					//v.dump();
+					
 					vertexes.push_back(v);	// add vertex to graph
 					adj.clear();			// reset adj list
 					vertNum=-1;
@@ -211,7 +235,7 @@ public:
 	
 	void dijkstra ( int vertNum =-1 ) 
 	{
-		
+		cout << "hrm\n";
 		if (vertNum = -1)
 		{
 			int vertexNum;
@@ -220,13 +244,15 @@ public:
 			cout << endl;
 		}
 		
+		
 		// Create priority queue or vertexes that sorts by vertex.dist
 		priority_queue<vertex, vector<vertex>, CompareVertexes> pq;
 
 		// add all the vertexes to the queue so we can pull out least dist
 		for (int i=0; i < vertexes.size(); i ++)
 			pq.push(vertexes[i]);
-		
+
+
 		// Main dijkstra loop
 		for (;;)
 		{
@@ -234,16 +260,25 @@ public:
 			// get vertex with smallest unknown dist
 			vertex v = pq.top();
 			pq.pop();
-			
+
+
 			// iterate through adjacency list
 			vector< pair<int, float> > edges = v.edges;
-	
+			
+			cout << " edges size" << edges.size() << endl;
+
 			for (int i=0; i < edges.size(); i++)
 			{
+				
+				cout << "hrm2\n";
+
 				vertex w = vertexes[edges[i].first];
 				int w_cost = edges[i].second;
+				cout << "hrm3\n";
 				
 				//if (w.dist + w_cost < 
+				w.dump();
+				cout << "cost: " << w_cost << endl;
 				
 			}
 			
@@ -274,7 +309,7 @@ int main ( )
 	// Print out the graph as a set of vertices and edge targets/weights
 	g.dump();
 
-	g.dijkstra();
+	//g.dijkstra();
 	
 	// g.flow();
 	
