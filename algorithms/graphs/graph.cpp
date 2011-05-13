@@ -238,20 +238,21 @@ public:
 		cout << "hrm\n";
 		if (vertNum = -1)
 		{
-			int vertexNum;
 			cout << "Enter a vertex number: " << endl;
-			cin >> vertexNum;
+			cin >> vertNum;
 			cout << endl;
 		}
-		
+	
 		
 		// Create priority queue or vertexes that sorts by vertex.dist
 		priority_queue<vertex, vector<vertex>, CompareVertexes> pq;
 
 		// add all the vertexes to the queue so we can pull out least dist
-		for (int i=0; i < vertexes.size(); i ++)
-			pq.push(vertexes[i]);
-
+		//for (int i=0; i < vertexes.size(); i ++)
+		
+		// put start vertex in queue
+		pq.push(vertexes[vertNum]);
+		
 
 		// Main dijkstra loop
 		for (;;)
@@ -260,6 +261,11 @@ public:
 			// get vertex with smallest unknown dist
 			vertex v = pq.top();
 			pq.pop();
+			
+			v.dump();
+		
+			cout << "done";
+			return;
 
 
 			// iterate through adjacency list
