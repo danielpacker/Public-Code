@@ -26,20 +26,49 @@
 #include <fstream>
 #include <vector>
 #include <sstream>
-//#include <stdlib.h>
+#include <assert.h>
+#include <queue>
 
 using namespace std;
 
+#define INFINITY 1000000
+
+/*
+ Vertex contains a vector of target/weight edge data as pairs of ints/floats
+   and is constructed with that data. A graph object has a vector of vertexes.
+ 
+ Multiple properties to support shortest path algorithm (dijsktra).
+ */
 struct vertex {
 	
 	vector< pair< int, float > > edges;
 	
-	vertex ( vector< pair< int, float > > e) : edges(e) { }
+	// properties to support shortest path
+	bool known;
+	int dist;
+	vertex * path;
+	
+	vertex ( vector< pair< int, float > > e) : known(false), dist(INFINITY), edges(e) { }
 	
 };
- 
 
 
+/*
+ Custom comparison class/function to use for priority queue
+ */
+class CompareVertexes {
+public:
+    bool operator()(vertex& v1, vertex& v2)
+    {
+		if (v1.dist < v2.dist) return true;
+		return false;
+    }
+};
+
+
+/*
+ The graph object that contains all the important features.
+ */
 class graph {
 	
 public:
@@ -108,31 +137,23 @@ public:
 				stringstream ss(temp);
 				while (ss >> word)
 				{
+					
 					wordCount++;
 					//cout << "word: " << word << " WORDCOUNT: " << wordCount << endl;
 					
 					// base case for vertex count included in text file (first line probably)
-					if (vertCount==0)
-						if(atoi(word.c_str()))	
-						{
-							vertExpected = atoi(word.c_str());
+					if (vertExpected==0 && (vertExpected = atoi(word.c_str())))
 							continue;
-						}
 					
 					startVert = true;	// start reading vertexes
-					
+
 					if (word == "-1")	// base case for end of line
 						continue;
 			
 					if (vertNum==-1)	// new vertex
-					{
-						vertCount++;			// up the vertex count
 						vertNum = atoi(word.c_str());
-					}
 					else if (edgeTarget==-1)
-					{
 						edgeTarget= atoi(word.c_str());	
-					}
 					else if (edgeWeight==-1)
 					{
 						// now we have a target and a weight pair
@@ -149,6 +170,7 @@ public:
 					vertex v(adj);			// create a new vertex with an internal adj. list
 					vertexes.push_back(v);	// add vertex to graph
 					adj.clear();			// reset adj list
+					vertNum=-1;
 				}
 				wordCount=0;				// reset wordcount for line
 								
@@ -158,6 +180,81 @@ public:
 			cout << "=== ERROR: COULDN'T OPEN FILE '" << fileName << "' ===" << endl;
 	}
 	
+	
+	
+	/*
+	 
+	 Implementation of disjkstra with a priority queue
+	 
+	 The basics of the algorithm are:
+	 
+	 
+	 * pick a start vertex s
+	 
+	 * for all vertexes w adjacent to s
+	 
+		* if 
+	 
+	 
+	 Store all vertexes in pq
+	 
+	 Set start vertex dist to 0 and pop minimum (removes start vertex from pq)
+	 
+	 
+	 
+	 loop:
+	 
+		pop min from pq
+	 
+	 
+	 */
+	
+	void dijkstra ( int vertNum =-1 ) 
+	{
+		
+		if (vertNum = -1)
+		{
+			int vertexNum;
+			cout << "Enter a vertex number: " << endl;
+			cin >> vertexNum;
+			cout << endl;
+		}
+		
+		// Create priority queue or vertexes that sorts by vertex.dist
+		priority_queue<vertex, vector<vertex>, CompareVertexes> pq;
+
+		// add all the vertexes to the queue so we can pull out least dist
+		for (int i=0; i < vertexes.size(); i ++)
+			pq.push(vertexes[i]);
+		
+		// Main dijkstra loop
+		for (;;)
+		{
+			
+			// get vertex with smallest unknown dist
+			vertex v = pq.top();
+			pq.pop();
+			
+			// iterate through adjacency list
+			vector< pair<int, float> > edges = v.edges;
+	
+			for (int i=0; i < edges.size(); i++)
+			{
+				vertex w = vertexes[edges[i].first];
+				int w_cost = edges[i].second;
+				
+				//if (w.dist + w_cost < 
+				
+			}
+			
+			
+			
+		}
+		
+		//BinaryHeap pq;
+		
+		
+	}
 	
 private:
 	
@@ -172,10 +269,21 @@ int main ( )
 	
 	// Graph will read the text file and instantiate vertexes with
 	//  the weighted adjacency lists read from the file.
-	g.readAdjacencyList("dgraph_test.txt");
+	g.readAdjacencyList("dgraph_test2.txt");
 	
 	// Print out the graph as a set of vertices and edge targets/weights
 	g.dump();
+
+	g.dijkstra();
+	
+	// g.flow();
+	
+	// g.networkFlow();
+	
+	// g.unDirected();
+	
+	// g.dfs();
+	
 	
 	return 0;
 }
