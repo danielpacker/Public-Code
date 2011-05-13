@@ -309,7 +309,7 @@ int main ( )
 	// Print out the graph as a set of vertices and edge targets/weights
 	g.dump();
 
-	//g.dijkstra();
+	g.dijkstra();
 	
 	// g.flow();
 	
