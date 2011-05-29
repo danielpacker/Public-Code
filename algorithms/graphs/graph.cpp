@@ -50,15 +50,17 @@ struct vertex {
 	int id;				// numeric node id
 	vertex * path;		// path from this vertex
 	
-	vertex ( vector< pair< int, float > > e, int num ) : known(false), dist(INFINITY), edges(e), id(num) { }
+	vertex ( vector< pair< int, float > > e, int num ) : known(false), dist(INFINITY), edges(e), id(num), path(NULL) { }
+	
 	
 	void dump ( )
 	{
 		cout << "VERTEX " << id << ": " << endl <<
 		" known: " << (int)known << fixed << setprecision(2) <<
-				", dist: " << dist <<
-		//		" path:  " << path->id <<
-		endl;
+		", dist: " << dist;
+		if (path)
+			cout <<	" path:  " << path->id;
+		cout << endl;
 		
 		for (int i=0; i < edges.size(); i++)
 		{
@@ -74,9 +76,9 @@ struct vertex {
  */
 class CompareVertexes {
 public:
-    bool operator()(vertex& v1, vertex& v2)
+    bool operator()(vertex * v1, vertex * v2)
     {
-		if (v1.dist < v2.dist) return true;
+		if (v1->dist < v2->dist) return true;
 		return false;
     }
 };
@@ -97,6 +99,7 @@ public:
 	{
 	}
 	
+
 	// Display graph adjacency list
 	void dump ( )
 	{
@@ -215,7 +218,7 @@ public:
 	 
 	 * pick a start vertex s
 	 
-	 * for all vertexes w adjacent to s
+	 * put vertexes adjacent to 
 	 
 		* if 
 	 
@@ -242,60 +245,109 @@ public:
 			cin >> vertNum;
 			cout << endl;
 		}
-	
+		
+		
+		// set start vertex distance to 0
+		vertexes[vertNum].dist = 0;
 		
 		// Create priority queue or vertexes that sorts by vertex.dist
-		priority_queue<vertex, vector<vertex>, CompareVertexes> pq;
+		priority_queue<vertex, vector<vertex *>, CompareVertexes> pq;
 
 		// add all the vertexes to the queue so we can pull out least dist
 		//for (int i=0; i < vertexes.size(); i ++)
 		
-		// put start vertex in queue
-		pq.push(vertexes[vertNum]);
+		// put vertexes adjacent to start vertex in pq
+		vertex * startVert = &(vertexes[vertNum]);
+		pq.push(startVert);
 		
 
 		// Main dijkstra loop
 		for (;;)
 		{
 			
-			// get vertex with smallest unknown dist
-			vertex v = pq.top();
-			pq.pop();
-			
-			v.dump();
-		
-			cout << "done";
-			return;
-
-
-			// iterate through adjacency list
-			vector< pair<int, float> > edges = v.edges;
-			
-			cout << " edges size" << edges.size() << endl;
-
-			for (int i=0; i < edges.size(); i++)
+			while (! pq.empty())
 			{
+					
+				// get vertex with smallest unknown dist
+				vertex * v = pq.top();
+				pq.pop();
 				
-				cout << "hrm2\n";
+				while (v->known = true && ! pq.empty())
+				{		
+					v = pq.top();
+					pq.pop();
+				}				
+				
+				// iterate through adjacency list
+				vector< pair<int, float> > edges = v->edges;
+				
+				cout << " edges size" << edges.size() << endl;
 
-				vertex w = vertexes[edges[i].first];
-				int w_cost = edges[i].second;
-				cout << "hrm3\n";
-				
-				//if (w.dist + w_cost < 
-				w.dump();
-				cout << "cost: " << w_cost << endl;
-				
-			}
+				for (int i=0; i < edges.size(); i++)
+				{
+					vertex * w = &(vertexes[edges[i].first]);
+					int w_cost = edges[i].second;
+					
+					if (v->dist + w_cost < w->dist)
+					{
+						w->dist = v->dist + w_cost;
+						w->path = v;
+					}
+					
+					//w->dump();
+					//cout << "cost: " << w_cost << endl;
+					
+					pq.push(w);
+					
+				}
 			
+			}
+			break;
 			
 			
 		}
 		
+		int pathVert;
+		cout << "Enter a vertex number (to display path to): " << endl;
+		cin >> pathVert;
+		cout << endl;
+
+		
 		//BinaryHeap pq;
 		
+		vertex * pv = &(vertexes[pathVert]);
+		cout << "Path from vertex " << vertNum << " to vertex " << pathVert << endl;
+		printPath(pv);
+		cout << endl;
+		cout << "With total cost: " << pv->dist << endl;
 		
 	}
+	
+	
+	/*
+	 Display the shortest path from a previously selected vertex to vertex v
+
+	 recurse from back to front. takes a vertex as an arg. last flag used internally.
+	 
+	 */
+	void printPath (vertex * v, int last = 0)
+	{
+		//v->dump();
+		
+		if (v->path)
+		{
+			//cout << "recursing" << endl;
+			
+			printPath(v->path, 1);
+			cout << v->path->id << " ";
+			
+			if (last)
+				cout << " -> ";
+		}
+				
+	}
+	
+	
 	
 private:
 	
@@ -310,10 +362,12 @@ int main ( )
 	
 	// Graph will read the text file and instantiate vertexes with
 	//  the weighted adjacency lists read from the file.
-	g.readAdjacencyList("dgraph_test2.txt");
+	//g.readAdjacencyList("dgraph_test2.txt");
+	g.readAdjacencyList("dgraph_333.txt");
+	
 	
 	// Print out the graph as a set of vertices and edge targets/weights
-	g.dump();
+	//g.dump();
 
 	g.dijkstra();
 	
