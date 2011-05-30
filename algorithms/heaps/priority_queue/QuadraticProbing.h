@@ -40,6 +40,7 @@ class HashTable
 	void makeEmpty( );
 	void insert( const pair<Comparable, HashedObj*> & x );
 	void remove( const Comparable & x );
+	void dump( );
 
 	const HashTable & operator=( const HashTable & rhs );
 
@@ -257,6 +258,18 @@ int hash( const string & key, int tableSize )
 	return hashVal;
 }
 
+// Dump the contents of the hash table
+template <class Comparable, class HashedObj>
+void HashTable<Comparable, HashedObj>::dump( )
+{
+	cout << "DUMPING HASHTABLE:" << endl;
+	for (int i=0; i < array.size(); i++)
+	{
+		pair<Comparable, HashedObj*> p = array[i].element;
+		if (p.second)
+			cout << p.first << ", " << p.second << endl;
+	}
+}
 
 /**
  * A hash routine for ints.

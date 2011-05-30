@@ -62,15 +62,13 @@
             void deleteMin( Comparable & minItem );
             void makeEmpty( );
             void merge( BinomialQueue & rhs );
-
+			void dump_ht();
+			
             const BinomialQueue & operator=( const BinomialQueue & rhs );
 			
 			BinomialNode<Comparable> * clone( BinomialNode<Comparable> * t ) const;
 			BinomialNode<Comparable> * combineTrees( BinomialNode<Comparable> *t1,
 													BinomialNode<Comparable> *t2 ) const;
-			
-			
-			
 
           private:
 			HashTable<int, BinomialNode<Comparable> > ht;
@@ -81,6 +79,7 @@
             int capacity( ) const;
                         void makeEmpty( BinomialNode<Comparable> * & t ) const;
         };
+
 
 
 

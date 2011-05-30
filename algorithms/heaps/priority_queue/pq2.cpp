@@ -764,6 +764,12 @@ int comparisons = 0;        // keep track of comparisons
                            clone( t->leftChild ), clone( t->nextSibling ) );
         }
 
+		template <class Comparable>
+		void BinomialQueue<Comparable>::dump_ht ( )
+		{
+			ht.dump();
+		}
+
 
         // read each line of data file, word by word, and insert words
         //  takes a file_op (INSERT, INSERT_NONAVL, SEARCH, DELETE_EVERY_OTHER) to determine action to take
@@ -827,14 +833,16 @@ int comparisons = 0;        // keep track of comparisons
 
 			*/
             // (1c) Binomial Queue priority queue
+			string top;
             BinomialQueue<string> pq_bq;
-            insertFromFile(pq_bq, string("wordsHW2.txt")); // insert N elements from file
-//            while (! pq_bq.isEmpty())
-//            {
-//                top = pq_bq.findMin();
-//                //cout << "the next value: " << top << endl;
-//                pq_bq.deleteMin();                         // perform N deleteMin()'s
-//            }
+            insertFromFile(pq_bq, string("testwords.txt")); // insert N elements from file
+            while (! pq_bq.isEmpty())
+            {
+                top = pq_bq.findMin();
+                cout << "the next value: " << top << endl;
+                pq_bq.deleteMin();                         // perform N deleteMin()'s
+            }
+			pq_bq.dump_ht();
 //            // show total # of comparisons via deleteMin()
 //            cout << comparisons << " comparisons performed via deleteMin() with binomial queue priority queue" << endl;
 
