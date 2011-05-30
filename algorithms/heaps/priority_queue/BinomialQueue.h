@@ -26,26 +26,27 @@
           // Node and forward declaration because g++ does
           // not understand nested classes.
 
-        template <class Comparable>
+        template <class ComparableKey, class Comparable>
         class BinomialQueue;
 
-        template <class Comparable>
+        template <class ComparableKey, class Comparable>
         class BinomialNode
         {
 			
 		public:
-            Comparable    element;
+            ComparableKey key;	// store the key
+			Comparable	  value;	// store the value
             BinomialNode *leftChild;
             BinomialNode *nextSibling;
 			BinomialNode *parent;
 
-            BinomialNode( const Comparable & theElement, 
+            BinomialNode( const ComparableKey & theKey, const Comparable & theVal,
                           BinomialNode *lt, BinomialNode *rt, BinomialNode *pt = NULL )
-              : element( theElement ), leftChild( lt ), nextSibling( rt ), parent( pt ) { }
-            friend class BinomialQueue<Comparable>;
+              : key( theKey ), value ( theVal ), leftChild( lt ), nextSibling( rt ), parent( pt ) { }
+            friend class BinomialQueue<ComparableKey, Comparable>;
         };
 
-        template <class Comparable>
+        template <class ComparableKey, class Comparable>
         class BinomialQueue
         {
           public:
@@ -66,18 +67,18 @@
 			
             const BinomialQueue & operator=( const BinomialQueue & rhs );
 			
-			BinomialNode<Comparable> * clone( BinomialNode<Comparable> * t ) const;
-			BinomialNode<Comparable> * combineTrees( BinomialNode<Comparable> *t1,
-													BinomialNode<Comparable> *t2 ) const;
+			BinomialNode<ComparableKey, Comparable> * clone( BinomialNode<ComparableKey, Comparable> * t ) const;
+			BinomialNode<ComparableKey, Comparable> * combineTrees( BinomialNode<ComparableKey, Comparable> *t1,
+													BinomialNode<ComparableKey, Comparable> *t2 ) const;
 
           private:
-			HashTable<int, BinomialNode<Comparable> > ht;
+			HashTable<ComparableKey, BinomialNode<ComparableKey, Comparable> > ht;
             int currentSize;                // Number of items in the priority queue
-            vector<BinomialNode<Comparable> *> theTrees;   // An array of tree roots
+            vector<BinomialNode<ComparableKey, Comparable> *> theTrees;   // An array of tree roots
 
             int findMinIndex( ) const;
             int capacity( ) const;
-                        void makeEmpty( BinomialNode<Comparable> * & t ) const;
+                        void makeEmpty( BinomialNode<ComparableKey, Comparable> * & t ) const;
         };
 
 

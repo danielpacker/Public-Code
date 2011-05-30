@@ -463,11 +463,13 @@ int comparisons = 0;        // keep track of comparisons
 
         static const int MAX_TREES = 3000;
 
+		int serialNo = 0;
+
         /**
          * Construct the binomial queue.
          */
-        template <class Comparable>
-        BinomialQueue<Comparable>::BinomialQueue( ) : theTrees( MAX_TREES )
+        template <class ComparableKey, class Comparable>
+        BinomialQueue<ComparableKey, Comparable>::BinomialQueue( ) : theTrees( MAX_TREES )
         {
             for( int i = 0; i < theTrees.size( ); i++ )
                 theTrees[ i ] = NULL;
@@ -477,9 +479,9 @@ int comparisons = 0;        // keep track of comparisons
         /**
          * Copy constructor is left as an exercise.
          */
-        template <class Comparable>
-        BinomialQueue<Comparable>::
-        BinomialQueue( const BinomialQueue<Comparable> & rhs )
+        template <class ComparableKey, class Comparable>
+        BinomialQueue<ComparableKey, Comparable>::
+        BinomialQueue( const BinomialQueue<ComparableKey, Comparable> & rhs )
         {
             cout << "Copy constructor is unimplemented" << endl;
         }
@@ -487,8 +489,8 @@ int comparisons = 0;        // keep track of comparisons
         /**
          * Destroy the binomial queue.
          */
-        template <class Comparable>
-        BinomialQueue<Comparable>::~BinomialQueue( )
+        template <class ComparableKey, class Comparable>
+        BinomialQueue<ComparableKey, Comparable>::~BinomialQueue( )
         {
             makeEmpty( );
         }
@@ -498,8 +500,8 @@ int comparisons = 0;        // keep track of comparisons
          * rhs becomes empty. rhs must be different from this.
          * Throw Overflow if result exceeds capacity.
          */
-        template <class Comparable>
-        void BinomialQueue<Comparable>::merge( BinomialQueue<Comparable> & rhs )
+        template <class ComparableKey, class Comparable>
+        void BinomialQueue<ComparableKey, Comparable>::merge( BinomialQueue<ComparableKey, Comparable> & rhs )
         {
             if( this == &rhs )    // Avoid aliasing problems
                 return;
@@ -509,11 +511,11 @@ int comparisons = 0;        // keep track of comparisons
 
             currentSize += rhs.currentSize;
 
-            BinomialNode<Comparable> *carry = NULL;
+            BinomialNode<ComparableKey, Comparable> *carry = NULL;
             for( int i = 0, j = 1; j <= currentSize; i++, j *= 2 )
             {
-                BinomialNode<Comparable> *t1 = theTrees[ i ];
-                BinomialNode<Comparable> *t2 = rhs.theTrees[ i ];
+                BinomialNode<ComparableKey, Comparable> *t1 = theTrees[ i ];
+                BinomialNode<ComparableKey, Comparable> *t2 = rhs.theTrees[ i ];
 
                 int whichCase = t1 == NULL ? 0 : 1;
 				comparisons++;							// for ternary above
@@ -563,13 +565,13 @@ int comparisons = 0;        // keep track of comparisons
         /**
          * Return the result of merging equal-sized t1 and t2.
          */
-        template <class Comparable>
-        BinomialNode<Comparable> *
-        BinomialQueue<Comparable>::combineTrees( BinomialNode<Comparable> *t1,
-                                                 BinomialNode<Comparable> *t2 ) const
+        template <class ComparableKey, class Comparable>
+        BinomialNode<ComparableKey, Comparable> *
+        BinomialQueue<ComparableKey, Comparable>::combineTrees( BinomialNode<ComparableKey, Comparable> *t1,
+                                                 BinomialNode<ComparableKey, Comparable> *t2 ) const
         {
 			comparisons++;						// for if below
-            if( t2->element < t1->element )
+            if( t2->key < t1->key )
                 return combineTrees( t2, t1 );
             t2->nextSibling = t1->leftChild;
             t1->leftChild = t2;
@@ -581,12 +583,12 @@ int comparisons = 0;        // keep track of comparisons
          * This implementation is not optimized for O(1) performance.
          * Throw Overflow if capacity exceeded.
          */
-        template <class Comparable>
-        void BinomialQueue<Comparable>::insert( const Comparable & x, int priority )
+        template <class ComparableKey, class Comparable>
+        void BinomialQueue<ComparableKey, Comparable>::insert(const Comparable & x, int priority = serialNo++ )
         {
             BinomialQueue oneItem;
             oneItem.currentSize = 1;
-            oneItem.theTrees[ 0 ] = new BinomialNode<Comparable>( x, NULL, NULL );
+            oneItem.theTrees[ 0 ] = new BinomialNode<ComparableKey, Comparable>( priority, x, NULL, NULL );
 
 			// store the location of the node in the hash table
 			ht.insert(make_pair(priority, oneItem.theTrees[ 0 ]));
@@ -598,13 +600,13 @@ int comparisons = 0;        // keep track of comparisons
          * Return the smallest item in the priority queue.
          * Throw Underflow if empty.
          */
-        template <class Comparable>
-        const Comparable & BinomialQueue<Comparable>::findMin( ) const
+        template <class ComparableKey, class Comparable>
+        const Comparable & BinomialQueue<ComparableKey, Comparable>::findMin( ) const
         {
             if( isEmpty( ) )
                 throw Underflow( );
 
-            return theTrees[ findMinIndex( ) ]->element;
+            return theTrees[ findMinIndex( ) ]->value;
         }
 
     
@@ -613,8 +615,8 @@ int comparisons = 0;        // keep track of comparisons
          * The priority queue must not be empty.
          * Return the index of tree containing the smallest item.
          */
-        template <class Comparable>
-        int BinomialQueue<Comparable>::findMinIndex( ) const
+        template <class ComparableKey, class Comparable>
+        int BinomialQueue<ComparableKey, Comparable>::findMinIndex( ) const
         {
             int i;
             int minIndex;
@@ -624,7 +626,7 @@ int comparisons = 0;        // keep track of comparisons
 
             for( minIndex = i; i < theTrees.size( ); i++ )
                 if( theTrees[ i ] != NULL &&
-                    theTrees[ i ]->element < theTrees[ minIndex ]->element )
+                    theTrees[ i ]->value < theTrees[ minIndex ]->value )
                     minIndex = i;
 
             return minIndex;
@@ -634,8 +636,8 @@ int comparisons = 0;        // keep track of comparisons
          * Remove the smallest item from the priority queue.
          * Throw Underflow if empty.
          */
-        template <class Comparable>
-        void BinomialQueue<Comparable>::deleteMin( )
+        template <class ComparableKey, class Comparable>
+        void BinomialQueue<ComparableKey, Comparable>::deleteMin( )
         {
             Comparable x;
             deleteMin( x );
@@ -646,17 +648,17 @@ int comparisons = 0;        // keep track of comparisons
          * Remove the smallest item from the priority queue, and
          * copy it into minItem.  Throw Underflow if empty.
          */
-        template <class Comparable>
-        void BinomialQueue<Comparable>::deleteMin( Comparable & minItem )
+        template <class ComparableKey, class Comparable>
+        void BinomialQueue<ComparableKey, Comparable>::deleteMin( Comparable & minItem )
         {
             if( isEmpty( ) )
                 throw Underflow( );
 
             int minIndex = findMinIndex( );
-            minItem = theTrees[ minIndex ]->element;
+            minItem = theTrees[ minIndex ]->value;
 
-            BinomialNode<Comparable> *oldRoot = theTrees[ minIndex ];
-            BinomialNode<Comparable> *deletedTree = oldRoot->leftChild;
+            BinomialNode<ComparableKey, Comparable> *oldRoot = theTrees[ minIndex ];
+            BinomialNode<ComparableKey, Comparable> *deletedTree = oldRoot->leftChild;
             delete oldRoot;
 
             BinomialQueue deletedQueue;
@@ -678,8 +680,8 @@ int comparisons = 0;        // keep track of comparisons
          * Test if the priority queue is logically empty.
          * Return true if empty, false otherwise.
          */
-        template <class Comparable>
-        bool BinomialQueue<Comparable>::isEmpty( ) const
+        template <class ComparableKey, class Comparable>
+        bool BinomialQueue<ComparableKey, Comparable>::isEmpty( ) const
         {
             return currentSize == 0;
         }
@@ -688,8 +690,8 @@ int comparisons = 0;        // keep track of comparisons
          * Test if the priority queue is logically full.
          * Return true if full, false otherwise.
          */
-        template <class Comparable>
-        bool BinomialQueue<Comparable>::isFull( ) const
+        template <class ComparableKey, class Comparable>
+        bool BinomialQueue<ComparableKey, Comparable>::isFull( ) const
         {
             return currentSize == capacity( );
         }
@@ -697,8 +699,8 @@ int comparisons = 0;        // keep track of comparisons
         /**
          * Make the priority queue logically empty.
          */
-        template <class Comparable>
-        void BinomialQueue<Comparable>::makeEmpty( )
+        template <class ComparableKey, class Comparable>
+        void BinomialQueue<ComparableKey, Comparable>::makeEmpty( )
         {
             currentSize = 0;
             for( int i = 0; i < theTrees.size( ); i++ )
@@ -708,10 +710,10 @@ int comparisons = 0;        // keep track of comparisons
         /**
          * Deep copy.
          */
-        template <class Comparable>
-        const BinomialQueue<Comparable> &
-        BinomialQueue<Comparable>::
-        operator=( const BinomialQueue<Comparable> & rhs )
+        template <class ComparableKey, class Comparable>
+        const BinomialQueue<ComparableKey, Comparable> &
+        BinomialQueue<ComparableKey, Comparable>::
+        operator=( const BinomialQueue<ComparableKey, Comparable> & rhs )
         {
             if( this != &rhs )
             {
@@ -727,8 +729,8 @@ int comparisons = 0;        // keep track of comparisons
         /**
          * Return the capacity.
          */
-        template <class Comparable>
-        int BinomialQueue<Comparable>::capacity( ) const
+        template <class ComparableKey, class Comparable>
+        int BinomialQueue<ComparableKey, Comparable>::capacity( ) const
         {
             return ( 1 << theTrees.size( ) ) - 1;
         }
@@ -736,9 +738,9 @@ int comparisons = 0;        // keep track of comparisons
         /**
          * Make a binomial tree logically empty, and free memory.
          */
-        template <class Comparable>
-        void BinomialQueue<Comparable>::
-        makeEmpty( BinomialNode<Comparable> * & t ) const
+        template <class ComparableKey, class Comparable>
+        void BinomialQueue<ComparableKey, Comparable>::
+        makeEmpty( BinomialNode<ComparableKey, Comparable> * & t ) const
         {
             if( t != NULL )
             {
@@ -753,19 +755,19 @@ int comparisons = 0;        // keep track of comparisons
         /**
          * Internal method to clone subtree.
          */
-        template <class Comparable>
-        BinomialNode<Comparable> *
-        BinomialQueue<Comparable>::clone( BinomialNode<Comparable> * t ) const
+        template <class ComparableKey, class Comparable>
+        BinomialNode<ComparableKey, Comparable> *
+        BinomialQueue<ComparableKey, Comparable>::clone( BinomialNode<ComparableKey, Comparable> * t ) const
         {
             if( t == NULL )
                 return NULL;
             else
-                return new BinomialNode<Comparable>( t->element,
+                return new BinomialNode<ComparableKey, Comparable>( t->key,
                            clone( t->leftChild ), clone( t->nextSibling ) );
         }
 
-		template <class Comparable>
-		void BinomialQueue<Comparable>::dump_ht ( )
+		template <class ComparableKey, class Comparable>
+		void BinomialQueue<ComparableKey, Comparable>::dump_ht ( )
 		{
 			ht.dump();
 		}
@@ -774,8 +776,8 @@ int comparisons = 0;        // keep track of comparisons
         // read each line of data file, word by word, and insert words
         //  takes a file_op (INSERT, INSERT_NONAVL, SEARCH, DELETE_EVERY_OTHER) to determine action to take
         //  one function for all ops reduces file IO code redundancy
-        template <class Comparable>
-        void insertFromFile (BinomialQueue<Comparable> & bq, string fileName = string("input.txt"))
+        template <class ComparableKey, class Comparable>
+        void insertFromFile (BinomialQueue<ComparableKey, Comparable> & bq, string fileName = string("input.txt"))
         {
             ifstream ifs(fileName.c_str());
             string temp, word;
@@ -786,7 +788,7 @@ int comparisons = 0;        // keep track of comparisons
                 {
                     stringstream ss(temp);
                     while (ss >> word)
-                        bq.insert(word, priority++);       // insert every word in file
+                        bq.insert(word);       // insert every word in file
                 }
             else
                 cout << "=== ERROR: COULDN'T OPEN FILE '" << fileName << "' ===" << endl;
@@ -834,7 +836,7 @@ int comparisons = 0;        // keep track of comparisons
 			*/
             // (1c) Binomial Queue priority queue
 			string top;
-            BinomialQueue<string> pq_bq;
+            BinomialQueue<int, string> pq_bq;
             insertFromFile(pq_bq, string("testwords.txt")); // insert N elements from file
             while (! pq_bq.isEmpty())
             {
