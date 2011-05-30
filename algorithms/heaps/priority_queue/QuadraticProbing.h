@@ -5,10 +5,13 @@
 #include <utility>
 #include <iostream>
 #include <string>
+#include "BinomialQueue.h"
 
 using namespace std;
 
-string defaultStr("default");
+
+string defaultStr("not found");
+//BinomialNode<string> defaultBN(defaultStr, NULL, NULL, NULL);
 
 
 // QuadraticProbing Hash table class
@@ -27,7 +30,7 @@ template <class Comparable, class HashedObj>
 class HashTable
 {
   public:
-	explicit HashTable( const pair<Comparable, HashedObj*> & notFound, int size = 101 );
+	explicit HashTable( const pair<Comparable, HashedObj*> & notFound = make_pair((Comparable)NULL, (HashedObj*)NULL), int size = 101 );
 	HashTable( const HashTable & rhs )
 	  : ITEM_NOT_FOUND( rhs.ITEM_NOT_FOUND ),
 		array( rhs.array ), currentSize( rhs.currentSize ) { }
@@ -47,7 +50,7 @@ class HashTable
 		pair<Comparable, HashedObj*> element;
 		EntryType info;
 
-		HashEntry( const pair<Comparable, HashedObj*> & e = make_pair(defaultStr, &defaultStr), EntryType i = EMPTY )
+		HashEntry( pair<Comparable, HashedObj*> e = make_pair((Comparable)NULL, (HashedObj*)NULL), EntryType i = EMPTY )
 		  : info( i ) { }
 		
 	};
@@ -117,9 +120,17 @@ void HashTable<Comparable, HashedObj>::insert( const pair<Comparable, HashedObj*
 {
 	// Insert x as active
 	int currentPos = findPos( x.first );
+	//cout << "pos for " << x.first << " is " << currentPos << endl;
 	if( isActive( currentPos ) )
 		return;
-	array[ currentPos ] = HashEntry( x, ACTIVE );
+	//cout << "storing!\n";
+	
+	// work around bug in hashentry constructor...
+	HashEntry he;
+	he.element = x;
+	he.info = ACTIVE;
+	
+	array[ currentPos ] = he;
 	
 	// Rehash; see Section 5.5
 	if( ++currentSize > array.size( ) / 2 )

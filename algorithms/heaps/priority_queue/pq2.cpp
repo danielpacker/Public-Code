@@ -582,12 +582,15 @@ int comparisons = 0;        // keep track of comparisons
          * Throw Overflow if capacity exceeded.
          */
         template <class Comparable>
-        void BinomialQueue<Comparable>::insert( const Comparable & x )
+        void BinomialQueue<Comparable>::insert( const Comparable & x, int priority )
         {
             BinomialQueue oneItem;
             oneItem.currentSize = 1;
             oneItem.theTrees[ 0 ] = new BinomialNode<Comparable>( x, NULL, NULL );
 
+			// store the location of the node in the hash table
+			ht.insert(make_pair(priority, oneItem.theTrees[ 0 ]));
+			
             merge( oneItem );
         }
 
@@ -770,13 +773,14 @@ int comparisons = 0;        // keep track of comparisons
         {
             ifstream ifs(fileName.c_str());
             string temp, word;
+			int priority = 0;
 
             if (ifs)                        // make sure file is open
                 while (getline(ifs, temp))
                 {
                     stringstream ss(temp);
                     while (ss >> word)
-                        bq.insert(word);       // insert every word in file
+                        bq.insert(word, priority++);       // insert every word in file
                 }
             else
                 cout << "=== ERROR: COULDN'T OPEN FILE '" << fileName << "' ===" << endl;
@@ -821,17 +825,18 @@ int comparisons = 0;        // keep track of comparisons
 
             comparisons = 0;    // reset counter
 
+			*/
             // (1c) Binomial Queue priority queue
             BinomialQueue<string> pq_bq;
             insertFromFile(pq_bq, string("wordsHW2.txt")); // insert N elements from file
-            while (! pq_bq.isEmpty())
-            {
-                top = pq_bq.findMin();
-                //cout << "the next value: " << top << endl;
-                pq_bq.deleteMin();                         // perform N deleteMin()'s
-            }
-            // show total # of comparisons via deleteMin()
-            cout << comparisons << " comparisons performed via deleteMin() with binomial queue priority queue" << endl;
+//            while (! pq_bq.isEmpty())
+//            {
+//                top = pq_bq.findMin();
+//                //cout << "the next value: " << top << endl;
+//                pq_bq.deleteMin();                         // perform N deleteMin()'s
+//            }
+//            // show total # of comparisons via deleteMin()
+//            cout << comparisons << " comparisons performed via deleteMin() with binomial queue priority queue" << endl;
 
 
 
@@ -840,24 +845,31 @@ int comparisons = 0;        // keep track of comparisons
 
             //LeftistHeap<string> pq_lh;
             //BinomialQueue<string> ph_bq;
-			*/
+			
 			//string fruit("bananas");
 			//pair <string, string*> hitem = make_pair("fruit", &fruit);
 			//pair <string, string*> notfound = make_pair(string("not found"), msg);
 		
-			string item("an item");
-			string item2("another item");
-			string item3("yet another");
-			
-			HashTable<string, string> ht(make_pair(item, &item), 101);
-			
-			ht.insert(make_pair(item, &item));
-			
-			cout << "location of item is : " << &item << endl;
-			ht.insert(make_pair(item2, &item2));
-			ht.insert(make_pair(item3, &item3));
-			cout << "value of item is " << ht.find(item).first << endl;
-			cout << "position of item is " << ht.find(item).second << endl;
+			//string item("an item");
+//			string item2("another item");
+//			string item3("yet another");
+//			
+//			BinomialNode<string> bn(item, NULL, NULL, NULL);
+//			BinomialNode<string> bn2(item2, NULL, NULL, &bn);
+//			bn.leftChild = &bn2;
+//			
+//			HashTable<string, BinomialNode<string> > ht;
+//			ht.insert(make_pair(bn.element, &bn));
+//			
+//			cout << "bn's element is " << bn.element << endl;			
+//			cout << "bn's found element is " << ht.find(bn.element).first << endl;
+//			
+//			HashTable<string, string> ht2;
+//			ht2.insert(make_pair(item, &item));
+//			
+//			cout << "location of item is : " << &item << endl;
+//			cout << "value of item is " << ht2.find(item).first << endl;
+//			cout << "position of found item is " << ht2.find(item).second << endl;
 			
 /*
             pair <string, int> notfound = make_pair("not found", -1);

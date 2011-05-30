@@ -3,6 +3,7 @@
 
         #include <iostream>
         #include <vector>
+		#include "QuadraticProbing.h"
 
 		using namespace std;
 
@@ -31,13 +32,16 @@
         template <class Comparable>
         class BinomialNode
         {
+			
+		public:
             Comparable    element;
             BinomialNode *leftChild;
             BinomialNode *nextSibling;
+			BinomialNode *parent;
 
             BinomialNode( const Comparable & theElement, 
-                          BinomialNode *lt, BinomialNode *rt )
-              : element( theElement ), leftChild( lt ), nextSibling( rt ) { }
+                          BinomialNode *lt, BinomialNode *rt, BinomialNode *pt = NULL )
+              : element( theElement ), leftChild( lt ), nextSibling( rt ), parent( pt ) { }
             friend class BinomialQueue<Comparable>;
         };
 
@@ -53,25 +57,31 @@
             bool isFull( ) const;
             const Comparable & findMin( ) const;
 
-            void insert( const Comparable & x );
+            void insert( const Comparable & x, int priority );
             void deleteMin( );
             void deleteMin( Comparable & minItem );
             void makeEmpty( );
             void merge( BinomialQueue & rhs );
 
             const BinomialQueue & operator=( const BinomialQueue & rhs );
+			
+			BinomialNode<Comparable> * clone( BinomialNode<Comparable> * t ) const;
+			BinomialNode<Comparable> * combineTrees( BinomialNode<Comparable> *t1,
+													BinomialNode<Comparable> *t2 ) const;
+			
+			
+			
 
           private:
+			HashTable<int, BinomialNode<Comparable> > ht;
             int currentSize;                // Number of items in the priority queue
             vector<BinomialNode<Comparable> *> theTrees;   // An array of tree roots
 
             int findMinIndex( ) const;
             int capacity( ) const;
-            BinomialNode<Comparable> * combineTrees( BinomialNode<Comparable> *t1,
-                                              BinomialNode<Comparable> *t2 ) const;
-            void makeEmpty( BinomialNode<Comparable> * & t ) const;
-            BinomialNode<Comparable> * clone( BinomialNode<Comparable> * t ) const;
-
+                        void makeEmpty( BinomialNode<Comparable> * & t ) const;
         };
+
+
 
         #endif
