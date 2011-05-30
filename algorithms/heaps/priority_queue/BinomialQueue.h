@@ -41,10 +41,10 @@ public:
 	BinomialNode *parent;
 	
 	// swap everything between two parent and child
-	void swapChildParent(BinomialNode<ComparableKey, Comparable> * parent)
+	void swapChildParent()
 	{
-		BinomialNode *tempNS = parent->nextSibling;
-		BinomialNode *tempP = parent->parent;
+		BinomialNode<ComparableKey, Comparable> *tempNS = parent->nextSibling;
+		BinomialNode<ComparableKey, Comparable> *tempP = parent->parent;
 		
 		// if necessary children of the parent
 		if (parent->leftChild)

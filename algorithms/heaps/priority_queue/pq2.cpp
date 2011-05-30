@@ -778,7 +778,7 @@ void BinomialQueue<ComparableKey, Comparable>::percolateUp ( BinomialNode<Compar
 {
 	if (bn->parent != NULL)
 		if (bn->key < bn->parent.key)	// need to swap
-			swapUp(bn, bn->parent);
+			bn.swapChildParent(bn->parent);
 	percolateUp(bn->parent);
 }
 
