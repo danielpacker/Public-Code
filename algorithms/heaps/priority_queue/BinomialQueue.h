@@ -2,7 +2,9 @@
         #define BINOMIAL_QUEUE_H_
 
         #include <iostream>
-        #include "vector.h"
+        #include <vector>
+
+		using namespace std;
 
         // Binomial queue class
         //

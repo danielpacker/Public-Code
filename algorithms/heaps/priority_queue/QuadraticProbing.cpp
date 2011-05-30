@@ -39,8 +39,8 @@
         /**
          * Construct the hash table.
          */
-        template <class HashedObj>
-        HashTable<HashedObj>::HashTable( const pair<HashedObj, *HashedObj> & notFound, int size )
+        template <class Comparable, class HashedObj>
+        HashTable<Comparable, HashedObj>::HashTable( const pair<Comparable, HashedObj*> & notFound, int size )
           : ITEM_NOT_FOUND( notFound ), array( nextPrime( size ) )
         {
             makeEmpty( );
@@ -50,8 +50,8 @@
          * Insert item x into the hash table. If the item is
          * already present, then do nothing.
          */
-        template <class HashedObj>
-        void HashTable<HashedObj>::insert( const pair<HashedObj, *HashedObj> & x )
+        template <class Comparable, class HashedObj>
+        void HashTable<Comparable, HashedObj>::insert( const pair<Comparable, HashedObj*> & x )
         {
                 // Insert x as active
             int currentPos = findPos( x.first );
@@ -67,8 +67,8 @@
         /**
          * Expand the hash table.
          */
-        template <class HashedObj>
-        void HashTable<HashedObj>::rehash( )
+        template <class Comparable, class HashedObj>
+        void HashTable<Comparable, HashedObj>::rehash( )
         {
             vector<HashEntry> oldArray = array;
 
@@ -88,8 +88,8 @@
          * Method that performs quadratic probing resolution.
          * Return the position where the search for x terminates.
          */
-        template <class HashedObj>
-        int HashTable<HashedObj>::findPos( const HashedObj & x ) const
+        template <class Comparable, class HashedObj>
+        int HashTable<Comparable, HashedObj>::findPos( const Comparable & x ) const
         {
 /* 1*/      int collisionNum = 0;
 /* 2*/      int currentPos = hash( x, array.size( ) );
@@ -109,8 +109,8 @@
         /**
          * Remove item x from the hash table.
          */
-        template <class HashedObj>
-        void HashTable<HashedObj>::remove( const HashedObj & x )
+        template <class Comparable, class HashedObj>
+        void HashTable<Comparable, HashedObj>::remove( const Comparable & x )
         {
             int currentPos = findPos( x );
             if( isActive( currentPos ) )
@@ -121,8 +121,8 @@
          * Find item x in the hash table.
          * Return the matching item or ITEM_NOT_FOUND if not found
          */
-        template <class HashedObj>
-        const pair<HashedObj, *HashedObj> & HashTable<HashedObj>::find( const HashedObj & x ) const
+        template <class Comparable, class HashedObj>
+        const pair<Comparable, HashedObj*> & HashTable<Comparable, HashedObj>::find( const Comparable & x ) const
         {
             int currentPos = findPos( x );
             if( isActive( currentPos ) )
@@ -134,8 +134,8 @@
         /**
          * Make the hash table logically empty.
          */
-        template <class HashedObj>
-        void HashTable<HashedObj>::makeEmpty( )
+        template <class Comparable, class HashedObj>
+        void HashTable<Comparable, HashedObj>::makeEmpty( )
         {
             currentSize = 0;
             for( int i = 0; i < array.size( ); i++ )
@@ -145,9 +145,9 @@
         /**
          * Deep copy.
          */
-        template <class HashedObj>
-        const HashTable<HashedObj> & HashTable<HashedObj>::
-        operator=( const HashTable<HashedObj> & rhs )
+        template <class Comparable, class HashedObj>
+        const HashTable<Comparable, HashedObj> & HashTable<Comparable, HashedObj>::
+        operator=( const HashTable<Comparable, HashedObj> & rhs )
         {
             if( this != &rhs )
             {
@@ -161,8 +161,8 @@
         /**
          * Return true if currentPos exists and is active.
          */
-        template <class HashedObj>
-        bool HashTable<HashedObj>::isActive( int currentPos ) const
+        template <class Comparable, class HashedObj>
+        bool HashTable<Comparable, HashedObj>::isActive( int currentPos ) const
         {
             return array[ currentPos ].info == ACTIVE;
         }

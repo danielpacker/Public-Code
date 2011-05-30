@@ -5,9 +5,11 @@
 #include "BinaryHeap.h"
 #include "LeftistHeap.h"
 #include "BinomialQueue.h"
-//#include "QuadraticProbing.h"
+#include "QuadraticProbing.h"
 
 using namespace std;
+
+
 
 /*
  
@@ -788,6 +790,7 @@ int comparisons = 0;        // keep track of comparisons
         int main ()
         {
 
+			/*
             // (1a) Binary Heap priority queue
             BinaryHeap<string> pq_bh(100000);
             string top;
@@ -837,6 +840,25 @@ int comparisons = 0;        // keep track of comparisons
 
             //LeftistHeap<string> pq_lh;
             //BinomialQueue<string> ph_bq;
+			*/
+			//string fruit("bananas");
+			//pair <string, string*> hitem = make_pair("fruit", &fruit);
+			//pair <string, string*> notfound = make_pair(string("not found"), msg);
+		
+			string item("an item");
+			string item2("another item");
+			string item3("yet another");
+			
+			HashTable<string, string> ht(make_pair(item, &item), 101);
+			
+			ht.insert(make_pair(item, &item));
+			
+			cout << "location of item is : " << &item << endl;
+			ht.insert(make_pair(item2, &item2));
+			ht.insert(make_pair(item3, &item3));
+			cout << "value of item is " << ht.find(item).first << endl;
+			cout << "position of item is " << ht.find(item).second << endl;
+			
 /*
             pair <string, int> notfound = make_pair("not found", -1);
             HashTable<string> ht(notfound, 100000);

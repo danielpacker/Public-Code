@@ -2,7 +2,9 @@
         #define BINARY_HEAP_H_
 
         #include "dsexceptions.h"
-        #include "vector.h"
+        #include <vector>
+
+		using namespace std;
 
         // BinaryHeap class
         //
