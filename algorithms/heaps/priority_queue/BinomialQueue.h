@@ -36,31 +36,56 @@ class BinomialNode
 public:
 	ComparableKey key;	// store the key
 	Comparable	  value;	// store the value
-	BinomialNode *leftChild;
-	BinomialNode *nextSibling;
-	BinomialNode *parent;
+	BinomialNode<ComparableKey, Comparable> *leftChild;
+	BinomialNode<ComparableKey, Comparable> *nextSibling;
+	BinomialNode<ComparableKey, Comparable> *parent;
 	
 	// swap everything between two parent and child
 	void swapChildParent()
 	{
-		BinomialNode<ComparableKey, Comparable> *tempNS = parent->nextSibling;
-		BinomialNode<ComparableKey, Comparable> *tempP = parent->parent;
 		
-		// if necessary children of the parent
-		if (parent->leftChild)
-			parent->leftChild->parent = this;
+//		cout << "swapChildParent()!" << endl;
+		if (parent != NULL)
+		{
+			
+//			cout << "swapChildParent() swapping " << this->value << " with " << parent->value << endl;
+			
+			BinomialNode<ComparableKey, Comparable> *tempNS = parent->nextSibling;
+			BinomialNode<ComparableKey, Comparable> *tempPP = parent->parent;
+			BinomialNode<ComparableKey, Comparable> *tempP  = parent;
+			
+//			cout << parent << "swapChildParent() is the parent address " << " and " << tempPP << " is the temp parent" << endl;
+			
+			// Parent adopts childrens children
+			if (leftChild !=NULL)
+				parent->leftChild = leftChild;
+			
+			// Parent adopts childrens siblings
+			if (nextSibling != NULL)
+				parent->nextSibling = nextSibling;
 
-		parent->leftChild = leftChild;
-		parent->nextSibling = nextSibling;
-		parent->parent = this;				// this is now the parent
-				
-		leftChild = parent;					// parent is now child
-		nextSibling = tempNS;
-		parent = tempP;
+			// Child adopts parents siblings
+			if (tempNS != NULL)
+				nextSibling = tempNS;
+			
+			// Child adopts parents parent
+			if (tempPP != NULL)
+			{
+				//cout << tempPP << " is tempPP" << endl;
+				//cout << this->parent << " is parent" << endl;
+
+				//				cout << tempP->value << " is the value swapChildParent()" << endl;
+//				cout << parent->value << " is the value swapChildParent()" << endl;
+				parent = tempPP;
+			}
+			
+			tempP->parent = this;		// child is now the parent
+			leftChild = tempP;			// parent is now child
+		}
 	}
 
 	BinomialNode( const ComparableKey & theKey, const Comparable & theVal,
-				  BinomialNode *lt, BinomialNode *rt, BinomialNode *pt = NULL )
+				  BinomialNode *lt = NULL, BinomialNode *rt = NULL, BinomialNode *pt = NULL )
 	  : key( theKey ), value ( theVal ), leftChild( lt ), nextSibling( rt ), parent( pt ) { }
 	friend class BinomialQueue<ComparableKey, Comparable>;
 };
@@ -92,6 +117,8 @@ class BinomialQueue
 
 	HashTable<ComparableKey, BinomialNode<ComparableKey, Comparable> > ht;
 	void percolateUp ( BinomialNode<ComparableKey, Comparable> * bn );
+	void decreaseKey ( BinomialNode<ComparableKey, Comparable> * bn, ComparableKey newKey );
+	void decreaseKey ( ComparableKey key, ComparableKey newKey );
 	
   private:
 	int currentSize;                // Number of items in the priority queue

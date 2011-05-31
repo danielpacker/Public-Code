@@ -627,7 +627,7 @@ int BinomialQueue<ComparableKey, Comparable>::findMinIndex( ) const
 
 	for( minIndex = i; i < theTrees.size( ); i++ )
 		if( theTrees[ i ] != NULL &&
-			theTrees[ i ]->value < theTrees[ minIndex ]->value )
+			theTrees[ i ]->key < theTrees[ minIndex ]->key )
 			minIndex = i;
 
 	return minIndex;
@@ -656,7 +656,7 @@ void BinomialQueue<ComparableKey, Comparable>::deleteMin( Comparable & minItem )
 		throw Underflow( );
 
 	int minIndex = findMinIndex( );
-	minItem = theTrees[ minIndex ]->value;
+	minItem = theTrees[ minIndex ]->key;
 
 	BinomialNode<ComparableKey, Comparable> *oldRoot = theTrees[ minIndex ];
 	BinomialNode<ComparableKey, Comparable> *deletedTree = oldRoot->leftChild;
@@ -776,11 +776,47 @@ void BinomialQueue<ComparableKey, Comparable>::dump_ht ( )
 template <class ComparableKey, class Comparable>
 void BinomialQueue<ComparableKey, Comparable>::percolateUp ( BinomialNode<ComparableKey, Comparable> * bn )
 {
-	if (bn->parent != NULL)
-		if (bn->key < bn->parent.key)	// need to swap
-			bn.swapChildParent(bn->parent);
-	percolateUp(bn->parent);
+//	cout << "perc\n";
+	
+	if (bn != NULL && bn->parent != NULL)
+	{
+		//cout << "percolateup: percolating " << bn->key << " at address: " << bn << " with value " << bn->value << endl;
+		//cout << "Found a parent: " << bn->parent->value << " with key " << bn->parent->key << endl;
+		if (bn->key < bn->parent->key)	// need to swap
+		{
+			//cout << "need to swap!" << endl;
+			//cout << "percolateup: swapping " << bn->value << " and " << bn->parent->value << endl;
+			bn->swapChildParent();
+			percolateUp(bn->parent);
+		}
+	}
 }
+
+template <class ComparableKey, class Comparable>
+void BinomialQueue<ComparableKey, Comparable>::decreaseKey ( ComparableKey key, ComparableKey newKey )
+{
+	
+	pair<ComparableKey, BinomialNode<ComparableKey, Comparable>*> bn_pair = ht.find(key);
+	
+	cout << "found key " << bn_pair.first << endl;
+	cout << "found key " << bn_pair.second << endl;	
+	cout << "found value " << bn_pair.second->value << endl;
+
+	if (bn_pair.second != NULL)
+	{		
+		bn_pair.second->key = newKey;
+		//cout << "new key " << bn_pair.second->key << endl;
+		percolateUp(bn_pair.second);
+	}
+}
+
+template <class ComparableKey, class Comparable>
+void BinomialQueue<ComparableKey, Comparable>::decreaseKey ( BinomialNode<ComparableKey, Comparable> * bn, ComparableKey newKey )
+{
+	bn->key = newKey;
+	percolateUp(bn);
+}
+
 
 // read each line of data file, word by word, and insert words
 //  takes a file_op (INSERT, INSERT_NONAVL, SEARCH, DELETE_EVERY_OTHER) to determine action to take
@@ -811,7 +847,7 @@ void insertFromFile (BinomialQueue<ComparableKey, Comparable> & bq, string fileN
 int main ()
 {
 
-	/*
+	
 	// (1a) Binary Heap priority queue
 	BinaryHeap<string> pq_bh(100000);
 	string top;
@@ -842,76 +878,31 @@ int main ()
 
 	comparisons = 0;    // reset counter
 
-	*/
+	
 	// (1c) Binomial Queue priority queue
-	string top;
 	BinomialQueue<int, string> pq_bq;
-	insertFromFile(pq_bq, string("testwords.txt")); // insert N elements from file
+	insertFromFile(pq_bq, string("testwords2.txt")); // insert N elements from file
+
+	top = pq_bq.findMin();
+	cout << "the next value: " << top << endl;
+	pq_bq.deleteMin();                         // perform N deleteMin()'s
+
+	pq_bq.decreaseKey(5, 3);
+
+	top = pq_bq.findMin();
+	cout << "the next value: " << top << endl;
+	pq_bq.deleteMin();                         // perform N deleteMin()'s
+
 	while (! pq_bq.isEmpty())
 	{
 		top = pq_bq.findMin();
 		cout << "the next value: " << top << endl;
 		pq_bq.deleteMin();                         // perform N deleteMin()'s
 	}
+	
 	pq_bq.dump_ht();
 	
-	
-	
-//            // show total # of comparisons via deleteMin()
-//            cout << comparisons << " comparisons performed via deleteMin() with binomial queue priority queue" << endl;
 
-
-
-	//pq_bh.dump();
-
-
-	//LeftistHeap<string> pq_lh;
-	//BinomialQueue<string> ph_bq;
-	
-	//string fruit("bananas");
-	//pair <string, string*> hitem = make_pair("fruit", &fruit);
-	//pair <string, string*> notfound = make_pair(string("not found"), msg);
-
-	//string item("an item");
-//			string item2("another item");
-//			string item3("yet another");
-//			
-//			BinomialNode<string> bn(item, NULL, NULL, NULL);
-//			BinomialNode<string> bn2(item2, NULL, NULL, &bn);
-//			bn.leftChild = &bn2;
-//			
-//			HashTable<string, BinomialNode<string> > ht;
-//			ht.insert(make_pair(bn.element, &bn));
-//			
-//			cout << "bn's element is " << bn.element << endl;			
-//			cout << "bn's found element is " << ht.find(bn.element).first << endl;
-//			
-//			HashTable<string, string> ht2;
-//			ht2.insert(make_pair(item, &item));
-//			
-//			cout << "location of item is : " << &item << endl;
-//			cout << "value of item is " << ht2.find(item).first << endl;
-//			cout << "position of found item is " << ht2.find(item).second << endl;
-	
-/*
-	pair <string, int> notfound = make_pair("not found", -1);
-	HashTable<string> ht(notfound, 100000);
-	string searchFor("five");
-	ht.insert( make_pair(searchFor, &searchFor) );
-	pair<string, int> found = ht.find(searchFor);
-	if (found.second != -1)
-		cout << "Found '" << found.first << "' and it's position is " << found.second << endl;
-	else
-		cout << "'" << searchFor << "' not found in hashtable." << endl;
-
-	searchFor = string("asdfasdf");
-	found = ht.find(searchFor);
-	if (found.second != -1)
-		cout << "Found '" << found.first << "' and it's position is " << found.second << endl;
-	else
-		cout << "'" << searchFor << "' not found in hashtable." << endl;
-
-*/
 	
 	return 0;
 }
