@@ -877,31 +877,32 @@ int main ()
 	cout << comparisons << " comparisons performed via deleteMin() with leftist heap priority queue" << endl;
 
 	comparisons = 0;    // reset counter
-
 	
 	// (1c) Binomial Queue priority queue
 	BinomialQueue<int, string> pq_bq;
-	insertFromFile(pq_bq, string("testwords2.txt")); // insert N elements from file
-
-	top = pq_bq.findMin();
-	cout << "the next value: " << top << endl;
-	pq_bq.deleteMin();                         // perform N deleteMin()'s
-
-	pq_bq.decreaseKey(5, 3);
-
-	top = pq_bq.findMin();
-	cout << "the next value: " << top << endl;
-	pq_bq.deleteMin();                         // perform N deleteMin()'s
+	insertFromFile(pq_bq, string("wordsHW2.txt")); // insert N elements from file
+//
+//	top = pq_bq.findMin();
+//	cout << "the next value: " << top << endl;
+//	pq_bq.deleteMin();                         // perform N deleteMin()'s
+//
+//	pq_bq.decreaseKey(5, 3);
+//
+//	top = pq_bq.findMin();
+//	cout << "the next value: " << top << endl;
+//	pq_bq.deleteMin();                         // perform N deleteMin()'s
 
 	while (! pq_bq.isEmpty())
 	{
 		top = pq_bq.findMin();
-		cout << "the next value: " << top << endl;
+		//cout << "the next value: " << top << endl;
 		pq_bq.deleteMin();                         // perform N deleteMin()'s
 	}
 	
-	pq_bq.dump_ht();
-	
+	//pq_bq.dump_ht();
+	// show total # of comparisons via deleteMin()
+	cout << comparisons << " comparisons performed via deleteMin() with leftist heap priority queue" << endl;
+
 
 	
 	return 0;
