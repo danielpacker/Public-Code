@@ -13,6 +13,7 @@
 
 #include <vector>
 #include <iostream>
+#include <sstream>
 using namespace std;
 
 // Swap two Comparables
@@ -36,4 +37,20 @@ void printVec ( const vector<Comparable> & v , int left=0, int right=-1 )
         cout << v[i] << " ";
     cout << endl;
 }
+
+vector<string> &split(const string &s, char delim, vector<string> &elems) {
+    stringstream ss(s);
+    string item;
+    while(getline(ss, item, delim)) {
+        elems.push_back(item);
+    }
+    return elems;
+}
+
+
+vector<string> split(const string &s, char delim) {
+    vector<string> elems;
+    return split(s, delim, elems);
+}
+
 #endif

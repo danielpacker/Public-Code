@@ -91,24 +91,32 @@ glDepthFunc(GL_NEVER);
 
 
 int x = 0;
+int direction=1;
 
 // redraw the maze every frame (kind of a waste for a static image, huh)
 void DrawGLScene()
 {    
   glClear(GL_COLOR_BUFFER_BIT);
   glPushMatrix();
-  //glRotatef(x % 180, 0.0, 0.0, 1.0);
+
   gluLookAt (0.0, 0.0, 70.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0);
+
+
+
+  glPushMatrix();
 
   for (int i=0; i < cells.size(); i++)
   {
+
+
       aminoAcid a = cells[i];
       //a.color.dump();
       glColor3ub(a.color.r, a.color.g, a.color.b);
 
-      float factor = i* ( 360.0 / cells.size() );
-      glRotatef(factor*1.0, 0.0, 0.0, 1.0);
+      //float factor = i* ( 360.0 / cells.size() );
+      //glRotatef(factor*1.0, 0.0, 0.0, 1.0);
       glTranslatef(1.0, 1.0, 0.0);
+      glRotatef(1.0+.001*x, 0.0, 0.0, 1.0);
 
       glBegin(GL_QUADS);
       glVertex3f(-1.0, 1.0, 0.0);
@@ -118,15 +126,9 @@ void DrawGLScene()
       glEnd();
       //cout << i << endl;
   }
-  cout << x << endl;
 
   x++;
-  if (x > 1000)
-  {
-    cout << "DONE";
-    cin >> x;
-    exit(0);
-  }
+  cout << "FRAME: " << x << endl;
 
   glPopMatrix();
   glutSwapBuffers();
@@ -139,7 +141,7 @@ void ReSizeGLScene(int Width, int Height)
     //glViewport (0, 0, (GLsizei) Width, (GLsizei) Height);
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
-    gluPerspective(7.6, (GLfloat) Width / (GLfloat) Height, 200, 0.0);
+    gluPerspective(45, (GLfloat) Width / (GLfloat) Height, 10, 0.0);
 
 }
 
