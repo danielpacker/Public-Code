@@ -1,4 +1,9 @@
 #!/usr/bin/perl -w
+#
+# Dirty proof of concept inline documentation suppoer for BNGL
+# usage: perl inline.pl myscript.bngl > output.html
+#
+# by Daniel Packer
 
 
 use strict;
