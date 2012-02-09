@@ -6,6 +6,7 @@ use strict;
 my $database = "genbank";
 my @accessions = qw/
   CP001438.1
+  NC_001903.1
 /;
 
 for (@accessions) {

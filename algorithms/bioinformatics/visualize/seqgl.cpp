@@ -1,15 +1,3 @@
-/*
- 
- Use openGL to draw based on the maze rendering from maze.cpp
- 
-// This code is written by Daniel Packer and was adapted from 
-//   code created by Jeff Molofee '99 and ported by Tony Parker
-
- The maze rendering happens in DrawGLScene(), and mainly consists
- of positioning the cursor and drawing quads, much like the LOGO turtle.
- 
- */
-
 #include <GL/gl.h>			// Header File For The OpenGL32 Library
 #include <GL/glu.h>			// Header File For The GLu32 Library
 #include <GL/glut.h>			// Header File For The GLUT Library
@@ -58,12 +46,12 @@ int main(int argc, char** argv)
 	InitGL();
     glutDisplayFunc(DrawGLScene); 
     glutReshapeFunc(ReSizeGLScene); 
-glutTimerFunc(0,Timer,0);
+    glutTimerFunc(0,Timer,0);
 
 
 	// Randomly break down walls between adjacent cells 
 	//   until cell 0 is connected to cell size-1
-    cells = f.getData();
+    cells = f.getSeq();
     glutMainLoop();
     
     return 0;
@@ -99,10 +87,10 @@ int i = 0;
 void DrawGLScene()
 {    
 
+	   gluLookAt (0.0, 0.0, 70.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0);
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
 
-	   gluLookAt (0.0, 0.0, 70.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0);
 	
 	int lineLen = 100;
 

@@ -344,5 +344,22 @@ public:
   }
   
 
+  char nucLookup( int num ) {
+    switch(num) {
+      case 0:
+        return 'a';
+      case 1:
+        return 't';
+      case 2:
+        return 'g';
+      case 3:
+        return 'c';
+      case 4:
+        return 'u';
+      break;
+    };
+}
+
+
 };
 

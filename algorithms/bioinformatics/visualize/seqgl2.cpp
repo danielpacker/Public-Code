@@ -10,13 +10,16 @@ using namespace std;
 
 #define kWindowWidth    750	
 #define kWindowHeight	750
+#define MODE_ORFS 1
 
 void InitGL();
 void DrawGLScene();
 void ReSizeGLScene(int Width, int Height);
 
+vector<int> nucleotides;
 vector<aminoAcid> cells;
 int maze_height = 10, maze_width = 10;
+FASTA f;
 
 void Timer(int extra)
 {
@@ -30,12 +33,13 @@ int main(int argc, char** argv)
 	srand ( time(NULL) );
 
 	// first optional command line arg is height, second is width
-    FASTA f;
     if (argv[1] != NULL)
     {
       f.read(argv[1], MODE_CODING);
       //f.dump();
       cells = f.getCodingSeq();
+      f.read(argv[1]);
+      nucleotides = f.getSeq();
     }   
 	
 	// create glut window and start rendering
@@ -44,7 +48,7 @@ int main(int argc, char** argv)
     glutInitWindowSize (kWindowWidth, kWindowHeight); 
     glutInitWindowPosition (20, 20);
     glutCreateWindow (argv[0]);
-	InitGL();
+    InitGL();
     glutDisplayFunc(DrawGLScene); 
     glutReshapeFunc(ReSizeGLScene); 
     glutTimerFunc(0,Timer,0);
@@ -79,48 +83,103 @@ glDepthFunc(GL_NEVER);
 
 
 int i = 0;
+int stopFlag = 0;
+int nonStop = 0;
+float avgGeneSize = 835;
+int highBlend;
 
 // redraw the maze every frame (kind of a waste for a static image, huh)
 void DrawGLScene()
 {    
 
-	gluLookAt (0.0, 0.0, 70.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0);
-	glMatrixMode(GL_MODELVIEW);
-	glLoadIdentity();
+  if (i < cells.size())
+  {
 
-	
-	int lineLen = 100;
+    gluLookAt (0.0, 0.0, 70.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0);
+    glMatrixMode(GL_MODELVIEW);
+    glLoadIdentity();
+    
+    int lineLen = 100;
 
-  aminoAcid a = cells[i];
-  //a.color.dump();
-  glColor3ub(a.color.r, a.color.g, a.color.b);
+    aminoAcid a = cells[i];
+    //a.color.dump();
+    glColor3ub(a.color.r, a.color.g, a.color.b);
+
+    float factor = i * ( 360.0 / cells.size() );
+
+    glRotatef(factor*9, 0.f, 0.f, 1.f);
+
+    float transDiff = .0001*(cells.size()/2300)*i;
+
+    glTranslatef(3.0-transDiff, 3.0-transDiff, 0.0f);
+
+    float sizeDiff = 0.00001*(cells.size()/9000)*pow(i, 1.01);
+
+    if (MODE_ORFS)
+    {
+
+      if (a.color.r == 0 && a.color.g == 0 && a.color.b == 0)
+      {
+        stopFlag = 1;
+        if (highBlend >= 255)
+        {
+          glColor3ub(0, 0, 255);
+          sizeDiff = -.05;
+            
+          int endNuc = i*3;
+          int numNuc = nonStop*3;
+          int startNuc = endNuc - numNuc;
+          int numAA = nonStop;
+
+          cout << "Found possible gene (" << numAA << " amino acids, " << numNuc << " nucleotides)!"  << endl;
+          cout << "Start: " << startNuc << ", End: " << endNuc << endl;
+
+  /*
+          cout << "found a possible gene ending at aa " << i << " (ending at nucleotide " << i*3 << ")" << endl;
+          cout << "sequence was " << nonStop << " aa's long (" << nonStop*3 << " nucleotides)" << endl;
+          cout << "beginning of sequence was " << i*3 - nonStop*3 << endl;
+          cout << endl;
+          */
+          /*
+          cout << "\n --------------------------- Sequence: -------------- " << endl;
+          for (int j = startNuc; j <= endNuc; j++)
+          {
+            cout << f.nucLookup(nucleotides[j]);
+          }
+          cout << "\n ---------------------------------------------------- \n" << endl;
+          */
 
 
-  float factor = i * ( 360.0 / cells.size() );
+        }
+        nonStop = 0;
+      }
+      else 
+      {
+        stopFlag = 0;
+        nonStop++;
+        //cout << "nonStop: " << nonStop << " at pos: " << i << endl;
+        int blend = (255/(avgGeneSize/3)) * nonStop;
+        highBlend = pow(blend, 1.3);
+        //cout << "highBlend: " << highBlend << endl;
+        int blendVal = 255 - highBlend;
+        blendVal = (blendVal < 0) ? 0 : blendVal;
+        glColor3ub(255, blendVal, blendVal);
+      }
+    }
 
-  glRotatef(factor*9, 0.f, 0.f, 1.f);
-  glTranslatef(3.0-.0003*i, 3.0-.0003*i, 0.0f);
+    glBegin(GL_QUADS);
+      glVertex3f(-.2f+sizeDiff, .01f-sizeDiff, 0.0f);
+      glVertex3f( .2f-sizeDiff, .01f-sizeDiff, 0.0f);
+      glVertex3f( .2f-sizeDiff,-.01f+sizeDiff, 0.0f);
+      glVertex3f(-.2f+sizeDiff,-.01f+sizeDiff, 0.0f);
+    glEnd();
 
-
-	glBegin(GL_QUADS);
-	glVertex3f(-.2f+.00001*i, .1f-.00001*i, 0.0f);
-	glVertex3f( .2f-.00001*i, .1f-.00001*i, 0.0f);
-	glVertex3f( .2f-.00001*i,-.1f+.00001*i, 0.0f);
-	glVertex3f(-.2f+.00001*i,-.1f+.00001*i, 0.0f);
-	glEnd();
-
-	if (i % lineLen == 0) {
-//			glTranslatef(lineLen * -2.0f, -2.0f, 0.0f);
-  } 
-	else {
-  cout << "DONE\n";
-/*
-		cout << "\ndone. press enter\n";
-		int stuff;
-		cin >> stuff;
-		exit(0);
-*/
 	}
+  else
+  {  
+    glRotatef(1.0, 0.0, 1.0, 0.0);
+  }
+    
 
 	glFlush();
 	i++;

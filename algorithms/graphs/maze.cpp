@@ -18,6 +18,7 @@ the same set.
 #include <iostream>
 #include <vector>
 #include <math.h>
+#include <cstdlib>
 
 #include "maze.h"           // constants for TOP, etc.
 #include "utility.cpp"      // import utility functions
