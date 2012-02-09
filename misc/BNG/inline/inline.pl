@@ -51,9 +51,10 @@ sub html_wrapper {
     #key { font-weight: bold; float: left; clear: both; width: 150px; }
     #value { }
     #source { }
-    h2 { margin-left: 15px; }
-    div.doc { margin-bottom: 5px; margin-left: 30px; background-color: #DDF; width: 800px; padding: 10px; }
+    h2 { margin-left: 5px; color: white; }
+    div.doc { margin-bottom: 5px; margin-left: 30px; background-color: #DDD; width: 800px; padding: 10px; border-radius: 10px; }
     * { line-height: 1.6; font-family: sans-serif; }
+    div.section { background-color: #555; width: 860px; padding: 10px; border-radius: 10px; margin-bottom: 10px; }
   </style>
   <body>
     <h1>Documentation for $script_file</h1>
@@ -68,6 +69,7 @@ sub render_section {
   my @doc_pairs = @_;
 
   my $output;
+  $output .= qq(<div class="section">\n);
   $output .= "<h2>" . ucfirst($sec_name) . "</h2>\n\n";
   for my $dp (@doc_pairs)
   {
@@ -82,6 +84,7 @@ sub render_section {
     $output .= qq(<div id="key">source</div><div id="value">$line</div>\n\n);
     $output .= qq(</div>\n);
   }
+  $output .= qq(</div>\n\n);
   return $output;
 }
 
