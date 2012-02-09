@@ -89,12 +89,29 @@ sub render_section {
 sub parse_doc {
   my $doc = shift;
   my %doc_key_vals = ();
+  my $context;
   for my $line (split("\n", $doc))
   {
-    if ($line =~ /\\(\w*) ([\w\s]+)/)
+    if ($line =~ /\\(\w*)\s*([^\n]+)/)
     {
       #print "KEY: $1 VAL: $2\n";
-      $doc_key_vals{$1} = $2; 
+      my ($key, $val) = ($1, $2);
+      $val =~ s/\s*\*\///g; # remove possible '*/' end of doc
+      $doc_key_vals{$key} = $val; 
+      $context=$key;
+    }
+    elsif ($context)
+    {
+      if ($line =~ /\*\//)
+      {
+        $line =~ s/\*\///g;
+        $doc_key_vals{$context} .= $line;
+        undef $context;
+      }
+      else
+      {
+        $doc_key_vals{$context} .= $line;
+      }
     }
   }
   return %doc_key_vals;

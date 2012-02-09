@@ -85,7 +85,8 @@ end seed species
 
 begin reaction rules
 /*! \desc Ligand binding (L+R)
- *  \note specifying r in R here means that the r component must not be bound.  This prevents dissociation of ligand from R when R is in a dimer.
+ *  \note specifying r in R here means that the r component must not be bound. 
+          This prevents dissociation of ligand from R when R is in a dimer.
  */
 L(r) + R(l,r) <-> L(r!1).R(l!1,r) kpL, kmL
 
@@ -95,7 +96,8 @@ L(r) + R(l,r) <-> L(r!1).R(l!1,r) kpL, kmL
 L(r!1).R(l!1,r) + L(r!1).R(l!1,r) <-> L(r!1).R(l!1,r!3).L(r!2).R(l!2,r!3) kpD,kmD
 
 /*! \desc Receptor binding to adaptor (R+A)
- *  \note A and R can bind independent of whether A is bound to K or whether R is in a dimer. */
+ *  \note A and R can bind independent of whether 
+          A is bound to K or whether R is in a dimer. */
 A(r) + R(a) <-> A(r!1).R(a!1) kpA,kmA
 
 /*! \desc Adaptor binding kinase 

@@ -13,198 +13,198 @@
     <h2>parameters</h2>
 
 <div class="doc">
-<div id="key">desc</div><div id="val">Total amount of L </div>
+<div id="key">desc</div><div id="val">Total amount of L</div>
 <div id="key">source</div><div id="value">L_tot 	1</div>
 
 </div>
 <div class="doc">
-<div id="key">desc</div><div id="val">Total amount of R </div>
+<div id="key">desc</div><div id="val">Total amount of R</div>
 <div id="key">source</div><div id="value">R_tot   1</div>
 
 </div>
 <div class="doc">
-<div id="key">desc</div><div id="val">Total amount of A </div>
+<div id="key">desc</div><div id="val">Total amount of A</div>
 <div id="key">source</div><div id="value">A_tot 	1</div>
 
 </div>
 <div class="doc">
-<div id="key">desc</div><div id="val">Total amount of K </div>
+<div id="key">desc</div><div id="val">Total amount of K</div>
 <div id="key">source</div><div id="value">K_tot	1</div>
 
 </div>
 <div class="doc">
 <div id="key">desc</div><div id="val">Rate of pL </div>
-<div id="key">type</div><div id="val">rate </div>
+<div id="key">type</div><div id="val">rate</div>
 <div id="key">source</div><div id="value">kpL 	0.1</div>
 
 </div>
 <div class="doc">
 <div id="key">desc</div><div id="val">Rate of mL </div>
-<div id="key">type</div><div id="val">rate </div>
+<div id="key">type</div><div id="val">rate</div>
 <div id="key">source</div><div id="value">kmL 	0.1</div>
 
 </div>
 <div class="doc">
 <div id="key">desc</div><div id="val">Rate of pD </div>
 <div id="key">type</div><div id="val">rate </div>
-<div id="key">note</div><div id="val">kpD and kmD were divided by two from their values in to give the right symmetry factor</div>
+<div id="key">note</div><div id="val">kpD and kmD were divided by two from their values in to give the right symmetry factor </div>
 <div id="key">source</div><div id="value">kpD 	1.0</div>
 
 </div>
 <div class="doc">
 <div id="key">desc</div><div id="val">Rate of mD</div>
 <div id="key">type</div><div id="val">rate </div>
-<div id="key">note</div><div id="val">kpD and kmD were divided by two from their values in to give the right symmetry factor</div>
+<div id="key">note</div><div id="val">kpD and kmD were divided by two from their values in to give the right symmetry factor </div>
 <div id="key">source</div><div id="value">kmD 	0.1</div>
 
 </div>
 <div class="doc">
 <div id="key">desc</div><div id="val">Rate of pA</div>
-<div id="key">type</div><div id="val">rate </div>
+<div id="key">type</div><div id="val">rate</div>
 <div id="key">source</div><div id="value">kpA 	0.1</div>
 
 </div>
 <div class="doc">
 <div id="key">desc</div><div id="val">Rate of mA </div>
-<div id="key">type</div><div id="val">rate </div>
+<div id="key">type</div><div id="val">rate</div>
 <div id="key">source</div><div id="value">kmA 	0.1</div>
 
 </div>
 <div class="doc">
 <div id="key">desc</div><div id="val">Rate of pK </div>
-<div id="key">type</div><div id="val">rate </div>
+<div id="key">type</div><div id="val">rate</div>
 <div id="key">source</div><div id="value">kpK 	0.1</div>
 
 </div>
 <div class="doc">
 <div id="key">desc</div><div id="val">Rate of mK </div>
-<div id="key">type</div><div id="val">rate </div>
+<div id="key">type</div><div id="val">rate</div>
 <div id="key">source</div><div id="value">kmK 	0.1</div>
 
 </div>
 <div class="doc">
 <div id="key">desc</div><div id="val">Rate of pK </div>
-<div id="key">type</div><div id="val">rate </div>
+<div id="key">type</div><div id="val">rate</div>
 <div id="key">source</div><div id="value">pK  	 1</div>
 
 </div>
 <div class="doc">
 <div id="key">desc</div><div id="val">Rate of pKs </div>
-<div id="key">type</div><div id="val">rate </div>
+<div id="key">type</div><div id="val">rate</div>
 <div id="key">source</div><div id="value">pKs	10</div>
 
 </div>
 <div class="doc">
 <div id="key">desc</div><div id="val">Rate of dM</div>
-<div id="key">type</div><div id="val">rate </div>
+<div id="key">type</div><div id="val">rate</div>
 <div id="key">source</div><div id="value">dM       1</div>
 
 </div>
 <div class="doc">
 <div id="key">desc</div><div id="val">Rate of dC </div>
-<div id="key">type</div><div id="val">rate </div>
+<div id="key">type</div><div id="val">rate</div>
 <div id="key">source</div><div id="value">dC	10</div>
 
 </div>
 <h2>reaction rules</h2>
 
 <div class="doc">
-<div id="key">desc</div><div id="val">Ligand binding </div>
-<div id="key">note</div><div id="val">specifying r in R here means that the r component must not be bound</div>
+<div id="key">desc</div><div id="val">Ligand binding (L+R)</div>
+<div id="key">note</div><div id="val">specifying r in R here means that the r component must not be bound.           This prevents dissociation of ligand from R when R is in a dimer. </div>
 <div id="key">source</div><div id="value">L(r) + R(l,r) <-> L(r!1).R(l!1,r) kpL, kmL</div>
 
 </div>
 <div class="doc">
-<div id="key">desc</div><div id="val"> Aggregation </div>
-<div id="key">note</div><div id="val"> R must be bound to ligand to dimerize</div>
+<div id="key">desc</div><div id="val">Aggregation (R+R)</div>
+<div id="key">note</div><div id="val">R must be bound to ligand to dimerize.</div>
 <div id="key">source</div><div id="value">L(r!1).R(l!1,r) + L(r!1).R(l!1,r) <-> L(r!1).R(l!1,r!3).L(r!2).R(l!2,r!3) kpD,kmD</div>
 
 </div>
 <div class="doc">
-<div id="key">desc</div><div id="val">Receptor binding to adaptor </div>
-<div id="key">note</div><div id="val">A and R can bind independent of whether A is bound to K or whether R is in a dimer</div>
+<div id="key">desc</div><div id="val">Receptor binding to adaptor (R+A)</div>
+<div id="key">note</div><div id="val">A and R can bind independent of whether           A is bound to K or whether R is in a dimer. </div>
 <div id="key">source</div><div id="value">A(r) + R(a) <-> A(r!1).R(a!1) kpA,kmA</div>
 
 </div>
 <div class="doc">
 <div id="key">desc</div><div id="val">Adaptor binding kinase </div>
-<div id="key">note</div><div id="val">Doesn</div>
+<div id="key">note</div><div id="val">Doesn't depend on phosphorylation state of K or whether A is bound to          receptor, i.e. binding rate is same whether A is on membrane (bound to          R) or in cytosol.</div>
 <div id="key">source</div><div id="value">A(k) + K(a) <-> A(k!1).K(a!1) kpK,kmK</div>
 
 </div>
 <div class="doc">
 <div id="key">desc</div><div id="val">Kinase transphosphorylation by inactive kinase</div>
-<div id="key">note</div><div id="val">Rule doesn</div>
+<div id="key">note</div><div id="val">Rule doesn't specify how two K's are associated</div>
 <div id="key">source</div><div id="value">K(Y~U).K(Y~U) -> K(Y~U).K(Y~P) pK</div>
 
 </div>
 <div class="doc">
 <div id="key">desc</div><div id="val">Kinase transphosphorylation by active kinase</div>
-<div id="key">note</div><div id="val">Rule doesn</div>
+<div id="key">note</div><div id="val">Rule doesn't specify how two K's are associated</div>
 <div id="key">source</div><div id="value">K(Y~P).K(Y~U) -> K(Y~P).K(Y~P) pKs</div>
 
 </div>
 <div class="doc">
-<div id="key">desc</div><div id="val">Dephosphorylation of kinase in cytosol </div>
+<div id="key">desc</div><div id="val">Dephosphorylation of kinase in cytosol</div>
 <div id="key">source</div><div id="value">K(a,Y~P) -> K(a,Y~U) dC</div>
 
 </div>
 <h2>observables</h2>
 
 <div class="doc">
-<div id="key">desc</div><div id="val">RecDim is useful to observe because</div>
+<div id="key">desc</div><div id="val">RecDim is useful to observe because...</div>
 <div id="key">source</div><div id="value">Molecules	RecDim	      R(r!+)</div>
 
 </div>
 <div class="doc">
-<div id="key">desc</div><div id="val">Rec_A is useful to observe because</div>
+<div id="key">desc</div><div id="val">Rec_A is useful to observe because...</div>
 <div id="key">source</div><div id="value">Molecules	Rec_A	      R(a!1).A(r!1)</div>
 
 </div>
 <div class="doc">
-<div id="key">desc</div><div id="val">Rec_K is useful to observe because</div>
+<div id="key">desc</div><div id="val">Rec_K is useful to observe because...</div>
 <div id="key">source</div><div id="value">Molecules	Rec_K	      R(a!1).A(r!1,k!2).K(a!2)</div>
 
 </div>
 <div class="doc">
-<div id="key">desc</div><div id="val">Rec_Kp is useful to observe because</div>
+<div id="key">desc</div><div id="val">Rec_Kp is useful to observe because...</div>
 <div id="key">source</div><div id="value">Molecules	Rec_Kp	      R(a!1).A(r!1,k!2).K(a!2,Y~P)</div>
 
 </div>
 <div class="doc">
-<div id="key">desc</div><div id="val">RecDim_Kp is useful to observe because</div>
+<div id="key">desc</div><div id="val">RecDim_Kp is useful to observe because...</div>
 <div id="key">source</div><div id="value">Molecules	RecDim_Kp     R.R(a!1).A(r!1,k!2).K(a!2,Y~P)</div>
 
 </div>
 <div class="doc">
-<div id="key">desc</div><div id="val">L_total is useful to observe because</div>
+<div id="key">desc</div><div id="val">L_total is useful to observe because...</div>
 <div id="key">source</div><div id="value">Molecules	L_total	      L</div>
 
 </div>
 <div class="doc">
-<div id="key">desc</div><div id="val">A_total is useful to observe because</div>
+<div id="key">desc</div><div id="val">A_total is useful to observe because...</div>
 <div id="key">source</div><div id="value">Molecules	A_total       A</div>
 
 </div>
 <div class="doc">
-<div id="key">desc</div><div id="val">K_total is useful to observe because</div>
+<div id="key">desc</div><div id="val">K_total is useful to observe because...</div>
 <div id="key">source</div><div id="value">Molecules	K_total       K</div>
 
 </div>
 <div class="doc">
-<div id="key">desc</div><div id="val">R_total is useful to observe because</div>
+<div id="key">desc</div><div id="val">R_total is useful to observe because...</div>
 <div id="key">source</div><div id="value">Molecules	R_total	      R</div>
 
 </div>
 <h2>seed species</h2>
 
 <div class="doc">
-<div id="key">desc</div><div id="val">Set to zero for equilibration	</div>
+<div id="key">desc</div><div id="val">Set to zero for equilibration</div>
 <div id="key">source</div><div id="value">L(r)	         0 </div>
 
 </div>
 <div class="doc">
-<div id="key">desc</div><div id="val">r binds to l of R </div>
+<div id="key">desc</div><div id="val">r binds to l of R</div>
 <div id="key">source</div><div id="value">R(l,r,a)         R_tot </div>
 
 </div>
@@ -214,7 +214,7 @@
 
 </div>
 <div class="doc">
-<div id="key">desc</div><div id="val">Y is phosphorylation site that is either unphosphorylated </div>
+<div id="key">desc</div><div id="val">Y is phosphorylation site that is either unphosphorylated (U) or phosphorylated (P 0)</div>
 <div id="key">source</div><div id="value">K(a,Y~U)         K_tot</div>
 
 </div>
