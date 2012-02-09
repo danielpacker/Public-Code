@@ -11,9 +11,9 @@ use warnings;
 
 use constant SECTION_NAMES => (
    'parameters',
+   'seed species',
    'reaction rules',
    'observables',
-   'seed species',
    );
 
 
