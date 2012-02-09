@@ -48,11 +48,13 @@ sub html_wrapper {
 <html>
   <head><title>Documenation for $script_file</title></head>
   <style type="text/css">
-    #key { font-weight: bold; padding-right: 10px; float: left; clear: both; width: 150px; }
+    #key { font-weight: bold; float: left; clear: both; width: 150px; }
     #value { }
     #source { }
-    div.doc { margin-bottom: 5px; padding-left: 10px; background-color: #DDD; }
-    * { line-height: 1.6; }
+    h2 { margin-left: 15px; }
+    div { padding: 5px; }
+    div.doc { margin-bottom: 5px; margin-left: 30px; background-color: #DDF; width: 800px; }
+    * { line-height: 1.6; font-family: sans-serif; }
   </style>
   <body>
     <h1>Documentation for $script_file</h1>
@@ -67,7 +69,7 @@ sub render_section {
   my @doc_pairs = @_;
 
   my $output;
-  $output .= "<h2>$sec_name</h2>\n\n";
+  $output .= "<h2>" . ucfirst($sec_name) . "</h2>\n\n";
   for my $dp (@doc_pairs)
   {
     my $line = $dp->{'line'};
