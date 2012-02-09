@@ -7,7 +7,6 @@
 # receptor-associated adapter proteins, one of the kinases can 
 # transphosphorylate the second kinase. 
 
-version("2.0.23");
 
 begin parameters
 /*! \desc Total amount of L */
@@ -72,7 +71,7 @@ R(l,r,a)         R_tot
 /*! \desc l binds to r of L
  *  \desc r binds to r of R
 */
-A(r,k)	         A_tot
+A(r,k)	         1.0
 
 /*! \desc r binds to a of R
  *  \desc k binds to a of K

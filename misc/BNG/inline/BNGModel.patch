@@ -1,0 +1,28 @@
+--- BNGModel.pm	2012-02-09 03:05:49.005993557 -0500
++++ BNGModel_patch.pm	2012-02-09 03:03:10.645999147 -0500
+@@ -917,11 +917,25 @@
+ 	sub get_line
+ 	{
+ 		my $line;
++    my $incomment=0;
+ 		while ( $line = shift @$file_dat )
+ 		{
+ 			++$line_number;
+ 			chomp $line;                         # remove newline character
+ 			$line =~ s/\#.*$//;                  # remove comments
++      if (($line =~ /\/\*/) or ($incomment))
++      {
++        if ($line =~ /\*\//)
++        {
++          $incomment=0;
++        }
++        else
++        {
++          $incomment=1;
++        }
++        next;
++      }
++
+ 			unless ( $line =~ /\S+/ ) { next; }  # skip blank lines
+ 			while ( $line =~ s/\\\s*$// )
+ 			{   # line continuations "\"
