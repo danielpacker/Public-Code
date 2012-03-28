@@ -3,8 +3,9 @@ import collections
 
 
 # Run an xor chain on a given binary string with a given boolean key
-def xor_chain(abyte="00000000", key=False, len=8):
-	bytelist = list(abyte[::-1]) # reverse string for right->left
+# You can specify # of bits and direction in which to XOR the bitstring
+def xor_chain(abyte="00000000", key=False, right2left=True, len=8):
+	bytelist = list(abyte[::-1]) if (right2left) else list(abyte)
 	hash = list()
 	for i in range(len):
 		#print(bytelist[i])
@@ -28,17 +29,18 @@ def byte_to_bin(rbyte=-1):
 # make sure function is 1:1 for all possible bytes
 keyvals = {}
 for b in [False, True]:
-	#print("Testing for key=" + str(b) + "\n")
-	for i in range(255):
-		bstr = byte_to_bin(i)
-		keyvals[bstr] = xor_chain(bstr, b)
-	c = collections.Counter(keyvals.values())
-	#print(keyvals)
-	duplicates = [i for i in c if c[i]>1]
-	numduplicates = len(duplicates)
-	if (numduplicates):
-		print("DUPLICATES FOUND: " + str(duplicates) + "\n")
-	else:
-		print("hash works for all bytes with key="+str(b)+"\n")
-	numoriginals = len(keyvals.values())
-	print("number of originals: " + str(numoriginals) + " number of duplicates: " + str(numduplicates) + "\n")
+	for d in [False, True]:
+		#print("Testing for key=" + str(b) + "\n")
+		for i in range(255):
+			bstr = byte_to_bin(i)
+			keyvals[bstr] = xor_chain(bstr, b, d)
+		c = collections.Counter(keyvals.values())
+		#print(keyvals)
+		duplicates = [i for i in c if c[i]>1]
+		numduplicates = len(duplicates)
+		if (numduplicates):
+			print("DUPLICATES FOUND: " + str(duplicates))
+		else:
+			print("hash works for all bytes with key="+str(b)+" with right to left="+str(d))
+		numoriginals = len(keyvals.values())
+		print("(number of originals: " + str(numoriginals) + " number of duplicates: " + str(numduplicates) + ")\n")
