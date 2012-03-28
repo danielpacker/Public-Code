@@ -25,7 +25,7 @@ def byte_to_bin(rbyte=-1):
 	rbyte_str = "{0:08b}".format(rbyte)
 	return rbyte_str
 
-# make sure function is 1:1 for all bytes
+# make sure function is 1:1 for all possible bytes
 keyvals = {}
 for b in [False, True]:
 	#print("Testing for key=" + str(b) + "\n")
@@ -38,5 +38,7 @@ for b in [False, True]:
 	numduplicates = len(duplicates)
 	if (numduplicates):
 		print("DUPLICATES FOUND: " + str(duplicates) + "\n")
+	else:
+		print("hash works for all bytes with key="+str(b)+"\n")
 	numoriginals = len(keyvals.values())
 	print("number of originals: " + str(numoriginals) + " number of duplicates: " + str(numduplicates) + "\n")
