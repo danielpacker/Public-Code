@@ -1,3 +1,13 @@
+##############################################################################
+#
+# Author: Daniel Packer <dp@danielpacker.org>
+#
+# Implements and tests an XOR hash function that takes a boolean key and 8bit 
+# input to mimic the bacterial hash function found in the paper "Bacterial Hash 
+# Function Using DNA-Based XOR Logic Reveals Unexpected Behavior of the LuxR 
+# Promoter" -- http://www.ibc7.org/article/journal_v.php?sid=265
+#
+#
 import random
 import collections
 
