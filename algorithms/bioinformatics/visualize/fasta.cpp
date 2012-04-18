@@ -27,16 +27,79 @@ struct aa_color {
   }
 };
 
-struct aminoAcid {
-  vector<string> codons; // possible codons
-  string name;
-  string triple_abbrev;
-  char abbrev;
-  aa_color color;
+class AminoAcid {
+
+  public:
+
+  vector<string> codons_; // possible codons
+  string name_;
+  string triple_abbrev_;
+  char abbrev_;
+  aa_color color_;
+  string formula_;
+  double weight_;
+
+  aa_color color() {
+    return color_;
+  }
+
+  void color(aa_color c) {
+    color_ = c;
+  }
+
+  vector<string> codons() {
+    return codons_;
+  }
+
+  void codons(vector<string> c) {
+    codons_ = c;
+  }
+
+  string name() {
+    return name_;
+  }
+
+  void name(string a) {
+    name_ = a;
+  }
+
+
+  string triple_abbrev() {
+    return triple_abbrev_;
+  }
+
+  void triple_abbrev(string a) {
+    triple_abbrev_ = a;
+  }
+
+
+  char abbrev() {
+    return abbrev_;
+  }
+
+  void abbrev(char a) {
+    abbrev_ = a;
+  }
+
+  string formula() {
+    return formula_;
+  }
+
+  void formula(string f) {
+    formula_ = f;
+  }
+
+  double weight() {
+    return weight_;
+  }
+
+  void weight(double wt) {
+    weight_ = wt;
+  }
 
   void dump() {
-    cout << "[" << name << "]: " << triple_abbrev << ", " << abbrev << endl;
-    color.dump();
+    cout << "[" << name_ << "]: " << triple_abbrev_ << ", " << abbrev_ << endl;
+    color_.dump();
   }
 };
 
@@ -56,17 +119,17 @@ private:
   vector<int> seq;                    // store bp seq
   vector<char*> header_fields;        // header fields
 
-  map<char, aminoAcid> amino_acids;   // amino acid records
+  map<char, AminoAcid> amino_acids;   // amino acid records
   map<string, char> codon_map;        // map amino acids to codons
   vector<char> coding_seq;            // store amino acid seq
   map<string, aa_color> aa_color_map; // mappings of amino acid colors
 
   void insert_amino (string codon) {
     char abbr = codon_map[codon];
-    aminoAcid a = amino_acids[abbr];
+    AminoAcid a = amino_acids[abbr];
     //cout << "NAME: " << *(a.name) << endl;
     //cout << "ABREV: " << a.abbrev << endl;
-    coding_seq.push_back(a.abbrev);
+    coding_seq.push_back(a.abbrev());
   }
 
   void insert_base(char c) {
@@ -100,7 +163,7 @@ private:
 
 public:
 
-  void map_colors (const char* filename = "amino_colors.txt") {
+  void map_colors (const char* filename = "aa_colors.txt") {
     int count=0;
     string definition_line;
     ifstream myfile(filename);
@@ -156,7 +219,7 @@ public:
     
   }
 
-  void map_codons (const char* filename = "codons.txt") {
+  void map_codons (const char* filename = "aa_constants.txt") {
     int count=1;
     string definition_line;
     ifstream myfile(filename);
@@ -174,22 +237,32 @@ public:
           char *triple_abbr = strtok(cstr, " ");
           char *name;
           char *single_abbr;
+          char *form;
+          char *wt;
           char *code;
           if (triple_abbr)
             name = strtok(NULL, " ");
           if (name)
             single_abbr = strtok(NULL, " ");
           if (single_abbr)
+            form = strtok(NULL, " ");
+          if (form)
+            wt = strtok(NULL, " ");
+          if (wt)
             code = strtok(NULL, " ");
 
-//          cout << "name: " << name << " single_abbr: " << single_abbr << " triple_abbr: " << triple_abbr << " code: " << code << endl;
-          aminoAcid a;
+          cout << "name: " << name << " single_abbr: " << single_abbr << " triple_abbr: " << triple_abbr << " code: " << code << endl;
+          AminoAcid a;
           if (name != NULL)
-            a.name = std::string(name);
+            a.name(std::string(name));
           if (single_abbr != NULL)
-            a.abbrev = *single_abbr;
+            a.abbrev(*single_abbr);
           if (triple_abbr != NULL)
-            a.triple_abbrev = triple_abbr;
+            a.triple_abbrev(triple_abbr);
+          if (form != NULL)
+            a.formula(form);
+          if (wt != NULL)
+            a.weight(strtod(wt, NULL));
 
   //cout << "CODE: [" << code << "]" << endl;
           char *tlc = strtok(code, ",");
@@ -202,10 +275,10 @@ public:
              codon_map[tlc] = *single_abbr;
              tlc = strtok(NULL, ",");
           }
-          a.codons = codons; // finalize amino acid
-          a.color = aa_color_map[triple_abbr];
+          a.codons(codons); // finalize amino acid
+          a.color(aa_color_map[triple_abbr]);
 
-          amino_acids[a.abbrev] = a;
+          amino_acids[a.abbrev()] = a;
           count++;
         } // end check for empty line
       }
@@ -220,7 +293,7 @@ public:
       //cout << "hrm\n";
       cout << "codon: " << ci->first << endl;
       cout << "amino: " << ci->second << endl;
-      aminoAcid a = amino_acids[ci->second];
+      AminoAcid a = amino_acids[ci->second];
       a.dump();
     }
     */
@@ -304,7 +377,7 @@ public:
     for (cit=coding_seq.begin(); cit < coding_seq.end(); cit++)
     {
       cout << *cit;
-      //aminoAcid a = amino_acids[*cit];
+      //AminoAcid a = amino_acids[*cit];
       // a.dump();
       //string tla = a.triple_abbrev;
       //cout << "TLA: " << tla << endl;
@@ -325,8 +398,8 @@ public:
     return header_fields[0];
   }
 
-  vector<aminoAcid> getCodingSeq() {
-    vector<aminoAcid> coding;
+  vector<AminoAcid> getCodingSeq() {
+    vector<AminoAcid> coding;
     vector<char>::iterator ci;
     for (ci = coding_seq.begin(); ci < coding_seq.end(); ci++)
     {
