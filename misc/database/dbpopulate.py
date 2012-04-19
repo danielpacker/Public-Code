@@ -1,3 +1,8 @@
+#
+# Using SQLAlchemy and object bindings from sqlautocode, populate an empty DB
+# Library provides utility methods for generating dummy data to populate a DB
+# by Daniel Packer
+#
 from BH import *
 from sqlalchemy.orm import sessionmaker
 
