@@ -1,7 +1,8 @@
 from dbpop_sql import *
 
 def main():
-  insert("person", 25)
+  populate_person("employee", 25)
+  populate_person("customer", 25)
 
 print("Starting main...")
 main()
