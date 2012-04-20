@@ -12,6 +12,28 @@ from random import *
 Session = sessionmaker(bind=engine)
 session = Session()
 
+def populate_list(table, n=25):
+  for i in range(0,n):
+
+    if (table=="genre"):
+      genre=Genre()
+      genre.genre_id=i+1
+      genre.name=genres[i]
+      session.add(genre)
+    elif (table=="position"):
+      p=Position()
+      p.position_id=i+1
+      p.name=positions[i]
+      session.add(p)
+
+  try:
+    session.commit()
+  except exc.SQLAlchemyError, e:
+    print("ERROR: " + e.message)
+
+  session.close()
+
+
 def populate_product(table, n=25):
   for i in range(1,n+1):
     product=Product()

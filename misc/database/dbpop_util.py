@@ -20,6 +20,8 @@ item_suffixes=set(['Booklight','Bookmark','Reading Light','Calendar','Fridge Mag
 magazine_suffixes=set(['Monthly','Quarterly','Journal','Enthusiast','Magazine'])
 manufacturer_suffixes=set(['Ltd.','Co.','Enterprises','Corporation','Inc.','Industries','Holdings'])
 relationships=set(['mother','father','sister','brother','aunt','uncle','friend','fiance','significant other','grandmother','grandfather','caretaker','guardian','partner','sibling'])
+genres=['Action & Adventure','Biography & Memoirs','Business & Finance','Celebrity & Pop Culture','Cookbooks','Crime','Current Affairs & Politics','Fantasy','Food & Lifestyle','History & Military','Horror','Humor','Journalism','Multicultural','Music, Film & Entertainment','Mystery','Mythology','Nature & Ecology','Parenting','Pets','Psychology','Science Fiction','Sports','Travel','Young Adult']
+positions=['chief executive officer', 'supervisor', 'distribution specialist', 'clerk', 'manager', 'assistant manager', 'coordinator', 'sales representative', 'customer service', 'janitor', 'executive vice president', 'senior vice president', 'general manager', 'senior manager', 'analyst', 'it specialist', 'director', 'assistant director', 'accountant', 'human resources', 'marketing specialist', 'senior clerk', 'assistant vice president', 'senior coordinator', 'receptionist']
 
 def rand_day():
   return sample(days,1)[0]
