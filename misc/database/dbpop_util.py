@@ -18,10 +18,22 @@ cities = set(['Albany','Amsterdam','Auburn','Batavia','Beacon','Binghamton','Buf
 publisher_suffixes=set(['Books','Titles','Volumes','Publishing Co.','Publishers','Press','House Books'])
 item_suffixes=set(['Booklight','Bookmark','Reading Light','Calendar','Fridge Magnets','Desk Calendar','Wall Calendar','E-Reader','Book Cover'])
 magazine_suffixes=set(['Monthly','Quarterly','Journal','Enthusiast','Magazine'])
-manufacturer_suffixes=set(['Ltd.','Co.','Enterprises','Corporation','Inc.','Industries','Holdings'])
+corp_suffixes=set(['Ltd.','Co.','Enterprises','Corporation','Inc.','Industries','Holdings'])
 relationships=set(['mother','father','sister','brother','aunt','uncle','friend','fiance','significant other','grandmother','grandfather','caretaker','guardian','partner','sibling'])
 genres=['Action & Adventure','Biography & Memoirs','Business & Finance','Celebrity & Pop Culture','Cookbooks','Crime','Current Affairs & Politics','Fantasy','Food & Lifestyle','History & Military','Horror','Humor','Journalism','Multicultural','Music, Film & Entertainment','Mystery','Mythology','Nature & Ecology','Parenting','Pets','Psychology','Science Fiction','Sports','Travel','Young Adult']
 positions=['chief executive officer', 'supervisor', 'distribution specialist', 'clerk', 'manager', 'assistant manager', 'coordinator', 'sales representative', 'customer service', 'janitor', 'executive vice president', 'senior vice president', 'general manager', 'senior manager', 'analyst', 'it specialist', 'director', 'assistant director', 'accountant', 'human resources', 'marketing specialist', 'senior clerk', 'assistant vice president', 'senior coordinator', 'receptionist']
+departments=set(['Purchasing','Accounting','Marketing','Management','Information Technology','New Business'])
+payment_methods=set(['cash','debit','credit'])
+purchase_types=set(['purchase','return'])
+
+def rand_purchase_type():
+  return sample(purchase_types,1)[0]
+
+def rand_payment_method():
+  return sample(payment_methods,1)[0]
+
+def rand_dept():
+  return sample(departments,1)[0]
 
 def rand_day():
   return sample(days,1)[0]
@@ -49,8 +61,8 @@ def rand_item_name():
   name = sample(words,1)[0] + " " + sample(item_suffixes,1)[0]
   return name
 
-def rand_manufacturer():
-  name = sample(words,1)[0] + " " + sample(manufacturer_suffixes,1)[0]
+def rand_corp_name():
+  name = sample(words,1)[0] + " " + sample(corp_suffixes,1)[0]
   return name
 
 def rand_item_name():

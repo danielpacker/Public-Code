@@ -56,6 +56,50 @@ def populate_list(table, n=25):
       p.contact_id=contact.contact_id
       session.add(p)
 
+    elif (table=="supplier"):
+      contact = Contact()
+      contact.fname=rand_fname()
+      contact.lname=rand_lname()
+      contact.phone1=rand_phone()
+      contact.phone2=rand_phone()
+      contact.address1=rand_address()
+      contact.city=rand_city()
+      contact.state=rand_state()
+      contact.zip=rand_zip()
+      contact.email=rand_email(contact.fname,contact.lname)
+      contact.website_url=rand_website_url()
+      session.add(contact)
+      session.flush()
+
+      s=Supplier()
+      s.supplier_id=i+1
+      s.name=rand_corp_name()
+      s.contact_id=contact.contact_id
+      session.add(s)
+
+    elif (table=="store"):
+      s=Store()
+      s.store_number=i+1
+      s.contact_id=i+1
+      s.mgr_employee_id=i+1
+      s.max_capacity=randint(75,500)
+      session.add(s)
+      session.flush()
+
+      sd=StoreDept()
+      sd.dept_number=i+1
+      sd.store_number=s.store_number
+      sd.mgr_employee_id=s.mgr_employee_id
+      sd.office_number=randint(100,100+i)
+      sd.name=rand_dept()
+      session.add(sd)
+
+      sp=StoreProduct()
+      sp.store_id=s.store_number
+      sp.internal_product_id=i+1
+      sp.inventory=randint(1,10000)
+      session.add(sp)
+
   try:
     session.commit()
   except exc.SQLAlchemyError, e:
@@ -71,6 +115,16 @@ def populate_product(table, n=25):
     product.full_price=randint(5,20)
     session.add(product)
     session.flush()
+
+    t=Transaction()
+    t.customer_id=i
+    t.employee_id=i
+    t.internal_product_id=product.internal_product_id
+    t.amount=product.full_price
+    t.method_of_payment=rand_payment_method()
+    t.store_number=i
+    t.type=rand_purchase_type()
+    session.add(t)
 
     o=Order()
     o.internal_product_id=product.internal_product_id
@@ -99,7 +153,7 @@ def populate_product(table, n=25):
       other_item.item_id=i
       other_item.internal_product_id=product.internal_product_id
       other_item.name=rand_item_name()
-      other_item.manufacturer=rand_manufacturer()
+      other_item.manufacturer=rand_corp_name()
       other_item.website_url=rand_website_url()
       session.add(other_item)
 
@@ -220,13 +274,12 @@ def populate_person(table, n=25):
       r.review_grade=randint(1,100)
       session.add(r)
 
-
-
     elif (table=="customer"):
       customer = Customer()
       customer.customer_id=i
       customer.person_id=person.person_id
       session.add(customer)
+
     elif (table=="author"):
       author=Author()
       author.author_id=i

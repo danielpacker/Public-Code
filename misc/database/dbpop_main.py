@@ -11,6 +11,8 @@ def main():
   populate_list("position")
   populate_list("pay_grade", 25)
   populate_list("publisher", 25)
+  populate_list("store", 25)
+  populate_list("supplier", 25)
 
 print("Starting main...")
 main()
