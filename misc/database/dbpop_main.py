@@ -9,6 +9,8 @@ def main():
   populate_product("other_item", 25)
   populate_list("genre")
   populate_list("position")
+  populate_list("pay_grade", 25)
+  populate_list("publisher", 25)
 
 print("Starting main...")
 main()

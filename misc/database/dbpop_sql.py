@@ -25,6 +25,36 @@ def populate_list(table, n=25):
       p.position_id=i+1
       p.name=positions[i]
       session.add(p)
+    elif (table=="pay_grade"):
+      p=PayGrade()
+      p.pay_grade_id=i+1
+      p.annual_salary=i*10000
+      p.days_vacation=10+i
+      p.days_sick_leave=7+i
+      p.benefit_dental = 'yes' if (i > 15) else 'no'
+      p.benefit_health = 'yes' if (i > 10) else 'no'
+      p.benefit_vision = 'yes' if (i > 20) else 'no'
+      session.add(p)
+    elif (table=="publisher"):
+      contact = Contact()
+      contact.fname=rand_fname()
+      contact.lname=rand_lname()
+      contact.phone1=rand_phone()
+      contact.phone2=rand_phone()
+      contact.address1=rand_address()
+      contact.city=rand_city()
+      contact.state=rand_state()
+      contact.zip=rand_zip()
+      contact.email=rand_email(contact.fname,contact.lname)
+      contact.website_url=rand_website_url()
+      session.add(contact)
+      session.flush()
+
+      p=Publisher()
+      p.publisher_id=i+1
+      p.name=rand_publisher_name()
+      p.contact_id=contact.contact_id
+      session.add(p)
 
   try:
     session.commit()
@@ -179,6 +209,18 @@ def populate_person(table, n=25):
       h.date_hired=rand_date(2000,2012)
       h.pay_grade_id=i
       session.add(h)
+
+      r=PerformanceReview()
+      r.review_id=i
+      r.employee_id=i
+      r.mgr_employee_id= i-1 if (i>2) else i+1
+      r.notes="Some notes go here."
+      print(int(h.date_hired[:4]))
+      r.review_date=rand_date(int(h.date_hired[:4]),int(h.date_hired[:4]))
+      r.review_grade=randint(1,100)
+      session.add(r)
+
+
 
     elif (table=="customer"):
       customer = Customer()
