@@ -3,7 +3,7 @@
 # by Daniel Packer
 #
 from DB_MODEL import *
-from dbpop-util import *
+from dbpop_util import *
 from sqlalchemy.orm import sessionmaker
 
 from random import *
