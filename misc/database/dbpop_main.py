@@ -1,18 +1,22 @@
 from dbpop_sql import *
+import sys
 
 def main():
-  populate_person("employee", 25)
-  populate_person("customer", 25)
-  populate_person("author", 25)
-  populate_product("book", 25)
-  populate_product("magazine", 25)
-  populate_product("other_item", 25)
+  num_records=1000
+  if (len(sys.argv) > 1): num_records = int(sys.argv[1])
+    
+  populate_person("employee", num_records)
+  populate_person("customer", num_records)
+  populate_person("author", num_records)
+  populate_product("book", num_records)
+  populate_product("magazine", num_records)
+  populate_product("other_item", num_records)
   populate_list("genre")
   populate_list("position")
-  populate_list("pay_grade", 25)
-  populate_list("publisher", 25)
-  populate_list("store", 25)
-  populate_list("supplier", 25)
+  populate_list("pay_grade", num_records)
+  populate_list("publisher", num_records)
+  populate_list("store", num_records)
+  populate_list("supplier", num_records)
 
 print("Starting main...")
 main()

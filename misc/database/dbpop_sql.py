@@ -177,7 +177,7 @@ def populate_product(table, n=25):
     print("ERROR: " + e.message)
 
   session.close()
-  print("Inserted " + str(n) + " records into " + table);
+  #print("Inserted " + str(n) + " records into " + table);
 
 last_contact_id=last_person_id=0
 def populate_person(table, n=25):
@@ -269,7 +269,6 @@ def populate_person(table, n=25):
       r.employee_id=i
       r.mgr_employee_id= i-1 if (i>2) else i+1
       r.notes="Some notes go here."
-      print(int(h.date_hired[:4]))
       r.review_date=rand_date(int(h.date_hired[:4]),int(h.date_hired[:4]))
       r.review_grade=randint(1,100)
       session.add(r)
@@ -293,5 +292,5 @@ def populate_person(table, n=25):
     print("ERROR: " + e.message)
 
   session.close()
-  print("Inserted " + str(n) + " records into " + table);
+  #print("Inserted " + str(n) + " records into " + table);
 
