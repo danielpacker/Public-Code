@@ -42,6 +42,16 @@ def populate_product(table, n=25):
     session.add(product)
     session.flush()
 
+    o=Order()
+    o.internal_product_id=product.internal_product_id
+    o.order_date=rand_date(2000,2012)
+    o.quantity=randint(100,10000)
+    o.order_total=randint(1000,1000000)
+    o.price_per_unit=randint(1,15)
+    o.supplier_id=i
+    o.type='first'
+    session.add(o)
+
     if (table=="magazine"):
       magazine=Magazine()
       magazine.internal_product_id=product.internal_product_id
@@ -162,6 +172,13 @@ def populate_person(table, n=25):
       es.shift_start_time=rand_time()
       es.shift_end_time=rand_time()
       session.add(es)
+
+      h=Hire()
+      h.employee_id=i
+      h.store_number=i
+      h.date_hired=rand_date(2000,2012)
+      h.pay_grade_id=i
+      session.add(h)
 
     elif (table=="customer"):
       customer = Customer()
