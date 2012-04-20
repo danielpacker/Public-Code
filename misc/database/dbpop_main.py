@@ -6,6 +6,7 @@ def main():
   populate_person("author", 25)
   populate_product("book", 25)
   populate_product("magazine", 25)
+  populate_product("other_item", 25)
 
 print("Starting main...")
 main()

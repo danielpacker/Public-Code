@@ -18,6 +18,7 @@ cities = set(['Albany','Amsterdam','Auburn','Batavia','Beacon','Binghamton','Buf
 publisher_suffixes=set(['Books','Titles','Volumes','Publishing Co.','Publishers','Press','House Books'])
 item_suffixes=set(['Booklight','Bookmark','Reading Light','Calendar','Fridge Magnets','Desk Calendar','Wall Calendar','E-Reader','Book Cover'])
 magazine_suffixes=set(['Monthly','Quarterly','Journal','Enthusiast','Magazine'])
+manufacturer_suffixes=set(['Ltd.','Co.','Enterprises','Corporation','Inc.','Industries','Holdings'])
 
 def rand_book_title():
   numwords=randint(1,3)
@@ -29,11 +30,16 @@ def rand_book_title():
   return title
 
 def rand_magazine_title():
-  numwords=randint(1,3)
-  title = sample(words,1)[0]
   title = sample(words,1)[0] + " " + sample(magazine_suffixes,1)[0]
   return title
 
+def rand_item_name():
+  name = sample(words,1)[0] + " " + sample(item_suffixes,1)[0]
+  return name
+
+def rand_manufacturer():
+  name = sample(words,1)[0] + " " + sample(manufacturer_suffixes,1)[0]
+  return name
 
 def rand_item_name():
   return sample(words,1)[0] + " " + sample(item_suffixes,1)[0]

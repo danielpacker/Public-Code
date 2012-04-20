@@ -31,8 +31,15 @@ def populate_product(table, n=25):
       magazine.website_url=rand_website_url()
       magazine.name=rand_magazine_title()
       session.add(magazine)
+
     elif (table=="other_item"):
-      other_item=Other_item()
+      other_item=OtherItem()
+      other_item.item_id=i
+      other_item.internal_product_id=product.internal_product_id
+      other_item.name=rand_item_name()
+      other_item.manufacturer=rand_manufacturer()
+      other_item.website_url=rand_website_url()
+      session.add(other_item)
 
     elif (table=="book"):
       book=Book()
