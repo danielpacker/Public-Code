@@ -15,15 +15,7 @@ session = Session()
 def populate_person(table, n=25):
 
   for i in range(1,n+1):
-    test_person = Person()
-    #test_person.person_id=i
-    test_person.dob=rand_dob()
-    test_person.type='employee'
-    test_person.contact_id=i
-    session.add(test_person)
-
     contact = Contact()
-    #contact.contact_id=i
     contact.fname=rand_fname()
     contact.lname=rand_lname()
     contact.phone1 =rand_phone()
@@ -35,12 +27,18 @@ def populate_person(table, n=25):
     contact.email=rand_email(contact.fname,contact.lname)
     contact.website_url=rand_website_url()
     session.add(contact)
+    session.flush()
 
+    person = Person()
+    person.dob=rand_dob()
+    person.type='employee'
+    person.contact_id=contact.contact_id
+    session.add(person)
+    session.flush()
 
     if (table=="employee"):
       employee = Employee()
-      #employee.employee_id=i
-      employee.person_id=i
+      employee.person_id=person.person_id
       employee.store_number=i
       employee.position_id=randint(1,25)
       employee.pay_grade_id=randint(1,25)
@@ -48,8 +46,7 @@ def populate_person(table, n=25):
       session.add(employee)
     elif (table=="customer"):
       customer = Customer()
-      #customer.customer_id=i
-      customer.person_id=i
+      customer.person_id=person.person_id
       session.add(customer)
     else:
       raise TableUndefinedError('No table defined')
