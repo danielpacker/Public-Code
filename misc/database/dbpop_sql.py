@@ -132,6 +132,15 @@ def populate_person(table, n=25):
       ec.relationship=rand_relationship()
       session.add(ec)
 
+      es=EmployeeShift()
+      es.shift_id=i
+      es.employee_id=i
+      es.shift_start_day=rand_day()
+      es.shift_end_day=rand_day()
+      es.shift_start_time=rand_time()
+      es.shift_end_time=rand_time()
+      session.add(es)
+
     elif (table=="customer"):
       customer = Customer()
       customer.customer_id=i

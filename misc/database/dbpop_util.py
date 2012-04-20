@@ -21,6 +21,11 @@ magazine_suffixes=set(['Monthly','Quarterly','Journal','Enthusiast','Magazine'])
 manufacturer_suffixes=set(['Ltd.','Co.','Enterprises','Corporation','Inc.','Industries','Holdings'])
 relationships=set(['mother','father','sister','brother','aunt','uncle','friend','fiance','significant other','grandmother','grandfather','caretaker','guardian','partner','sibling'])
 
+def rand_day():
+  return sample(days,1)[0]
+
+def rand_time(intervals=4):
+  return str(randint(1,12)) + ":" + str(randint(0,intervals)*(60/intervals))
 
 def rand_relationship():
   return sample(relationships,1)[0]
