@@ -19,6 +19,11 @@ publisher_suffixes=set(['Books','Titles','Volumes','Publishing Co.','Publishers'
 item_suffixes=set(['Booklight','Bookmark','Reading Light','Calendar','Fridge Magnets','Desk Calendar','Wall Calendar','E-Reader','Book Cover'])
 magazine_suffixes=set(['Monthly','Quarterly','Journal','Enthusiast','Magazine'])
 manufacturer_suffixes=set(['Ltd.','Co.','Enterprises','Corporation','Inc.','Industries','Holdings'])
+relationships=set(['mother','father','sister','brother','aunt','uncle','friend','fiance','significant other','grandmother','grandfather','caretaker','guardian','partner','sibling'])
+
+
+def rand_relationship():
+  return sample(relationships,1)[0]
 
 def rand_book_title():
   numwords=randint(1,3)
@@ -47,8 +52,8 @@ def rand_item_name():
 def rand_publisher_name():
   return sample(words,1)[0] + " " + sample(publisher_suffixes,1)[0]
     
-def rand_date(n=2012):
-  dob = str(randint(1900,n)) + "-" + str(randint(1,12)) + "-" + str(randint(1,28))
+def rand_date(start=1900,end=2012):
+  dob = str(randint(start,end)) + "-" + str(randint(1,12)) + "-" + str(randint(1,28))
   #print("dob: " + dob)
   return dob
 

@@ -103,6 +103,35 @@ def populate_person(table, n=25):
       employee.pay_grade_id=randint(1,25)
       employee.ssn=ssn()
       session.add(employee)
+
+      do=DaysOff()
+      do.employee_id=i
+      do.request_submitted_on=rand_date(2000,2012)
+      do.approved_on=rand_date(2000,2012)
+      do.reason="Same old reason."
+      do.date_taken_off=do.request_submitted_on
+      session.add(do)
+
+      econtact = Contact()
+      econtact.fname=rand_fname()
+      econtact.lname=rand_lname()
+      econtact.phone1=rand_phone()
+      econtact.phone2=rand_phone()
+      econtact.address1=rand_address()
+      econtact.city=rand_city()
+      econtact.state=rand_state()
+      econtact.zip=rand_zip()
+      econtact.email=rand_email(econtact.fname,econtact.lname)
+      econtact.website_url=rand_website_url()
+      session.add(econtact)
+      session.flush()
+
+      ec=EmergencyContact()
+      ec.employee_id=i
+      ec.contact_id=econtact.contact_id
+      ec.relationship=rand_relationship()
+      session.add(ec)
+
     elif (table=="customer"):
       customer = Customer()
       customer.customer_id=i
