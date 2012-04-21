@@ -1,3 +1,12 @@
+/*
+ *
+ * A C++ library for parsing FASTA nucleotide and peptide sequence files, and
+ * for basic sequence manipulation
+ * 
+ * Author: Daniel Packer <dp at danielpacker dot org>
+ *
+ */
+
 #include <iostream>
 #include <fstream>
 #include <string>
@@ -11,7 +20,7 @@
 
 using namespace std;
 
-enum { MODE_NONCODING, MODE_CODING };
+enum { MODE_NUCLEOTIDE, MODE_PEPTIDE };
 
 enum { A = 0, T = 1, G = 2, C = 3, U = 4 };
 
@@ -306,7 +315,7 @@ public:
     map_codons();
   }
 
-  void read (const char* filename, int mode = MODE_NONCODING) {
+  void read (const char* filename, int mode = MODE_NUCLEOTIDE) {
 
     init(); // initialize data
 
@@ -319,7 +328,7 @@ public:
       {
         if (count++)
         {
-          if (mode == MODE_NONCODING)
+          if (mode == MODE_NUCLEOTIDE)
           {
             char c;
             while (myfile.get(c)) 
@@ -328,7 +337,7 @@ public:
               //if (DEBUG) cout << "BASE: " << c << endl;
             }
           }
-          else if (mode == MODE_CODING)
+          else if (mode == MODE_PEPTIDE)
           {
            while (!myfile.eof())
            {
