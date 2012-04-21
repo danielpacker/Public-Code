@@ -25,6 +25,10 @@ enum { MODE_NUCLEOTIDE, MODE_PEPTIDE };
 enum { A = 0, T = 1, G = 2, C = 3, U = 4 };
 
 
+/*
+ * RGB color value and name. Useful for rendering AminoAcids in color.
+ *
+ */
 struct aa_color {
   string name;
   int r;
@@ -36,6 +40,11 @@ struct aa_color {
   }
 };
 
+/*
+ * AminoAcid encapsulates known constants associated with each amino acid 
+ * e.g weight, codons. Provides accessors/mutators.
+ *
+ */
 class AminoAcid {
 
   public:
@@ -112,15 +121,11 @@ class AminoAcid {
   }
 };
 
-/* encoding scheme
 
-Amino acids will have fields for their proper name, their abbreviation (one letter), and their possible codons. The codons will be represented by their unique 4 bit value.
-
-In order to make a sequence of amino acids, we iterate through the sequence, calculating codon indexes. For each codon index, we look at a mapping of codon indexes to amino acids to determine what acid to add to the list. We retrieve an amino acid object ref from the map and retrieve its name or abbreviation to add to the list.
-
-*/
-  
-
+/*
+ * FASTA objects parse FASTA files and populates data structures with contents.
+ *
+ */
 class FASTA {
 
 private:
