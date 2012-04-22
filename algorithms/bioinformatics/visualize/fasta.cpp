@@ -135,7 +135,7 @@ class FASTA {
 
 private:
 
-  vector<int> seq;                    // store bp seq
+  vector<char> seq;                   // store bp seq
   vector<char*> header_fields;        // header fields
 
   map<char, AminoAcid> amino_acids;   // amino acid records
@@ -385,7 +385,8 @@ public:
             char c;
             while (myfile.get(c)) 
             {
-              insert_base(c);
+              //insert_base(c);
+              seq.push_back(c);
               //if (DEBUG) cout << "BASE: " << c << endl;
             }
           }
@@ -443,13 +444,13 @@ public:
    *
    */
   void dump_seq() {
-    vector<int>::iterator it;
+    vector<char>::iterator it;
+    cout << "SEQ:\n";
     for (it=seq.begin(); it < seq.end(); it++)
     {
-      cout << " " << *it;
+      cout << *it << " ";
     }
     
-    cout << "CODING SEQ\n";
     vector<char>::iterator cit;
     for (cit=peptide_seq.begin(); cit < peptide_seq.end(); cit++)
     {
@@ -485,7 +486,7 @@ public:
     return coding;
   }
 
-  vector<int> getSeq() {
+  vector<char> getSeq() {
     return seq;
   }
 
