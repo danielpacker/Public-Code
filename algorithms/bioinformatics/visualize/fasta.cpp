@@ -24,6 +24,9 @@ enum { MODE_NUCLEOTIDE, MODE_PEPTIDE };
 
 enum { A = 0, T = 1, G = 2, C = 3, U = 4 };
 
+const char * AA_CONSTANTS_FILE = "aa_constants.txt";
+const char * AA_COLORS_FILE    = "aa_colors.txt";
+
 
 /*
  * RGB color value and name. Useful for rendering AminoAcids in color.
@@ -135,16 +138,32 @@ private:
 
   map<char, AminoAcid> amino_acids;   // amino acid records
   map<string, char> codon_map;        // map amino acids to codons
-  vector<char> coding_seq;            // store amino acid seq
+  vector<char> peptide_seq;            // store amino acid seq
   map<string, aa_color> aa_color_map; // mappings of amino acid colors
+
 
   void insert_amino (string codon) {
     char abbr = codon_map[codon];
     AminoAcid a = amino_acids[abbr];
     //cout << "NAME: " << *(a.name) << endl;
     //cout << "ABREV: " << a.abbrev << endl;
-    coding_seq.push_back(a.abbrev());
+    peptide_seq.push_back(a.abbrev());
   }
+
+
+  /* 
+   * Reset all values to default (empty) 
+   *
+   */
+  void reset() {
+    seq.clear();
+    header_fields.clear();
+    amino_acids.clear();
+    codon_map.clear();
+    peptide_seq.clear();
+    aa_color_map.clear();
+  }
+
 
   void insert_base(char c) {
     int pushVal = -1;
@@ -175,9 +194,32 @@ private:
   }
 
 
+  /*
+   * Load values from space delimited files into data structures for use
+   *
+   */
+  void init () {
+    load_colors();
+    load_aa_constants();
+  }
+
+
 public:
 
-  void map_colors (const char* filename = "aa_colors.txt") {
+  /*
+   * constructor -- initialize object, set up
+   *
+   */
+  FASTA() {
+    init();
+  }
+
+
+  /* 
+   * load the color values for amino acids from a file
+   *
+   */
+  void load_colors (const char* filename = AA_COLORS_FILE) {
     int count=0;
     string definition_line;
     ifstream myfile(filename);
@@ -233,7 +275,7 @@ public:
     
   }
 
-  void map_codons (const char* filename = "aa_constants.txt") {
+  void load_aa_constants (const char* filename = AA_CONSTANTS_FILE) {
     int count=1;
     string definition_line;
     ifstream myfile(filename);
@@ -283,7 +325,7 @@ public:
           vector<string> codons;
           while (tlc != NULL)
           {
-             // push the amino acid to the coding_seq
+             // push the amino acid to the peptide_seq
              codons.push_back(std::string(tlc));
              //cout << "TLC: " << tlc << endl;
              codon_map[tlc] = *single_abbr;
@@ -315,14 +357,11 @@ public:
     
   }
 
-  void init () {
-    map_colors();
-    map_codons();
-  }
-
+  /* 
+   * Read constants from space delimited amino acids file.
+   * 
+   */
   void read (const char* filename, int mode = MODE_NUCLEOTIDE) {
-
-    init(); // initialize data
 
     int count=0;
     string header;
@@ -379,6 +418,11 @@ public:
     else cout << "Unable to open file '" << filename << "'\n";
   } 
 
+
+  /*
+   * Dump the data from the FASTA file for debugging.
+   *
+   */
   void dump() {
     vector<int>::iterator it;
     for (it=seq.begin(); it < seq.end(); it++)
@@ -388,7 +432,7 @@ public:
     
     cout << "CODING SEQ\n";
     vector<char>::iterator cit;
-    for (cit=coding_seq.begin(); cit < coding_seq.end(); cit++)
+    for (cit=peptide_seq.begin(); cit < peptide_seq.end(); cit++)
     {
       cout << *cit;
       //AminoAcid a = amino_acids[*cit];
@@ -398,7 +442,7 @@ public:
       //aa_color aac = aa_color_map[tla];
       //aac.dump();
 
-      if (cit < coding_seq.end()-1) cout << ", ";
+      if (cit < peptide_seq.end()-1) cout << ", ";
     }
     cout << endl;
  
@@ -415,7 +459,7 @@ public:
   vector<AminoAcid> getCodingSeq() {
     vector<AminoAcid> coding;
     vector<char>::iterator ci;
-    for (ci = coding_seq.begin(); ci < coding_seq.end(); ci++)
+    for (ci = peptide_seq.begin(); ci < peptide_seq.end(); ci++)
     {
       coding.push_back(amino_acids[*ci]);
     }
