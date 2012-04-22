@@ -7,8 +7,11 @@ int main () {
 
   FASTA f;
   
-  f.read("CP001438.1.fasta", 0);
-  //f.read("CP001438.1.fasta", MODE_CODING);
+  f.read("CP001438.1.fasta", MODE_NUCLEOTIDE);
+  f.dump_seq();
+  f.reset();
+  f.read("CP001438.1.fasta", MODE_PEPTIDE);
+  f.dump_seq();
   //f.dump();
 
   return 0;

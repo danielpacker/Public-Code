@@ -151,20 +151,6 @@ private:
   }
 
 
-  /* 
-   * Reset all values to default (empty) 
-   *
-   */
-  void reset() {
-    seq.clear();
-    header_fields.clear();
-    amino_acids.clear();
-    codon_map.clear();
-    peptide_seq.clear();
-    aa_color_map.clear();
-  }
-
-
   void insert_base(char c) {
     int pushVal = -1;
     switch(c) {
@@ -212,6 +198,17 @@ public:
    */
   FASTA() {
     init();
+  }
+
+
+  /* 
+   * Reset all values to default (empty) 
+   *
+   */
+  void reset() {
+    seq.clear();
+    header_fields.clear();
+    peptide_seq.clear();
   }
 
 
@@ -423,7 +420,7 @@ public:
    * Dump the data from the FASTA file for debugging.
    *
    */
-  void dump() {
+  void dump_seq() {
     vector<int>::iterator it;
     for (it=seq.begin(); it < seq.end(); it++)
     {
