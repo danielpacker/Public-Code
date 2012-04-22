@@ -5,6 +5,8 @@
  * 
  * Author: Daniel Packer <dp at danielpacker dot org>
  *
+ * TODO:
+ * - add filename extenstion recognition (nucleotide vs amino acid, etc.)
  */
 
 #include <iostream>
@@ -187,6 +189,15 @@ private:
   void init () {
     load_colors();
     load_aa_constants();
+  }
+
+  bool is_stop(char * codon) {
+    AminoAcid stop_aa = amino_acids['*'];
+    return false;
+  }
+
+  bool not_aa(char * codon) {
+    return false;
   }
 
 
@@ -390,6 +401,17 @@ public:
               char codon[3];
               while (ss.get(codon, 4))
               {
+                if (is_stop(codon))
+                {
+                  ss.seekg(ios_base::cur-3);
+                  while (ss.get(codon,4)) 
+                  {
+                    if (not_aa(codon))
+                    {
+                      ss.seekg(ios_base::cur-3);
+                    }
+                  }
+                }
                 //cout << "CODON: " << codon << endl;
                 insert_amino(codon);
               }
