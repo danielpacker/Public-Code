@@ -432,20 +432,22 @@ public:
                 {
                   // is this a stop codon? seek to a start codon
                   if (is_stop(codon))
+                  {
+                    insert_amino(codon);
                     while ( ss.get(codon,4) && (! is_start(codon)) )
                       ss.seekg((int)ss.tellg()-2);
+                  }
                 } 
-                else
+                else // deal with noncoding DNA
                 {
-                  // we're in non-coding dna. seek to start codon.
+                  //cout << "NONCODING DNA: " << codon << endl;
+
+                  // find the next start codon
                   while ( ! is_start(codon) )
                   {
                     ss.seekg((int)ss.tellg()-2);
                     ss.get(codon, 4);
                   }
- 
-                  // deal with noncoding DNA
-                  cout << "NONCODING DNA: " << codon << endl;
                 }
                 
                 /*
@@ -493,13 +495,13 @@ public:
    */
   void dump_seq() {
     vector<char>::iterator it;
-    cout << "NUCLEOTIDE SEQ:\n";
+    cout << "\nNUCLEOTIDE SEQ:\n";
     for (it=seq.begin(); it < seq.end(); it++)
     {
       cout << *it << " ";
     }
     
-    cout << "PEPTIDE SEQ:\n";
+    cout << "\nPEPTIDE SEQ:\n";
     vector<char>::iterator cit;
     for (cit=peptide_seq.begin(); cit < peptide_seq.end(); cit++)
     {
