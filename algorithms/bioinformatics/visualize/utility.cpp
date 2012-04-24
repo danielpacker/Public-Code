@@ -53,4 +53,16 @@ vector<string> split(const string &s, char delim) {
     return split(s, delim, elems);
 }
 
+template <typename Comparable>
+bool grepVec(const Comparable &s, vector<Comparable> &v) {
+  typename std::vector<Comparable>::const_iterator it;
+  for (int i=0; i < v.size(); i++)
+  {
+    //cout << "COMPARING [" << v[i] << "] to [" << s << "]" << endl;
+    if (v[i] == s) return true;
+  }
+    //cout << "GREPPING LIST ITEM: " << v[i] << endl;
+  return false; 
+}
+
 #endif

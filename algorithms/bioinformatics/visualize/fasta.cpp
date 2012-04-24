@@ -17,6 +17,7 @@
 #include <cstring>
 #include <map>
 #include <sstream>
+#include "utility.cpp"
 
 #define DEBUG 1
 
@@ -123,6 +124,8 @@ class AminoAcid {
   void dump() {
     cout << "[" << name_ << "]: " << triple_abbrev_ << ", " << abbrev_ << endl;
     color_.dump();
+    cout << "Codons:\n";
+    printVec(codons_);
   }
 };
 
@@ -130,6 +133,9 @@ class AminoAcid {
 /*
  * FASTA objects parse FASTA files and populates data structures with contents.
  *
+ * Explanation of mappings:
+ * - amino_acids maps single letter abbreviations for amino acids to amino acid objects
+ * - codon_map maps triple letter codon strings with the single letter abbreviations
  */
 class FASTA {
 
@@ -140,15 +146,18 @@ private:
 
   map<char, AminoAcid> amino_acids;   // amino acid records
   map<string, char> codon_map;        // map amino acids to codons
-  vector<char> peptide_seq;            // store amino acid seq
+  vector<string> valid_codons;        // just a list of valid codons, like the keys of codon_map
+  vector<char> peptide_seq;           // store amino acid seq
   map<string, aa_color> aa_color_map; // mappings of amino acid colors
 
 
   void insert_amino (string codon) {
+    //cout << "codon: " << codon << endl;
     char abbr = codon_map[codon];
+    //cout << "abbr: " << abbr << endl;
     AminoAcid a = amino_acids[abbr];
-    //cout << "NAME: " << *(a.name) << endl;
-    //cout << "ABREV: " << a.abbrev << endl;
+    //cout << "NAME: " << a.name() << endl;
+    //cout << "ABREV: " << a.abbrev() << endl;
     peptide_seq.push_back(a.abbrev());
   }
 
@@ -191,13 +200,23 @@ private:
     load_aa_constants();
   }
 
-  bool is_stop(char * codon) {
-    AminoAcid stop_aa = amino_acids['*'];
-    return false;
+  bool is_coding(char * codon) {
+    bool found_codon = grepVec(std::string(codon), valid_codons);
+    return found_codon;
   }
 
-  bool not_aa(char * codon) {
-    return false;
+  bool is_stop(char * codon) {
+    AminoAcid stop_aa = amino_acids['*'];
+    vector<string> stop_codons = stop_aa.codons();
+    bool found_stop = grepVec(std::string(codon), stop_codons);
+    return found_stop;
+  }
+
+  bool is_start(char * codon) {
+    AminoAcid stop_aa = amino_acids['M'];
+    vector<string> stop_codons = stop_aa.codons();
+    bool found_stop = grepVec(std::string(codon), stop_codons);
+    return found_stop;
   }
 
 
@@ -315,7 +334,7 @@ public:
           if (wt)
             code = strtok(NULL, " ");
 
-          cout << "name: " << name << " single_abbr: " << single_abbr << " triple_abbr: " << triple_abbr << " code: " << code << endl;
+          //cout << "name: " << name << " single_abbr: " << single_abbr << " triple_abbr: " << triple_abbr << " code: " << code << endl;
           AminoAcid a;
           if (name != NULL)
             a.name(std::string(name));
@@ -337,11 +356,13 @@ public:
              codons.push_back(std::string(tlc));
              //cout << "TLC: " << tlc << endl;
              codon_map[tlc] = *single_abbr;
+             valid_codons.push_back(std::string(tlc));
              tlc = strtok(NULL, ",");
           }
           a.codons(codons); // finalize amino acid
           a.color(aa_color_map[triple_abbr]);
-
+          //cout << "storing the amino acid (" << a.abbrev() << ")\n";
+          //a.dump();
           amino_acids[a.abbrev()] = a;
           count++;
         } // end check for empty line
@@ -400,19 +421,46 @@ public:
               ss << line;
               
               char codon[3];
+
+              // Get codons, one after another
               while (ss.get(codon, 4))
               {
-                if (is_stop(codon))
+
+                //cout << "TELLG: " << ss.tellg() << endl;
+                // is this a valid codon?
+                if (is_coding(codon)) 
                 {
-                  ss.seekg(ios_base::cur-3);
-                  while (ss.get(codon,4)) 
+                  // is this a stop codon? seek to a start codon
+                  if (is_stop(codon))
+                    while ( ss.get(codon,4) && (! is_start(codon)) )
+                      ss.seekg((int)ss.tellg()-2);
+                } 
+                else
+                {
+                  // we're in non-coding dna. seek to start codon.
+                  while ( ! is_start(codon) )
                   {
-                    if (not_aa(codon))
-                    {
-                      ss.seekg(ios_base::cur-3);
-                    }
+                    ss.seekg((int)ss.tellg()-2);
+                    ss.get(codon, 4);
                   }
+ 
+                  // deal with noncoding DNA
+                  cout << "NONCODING DNA: " << codon << endl;
                 }
+                
+                /*
+                  //now keep reading and looking for another start
+                  ss.get(codon,4);
+                  int x=0;
+                  while (! is_start(codon))
+                  {
+                    ss.seekg(-2); // rewind 2 chars 
+                    ss.get(codon,4);
+                    cout << "rewound CODON: " << codon << endl;
+                    if (x++ > 50)
+                      break;
+                  }
+                  */
                 //cout << "CODON: " << codon << endl;
                 insert_amino(codon);
               }
@@ -445,12 +493,13 @@ public:
    */
   void dump_seq() {
     vector<char>::iterator it;
-    cout << "SEQ:\n";
+    cout << "NUCLEOTIDE SEQ:\n";
     for (it=seq.begin(); it < seq.end(); it++)
     {
       cout << *it << " ";
     }
     
+    cout << "PEPTIDE SEQ:\n";
     vector<char>::iterator cit;
     for (cit=peptide_seq.begin(); cit < peptide_seq.end(); cit++)
     {

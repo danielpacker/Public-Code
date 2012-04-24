@@ -7,6 +7,9 @@ int main () {
 
   FASTA f;
   
+  f.read("CSCI435.fasta", MODE_PEPTIDE);
+  f.dump_seq();
+  f.reset();
   f.read("CSCI435.fasta", MODE_NUCLEOTIDE);
   f.dump_seq();
   //f.read("CP001438.1.fasta", MODE_NUCLEOTIDE);
