@@ -7,11 +7,13 @@ int main () {
 
   FASTA f;
   
-  f.read("CSCI435.fasta", MODE_PEPTIDE);
-  f.dump_seq();
+  f.read("CSCI435.fasta", MODE_PEPTIDE, TYPE_CDNA);
+  cout << "test\n";
+  f.dump_seq(true);
+  f.print_amino_constants();
   f.reset();
-  f.read("CSCI435.fasta", MODE_NUCLEOTIDE);
-  f.dump_seq();
+  //f.read("CSCI435.fasta", MODE_NUCLEOTIDE);
+  //f.dump_seq();
   //f.read("CP001438.1.fasta", MODE_NUCLEOTIDE);
   //f.dump_seq();
   //f.reset();

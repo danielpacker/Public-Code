@@ -17,13 +17,14 @@
 #include <cstring>
 #include <map>
 #include <sstream>
+#include <algorithm>
 #include "utility.cpp"
 
 #define DEBUG 1
 
 using namespace std;
 
-enum { MODE_NUCLEOTIDE, MODE_PEPTIDE };
+enum { MODE_NUCLEOTIDE, MODE_PEPTIDE, TYPE_CDNA, TYPE_NDNA, TYPE_RNA };
 
 enum { A = 0, T = 1, G = 2, C = 3, U = 4 };
 
@@ -122,7 +123,7 @@ class AminoAcid {
   }
 
   void dump() {
-    cout << "[" << name_ << "]: " << triple_abbrev_ << ", " << abbrev_ << endl;
+    cout << "[" << name_ << "]: " << triple_abbrev_ << ", " << abbrev_ << ", " << weight_ << ", " << formula_ << endl;
     color_.dump();
     cout << "Codons:\n";
     printVec(codons_);
@@ -150,7 +151,10 @@ private:
   vector<char> peptide_seq;           // store amino acid seq
   map<string, aa_color> aa_color_map; // mappings of amino acid colors
 
-
+  /*
+   * Insert an amino acid into the peptide sequence
+   *
+   */
   void insert_amino (string codon) {
     //cout << "codon: " << codon << endl;
     char abbr = codon_map[codon];
@@ -162,6 +166,10 @@ private:
   }
 
 
+  /*
+   * Insert a base into the nucleotide sequence
+   *
+   */
   void insert_base(char c) {
     int pushVal = -1;
     switch(c) {
@@ -388,9 +396,10 @@ public:
 
   /* 
    * Read constants from space delimited amino acids file.
+   * Supports cDNA only. Implement RNA and non-coding DNA in future.
    * 
    */
-  void read (const char* filename, int mode = MODE_NUCLEOTIDE) {
+  void read (const char* filename, int mode = MODE_NUCLEOTIDE, int type = TYPE_CDNA) {
 
     int count=0;
     string header;
@@ -413,11 +422,12 @@ public:
           }
           else if (mode == MODE_PEPTIDE)
           {
-           while (!myfile.eof())
-           {
+            while (!myfile.eof())
+            {
               string line;
               stringstream ss;
               getline(myfile, line, '\n');
+              line = DNA2RNA(line, type);
               ss << line;
               
               char codon[3];
@@ -425,7 +435,6 @@ public:
               // Get codons, one after another
               while (ss.get(codon, 4))
               {
-
                 //cout << "TELLG: " << ss.tellg() << endl;
                 // is this a valid codon?
                 if (is_coding(codon)) 
@@ -433,7 +442,7 @@ public:
                   // is this a stop codon? seek to a start codon
                   if (is_stop(codon))
                   {
-                    insert_amino(codon);
+                    insert_amino(codon); // include the stop codon
                     while ( ss.get(codon,4) && (! is_start(codon)) )
                       ss.seekg((int)ss.tellg()-2);
                   }
@@ -450,21 +459,9 @@ public:
                   }
                 }
                 
-                /*
-                  //now keep reading and looking for another start
-                  ss.get(codon,4);
-                  int x=0;
-                  while (! is_start(codon))
-                  {
-                    ss.seekg(-2); // rewind 2 chars 
-                    ss.get(codon,4);
-                    cout << "rewound CODON: " << codon << endl;
-                    if (x++ > 50)
-                      break;
-                  }
-                  */
-                //cout << "CODON: " << codon << endl;
-                insert_amino(codon);
+                // before inserting, make sure valid
+                if (is_coding(codon))
+                  insert_amino(codon);
               }
             }
           }
@@ -493,31 +490,73 @@ public:
    * Dump the data from the FASTA file for debugging.
    *
    */
-  void dump_seq() {
+  void dump_seq(bool verbose = false) {
     vector<char>::iterator it;
-    cout << "\nNUCLEOTIDE SEQ:\n";
-    for (it=seq.begin(); it < seq.end(); it++)
+    if (seq.size() > 0)
     {
-      cout << *it << " ";
+      cout << "\nNUCLEOTIDE SEQ:\n";
+      for (it=seq.begin(); it < seq.end(); it++)
+      {
+        cout << *it << " ";
+      }
+      cout << endl;
     }
     
-    cout << "\nPEPTIDE SEQ:\n";
-    vector<char>::iterator cit;
-    for (cit=peptide_seq.begin(); cit < peptide_seq.end(); cit++)
+    if (peptide_seq.size())
     {
-      cout << *cit;
-      //AminoAcid a = amino_acids[*cit];
-      // a.dump();
-      //string tla = a.triple_abbrev;
-      //cout << "TLA: " << tla << endl;
-      //aa_color aac = aa_color_map[tla];
-      //aac.dump();
-
-      if (cit < peptide_seq.end()-1) cout << ", ";
-    }
-    cout << endl;
+      cout << "\nPEPTIDE SEQ:\n";
+      vector<char>::iterator cit;
+      int wordct=0;
+      for (cit=peptide_seq.begin(); cit < peptide_seq.end(); cit++)
+      {
+        if (verbose)
+        {
+          if (*cit == '*')
+          {
+            cout << endl;
+            wordct=0;
+          }
+          else
+          {
+          AminoAcid a = amino_acids[*cit];
+          if (wordct != 0)
+            cout << "-";
  
+          cout << a.triple_abbrev();
+          wordct++;
+         }
+        }
+        else
+        {
+          cout << *cit;
+          if (cit < peptide_seq.end()-1) cout << ", ";
+        }
+        //AminoAcid a = amino_acids[*cit];
+        // a.dump();
+        //string tla = a.triple_abbrev;
+        //cout << "TLA: " << tla << endl;
+        //aa_color aac = aa_color_map[tla];
+        //aac.dump();
+
+      }
+      cout << endl << endl;
+    }
   }
+
+  /*
+   * Dump the data from the FASTA file for debugging.
+   *
+   */
+  void print_amino_constants() {
+    map<char, AminoAcid>::iterator ci;
+    for (ci = amino_acids.begin(); ci != amino_acids.end(); ci++)
+    {
+      AminoAcid aa = (*ci).second;
+      if (aa.triple_abbrev() != "STP")
+        cout << aa.triple_abbrev() << " " << aa.name() << " " << aa.formula() << endl;
+    }
+  }
+
 
   int size() {
     return seq.size();
@@ -560,8 +599,38 @@ public:
         return 'u';
       break;
     };
-}
+  }
 
+  /*
+   * convert DNA to RNA (simple T -> U substitution)
+   * parameter: boolean for whether coding or non-coding
+   *
+   */
+  std::string DNA2RNA( const std::string DNA, int type = TYPE_CDNA ) {
+    string RNA = DNA;
+    cout << "DNA IN: " << RNA << endl;
+    if (type == TYPE_CDNA)
+    {
+      strReplace(RNA, "T", "U");
+      strReplace(RNA, "t", "u");
+    }
+    // non-coding template (anti-sense) strand needs reverse compliment
+    else if (type == TYPE_NDNA)
+    {
+      std::reverse(RNA.begin(), RNA.end());
+      strReplace(RNA, "T", "A");
+      strReplace(RNA, "t", "a");
+      strReplace(RNA, "A", "t");
+      strReplace(RNA, "a", "t");
+      strReplace(RNA, "C", "G");
+      strReplace(RNA, "c", "g");
+      strReplace(RNA, "G", "C");
+      strReplace(RNA, "g", "c");
+      RNA = DNA2RNA(RNA, TYPE_CDNA);
+    }
+    cout << "RNA OUT: " << RNA << endl;
+    return RNA;
+  }
 
 };
 

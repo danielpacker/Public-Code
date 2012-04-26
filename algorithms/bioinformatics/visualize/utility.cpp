@@ -16,7 +16,10 @@
 #include <sstream>
 using namespace std;
 
-// Swap two Comparables
+/*
+ * Swap two Comparables in place
+ *
+ */
 template <class Comparable>
 void swap( Comparable & lhs, Comparable & rhs )
 {
@@ -25,7 +28,10 @@ void swap( Comparable & lhs, Comparable & rhs )
     rhs = temp;
 }
 
-// print a vector's elements from range left to right
+/*
+ * print a vector's elements from range left to right
+ *
+ */
 template <typename Comparable>
 void printVec ( const vector<Comparable> & v , int left=0, int right=-1 )
 {
@@ -38,6 +44,11 @@ void printVec ( const vector<Comparable> & v , int left=0, int right=-1 )
     cout << endl;
 }
 
+
+/*
+ * see below -- implements split
+ *
+ */
 vector<string> &split(const string &s, char delim, vector<string> &elems) {
     stringstream ss(s);
     string item;
@@ -48,11 +59,19 @@ vector<string> &split(const string &s, char delim, vector<string> &elems) {
 }
 
 
+/*
+ * Split a string into vector of strings with delimiter delim
+ *
+ */
 vector<string> split(const string &s, char delim) {
     vector<string> elems;
     return split(s, delim, elems);
 }
 
+/*
+ * Return whether or not element s is found in vector v
+ *
+ */
 template <typename Comparable>
 bool grepVec(const Comparable &s, vector<Comparable> &v) {
   typename std::vector<Comparable>::const_iterator it;
@@ -63,6 +82,21 @@ bool grepVec(const Comparable &s, vector<Comparable> &v) {
   }
     //cout << "GREPPING LIST ITEM: " << v[i] << endl;
   return false; 
+}
+
+
+/*
+ * Replace string sOld with string sNew in string s (in place)
+ *
+ */
+void strReplace(std::string & s, const std::string & sOld, const std::string & sNew)
+{
+  size_t pos = 0;
+  while((pos = s.find(sOld, pos)) != std::string::npos)
+  {
+     s.replace(pos, sOld.length(), sNew);
+     pos += sNew.length();
+  }
 }
 
 #endif
