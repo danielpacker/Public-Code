@@ -2,11 +2,19 @@
  *
  * A C++ library for parsing FASTA nucleotide and peptide sequence files, and
  * for basic sequence manipulation
+ *
+ * File are read into a buffer line by line, so memory usage is minimal even
+ * for massive files. Reading frame recognition is implemented.
  * 
  * Author: Daniel Packer <dp at danielpacker dot org>
  *
  * TODO:
  * - add filename extenstion recognition (nucleotide vs amino acid, etc.)
+ * - implement template sequences (not just coding sequences)
+ * - imlement reading amino acids direct from fasta
+ * - implement automatic fasta file generator/testing framework
+ * - implement orf struct and store vector of orfs with their start/end pos
+ *
  */
 
 #include <iostream>
@@ -446,7 +454,7 @@ public:
           /*
            * In MODE_PEPTIDE we want to interpret nucleotides as coding for amino acids.
            *
-           */
+           8/
           else if (mode == MODE_PEPTIDE)
           {
             while (!myfile.eof())
