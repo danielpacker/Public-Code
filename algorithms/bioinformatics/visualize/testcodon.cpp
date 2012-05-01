@@ -8,7 +8,6 @@ int main () {
   FASTA f;
   
   f.read("CSCI435.fasta", MODE_PEPTIDE, TYPE_CDNA);
-  cout << "test\n";
   f.dump_seq(true);
   f.print_amino_constants();
   f.reset();

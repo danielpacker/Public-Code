@@ -208,22 +208,22 @@ private:
     load_aa_constants();
   }
 
-  bool is_coding(char * codon) {
-    bool found_codon = grepVec(std::string(codon), valid_codons);
+  bool is_coding(std::string codon) {
+    bool found_codon = grepVec(codon, valid_codons);
     return found_codon;
   }
 
-  bool is_stop(char * codon) {
+  bool is_stop(std::string codon) {
     AminoAcid stop_aa = amino_acids['*'];
     vector<string> stop_codons = stop_aa.codons();
-    bool found_stop = grepVec(std::string(codon), stop_codons);
+    bool found_stop = grepVec(codon, stop_codons);
     return found_stop;
   }
 
-  bool is_start(char * codon) {
+  bool is_start(std::string codon) {
     AminoAcid stop_aa = amino_acids['M'];
     vector<string> stop_codons = stop_aa.codons();
-    bool found_stop = grepVec(std::string(codon), stop_codons);
+    bool found_stop = grepVec(codon, stop_codons);
     return found_stop;
   }
 
@@ -404,6 +404,8 @@ public:
     int count=0;
     string header;
     ifstream myfile(filename);
+    string codon;          // the next codon we're reading
+
     if (myfile.is_open())
     {
       while (myfile.good())
@@ -426,42 +428,41 @@ public:
             {
               string line;
               stringstream ss;
-              getline(myfile, line, '\n');
+              getline(myfile, line);
               line = DNA2RNA(line, type);
               ss << line;
-              
-              char codon[3];
 
-              // Get codons, one after another
-              while (ss.get(codon, 4))
+              int line_size = line.size();
+              char next_char;
+
+              while (ss.peek() != EOF)
               {
-                //cout << "TELLG: " << ss.tellg() << endl;
-                // is this a valid codon?
-                if (is_coding(codon)) 
+                next_char = ss.get();
+                cout << "GOT CHAR: " << next_char << endl;
+                codon += next_char;
+
+                // If we have collected 3 chars, go!
+                if (codon.size() == 3)
                 {
-                  // is this a stop codon? seek to a start codon
-                  if (is_stop(codon))
+                  // is this a valid codon?
+                  if (is_coding(codon)) 
                   {
                     insert_amino(codon); // include the stop codon
-                    while ( ss.get(codon,4) && (! is_start(codon)) )
-                      ss.seekg((int)ss.tellg()-2);
-                  }
-                } 
-                else // deal with noncoding DNA
-                {
-                  //cout << "NONCODING DNA: " << codon << endl;
 
-                  // find the next start codon
-                  while ( ! is_start(codon) )
+                    // is this a stop codon? seek to a start codon
+                    if (is_stop(codon))
+                    {
+                      //ss.seekg((int)ss.tellg()-2;
+                    }
+                  } 
+                  else // deal with noncoding DNA
                   {
-                    ss.seekg((int)ss.tellg()-2);
-                    ss.get(codon, 4);
+                    //ss.seekg((int)ss.tellg()-2);
                   }
-                }
-                
-                // before inserting, make sure valid
-                if (is_coding(codon))
-                  insert_amino(codon);
+
+                  codon.erase(); // reset codon
+                  
+                } // end if codon size==3
               }
             }
           }
@@ -608,7 +609,8 @@ public:
    */
   std::string DNA2RNA( const std::string DNA, int type = TYPE_CDNA ) {
     string RNA = DNA;
-    cout << "DNA IN: " << RNA << endl;
+    //cout << "DNA IN: " << RNA << endl;
+    // For coding DNA, all we need is to swap T with U
     if (type == TYPE_CDNA)
     {
       strReplace(RNA, "T", "U");
@@ -628,7 +630,7 @@ public:
       strReplace(RNA, "g", "c");
       RNA = DNA2RNA(RNA, TYPE_CDNA);
     }
-    cout << "RNA OUT: " << RNA << endl;
+    //cout << "RNA OUT: " << RNA << endl;
     return RNA;
   }
 
