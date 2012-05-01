@@ -423,12 +423,16 @@ public:
     vector<string> orf;
     bool in_orf = false;
 
-    if (myfile.is_open())
+    if (myfile.is_open())    // Is file open?
     {
-      while (myfile.good())
+      while (myfile.good())  // Is file good?
       {
-        if (count++)
+        if (count++)         // Only work on file after parsing the header
         {
+          /*
+           * In MODE_NUCLEOTIDE we only collect each base. We don't care about peptides.
+           *
+           */
           if (mode == MODE_NUCLEOTIDE)
           {
             char c;
@@ -439,6 +443,10 @@ public:
               //if (DEBUG) cout << "BASE: " << c << endl;
             }
           }
+          /*
+           * In MODE_PEPTIDE we want to interpret nucleotides as coding for amino acids.
+           *
+           */
           else if (mode == MODE_PEPTIDE)
           {
             while (!myfile.eof())
@@ -453,13 +461,20 @@ public:
               char next_char;
 
               //cout << "LOOP\n";
-              while (ss.peek() != EOF)
+
+              /*
+               * There are two conditions in which we need to "rewind" and find the next
+               * reading frame. The first condition is when an ORF reaches a STOP. The
+               * other condition is when we encounter non-coding codons.
+               *
+               */
+              while (ss.peek() != EOF) // Read until we can't read no more
               {
                 next_char = ss.get();
                 //cout << "GOT CHAR: " << next_char << endl;
-                codon += next_char;
+                codon += next_char;    // Build up the codon char by char
 
-                // If we have collected 3 chars, go!
+                // If we have collected 3 chars, let's check out this codon!
                 if (codon.size() == 3)
                 {
                   //cout << "considering codon: " << codon << endl;
@@ -505,8 +520,8 @@ public:
                     codon.clear(); // done with codon, clear it
                   }
                 } // end if codon size==3
-              }
-            }
+              } // end reading this line
+            } // end reading this file
           }
           else { cout << "ERROR: UNKNOWN MODE\n"; }
             
