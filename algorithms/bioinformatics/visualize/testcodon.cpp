@@ -9,7 +9,7 @@ int main () {
   
   f.read("CSCI435.fasta", MODE_PEPTIDE, TYPE_CDNA);
   f.dump_seq(true);
-  f.print_amino_constants();
+  //f.print_amino_constants();
   f.reset();
   //f.read("CSCI435.fasta", MODE_NUCLEOTIDE);
   //f.dump_seq();

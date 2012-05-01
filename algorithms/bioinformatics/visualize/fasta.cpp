@@ -151,6 +151,21 @@ private:
   vector<char> peptide_seq;           // store amino acid seq
   map<string, aa_color> aa_color_map; // mappings of amino acid colors
 
+
+  /*
+   * Insert entire orf (of amino acids)
+   *
+   */
+  void insert_orf (vector<string> & orf) {
+    vector<string>::iterator it;
+    for (it=orf.begin(); it < orf.end(); it++)
+    {
+      insert_amino(*it);
+    }
+    orf.clear();
+  }
+
+
   /*
    * Insert an amino acid into the peptide sequence
    *
@@ -405,6 +420,8 @@ public:
     string header;
     ifstream myfile(filename);
     string codon;          // the next codon we're reading
+    vector<string> orf;
+    bool in_orf = false;
 
     if (myfile.is_open())
     {
@@ -427,41 +444,66 @@ public:
             while (!myfile.eof())
             {
               string line;
-              stringstream ss;
               getline(myfile, line);
               line = DNA2RNA(line, type);
-              ss << line;
+              stringstream ss;
+              ss.write(line.c_str(), line.size());
 
               int line_size = line.size();
               char next_char;
 
+              //cout << "LOOP\n";
               while (ss.peek() != EOF)
               {
                 next_char = ss.get();
-                cout << "GOT CHAR: " << next_char << endl;
+                //cout << "GOT CHAR: " << next_char << endl;
                 codon += next_char;
 
                 // If we have collected 3 chars, go!
                 if (codon.size() == 3)
                 {
-                  // is this a valid codon?
-                  if (is_coding(codon)) 
+                  //cout << "considering codon: " << codon << endl;
+                  //cout << "in_orf: " << in_orf << endl;
+                  //cout << "is_stop: " << is_stop(codon) << endl;
+                  //cout << "is_start: " << is_start(codon) << endl;
+ 
+                  // If this codon is non-coding, set in_orf=false and rewind
+                  if (! is_coding(codon) )
                   {
-                    insert_amino(codon); // include the stop codon
-
-                    // is this a stop codon? seek to a start codon
-                    if (is_stop(codon))
-                    {
-                      //ss.seekg((int)ss.tellg()-2;
-                    }
-                  } 
-                  else // deal with noncoding DNA
-                  {
-                    //ss.seekg((int)ss.tellg()-2);
+                    ss.seekg((int)ss.tellg()-2);
+                    codon.clear();
+                    continue;
                   }
 
-                  codon.erase(); // reset codon
+                  // If we're no in an orf and we find one, set flag
+                  if ( in_orf == false )
+                  {
+                    if ( is_start(codon) )
+                    {
+                      in_orf = true;
+                    }
+                    else // find reading frame
+                    {
+                      ss.seekg((int)ss.tellg()-2);
+                      codon.clear();
+                      continue;
+                    }
+                  }
                   
+                  if ( in_orf == true ) // we're in the ORF
+                  {
+                    orf.push_back(codon); // save the codon to the orf
+
+                    // If we're in an orf and we find a stop, set flag
+                    if ( is_stop(codon) )
+                    {
+                      //cout << "STOP\n";
+                      in_orf = false;
+                      insert_orf(orf);
+                      orf.clear();
+                    }
+                    codon.clear(); // done with codon, clear it
+                  }
                 } // end if codon size==3
               }
             }
