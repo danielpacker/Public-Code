@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# via http://bioperl.org/pipermail/bioperl-l/2009-August/030978.html
+# based on example in http://bioperl.org/pipermail/bioperl-l/2009-August/030978.html
 #
 use strict;
 use Bio::SeqIO;
