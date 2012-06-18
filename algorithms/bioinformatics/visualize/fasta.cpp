@@ -454,7 +454,7 @@ public:
           /*
            * In MODE_PEPTIDE we want to interpret nucleotides as coding for amino acids.
            *
-           8/
+           */
           else if (mode == MODE_PEPTIDE)
           {
             while (!myfile.eof())
