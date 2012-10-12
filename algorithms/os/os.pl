@@ -75,12 +75,12 @@ sub sys_gen() {
 
     if (length($selection) > 0)
     {
-      print "\n", SG_STR4;
+      my $dev_type_name = $dev_types_names[$selection-1];
+      print "\n", "Enter number of $dev_type_name devices: ";
       my $num_devices = <STDIN>;
       chomp($num_devices);
       if (length($num_devices) > 0)
       {
-        my $dev_type_name = $dev_types_names[$selection-1];
         my $max_num_devices = DEV_TYPES()->{$dev_type_name} || MAX_DEVS_PER_TYPE;
         if ($num_devices > $max_num_devices) 
         {
@@ -119,7 +119,17 @@ sub create_devices($) {
   {
     my $suffix = ($num_devices > 1) ? "s" : "";
     print "Creating $num_devices $dev_type$suffix\n";
+    for my $dev_num (0..$num_devices)
+    {
+      next if $dev_num == 0; # device numbering starts at 1
+      push @{$DEVICES->{$dev_type}}, {
+        'ID' => lc($dev_type) . $dev_num
+        };
+    }
   }
+
+  use Data::Dumper;
+  print Dumper $DEVICES;
 
 }
 

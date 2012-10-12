@@ -31,13 +31,6 @@ font = pygame.font.Font(None, 25)
 xoffset=width/2
 
 while done==False:
-	for event in pygame.event.get(): # User did something
-		if (event.type == KEYUP) or (event.type == KEYDOWN):
-			print event
-			if (event.key == K_ESCAPE):
-				done = True
-		if event.type == pygame.QUIT: # If user clicked close
-			done=True # Flag that we are done so we exit this loop
 	# Set the screen background
 	screen.fill(black)
 	# ALL CODE TO DRAW SHOULD GO BELOW THIS COMMENT
