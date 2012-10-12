@@ -43,8 +43,14 @@ use constant MAX_DEVS_PER_TYPE => 255; # max 255 of any one device
 #
 
 # Initialize queues for devices. These empty arrays will be used as queues.
-my $DEVICES     = { 'Printer' => [], 'Disk' => [], "CD/RW" => [] };
-my $DEV_QUEUES  = { 'Printer' => [], 'Disk' => [], "CD/RW" => [] };
+# In perl arrays can act as simple FIFO queues with unshift() and pop()
+my $DEVICES = {}; 
+my $DEV_QUEUES  = {};
+for my $type (keys %{ DEV_TYPES() })
+{
+  $DEVICES->{$type} = [];
+  $DEV_QUEUES->{$type} = [];
+}
 my $READY_QUEUE = [];
 
 
