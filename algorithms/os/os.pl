@@ -32,6 +32,8 @@ use constant SG_STR6 => "Press ENTER without input to proceed with running.\n";
 use constant SG_MAXERR => "ERROR: Value exceeds the maximum number of devices.\n";
 use constant SG_CPUERR => "ERROR: You must have at least 1 active CPU.\n";
 use constant RUN_BANNER => "\n[================= RUNNING ==================]\n\n";
+use constant RUN_PROMPT => "Enter Command> ";
+use constant RUN_CMDERR => "ERROR: Invalid command.\n";
 
 use constant DEV_TYPES => { # number refers to qty. 0 is ulimited (to max)
   "Printer" => 0, "Disk" => 0, "CD/RW" => 0, "CPU" => 1
@@ -139,8 +141,40 @@ sub create_devices($) {
 
 }
 
+# Interpret a run_mode command
+sub interpret_command($) {
+  my $cmd = shift or die "No command given";
+  if (validate_command($cmd))
+  {
+
+  }
+  else
+  {
+    print RUN_CMDERR;
+    return 0;
+  }
+}
+
+# Validate a run mode command
+sub validate_command($) {
+  my $cmd = shift or die "No command given";
+  return 1;
+}
+
 # Run mode
 sub run() {
+
+  print RUN_BANNER;
+
+  my $run = 1;
+
+  while ($run)
+  {
+    print RUN_PROMPT;
+    my $cmd = <STDIN>;
+    chomp($cmd);
+    print "CMD RECVD $cmd\n";
+  }
 
   print RUN_BANNER;
 }
