@@ -201,6 +201,17 @@ sub run() {
     elsif (($cmd eq 'S') or ($cmd eq 's'))
     {
       print "Snapshot mode.\n";
+      my $subcmd = <STDIN>;
+      chomp($subcmd);
+
+      if ($subcmd eq 'r')
+      {
+        print "Ready Queue Processes:\n";
+      }
+      elsif ($subcmd eq 'p')
+      {
+        print "Printer Process Info:\n";
+      }
     }
 
     elsif ($cmd =~ /^([pcd])(\d)$/)
