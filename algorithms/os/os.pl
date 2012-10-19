@@ -186,13 +186,39 @@ sub run() {
     print RUN_PROMPT;
     my $cmd = <STDIN>;
     chomp($cmd);
-    print "CMD RECVD $cmd\n";
 
     if (($cmd eq 'A') or ($cmd eq 'a'))
     {
-      print "Process arrived.\n";
+      print "Process arrived with pid $PROCESS_COUNT.\n";
       my $pcb = PCB->new($PROCESS_COUNT++);
     }
+
+    elsif (($cmd eq 'T') or ($cmd eq 't'))
+    {
+      print "Process terminating.\n";
+    }
+
+    elsif (($cmd eq 'S') or ($cmd eq 's'))
+    {
+      print "Snapshot mode.\n";
+    }
+
+    elsif ($cmd =~ /^([pcd])(\d)$/)
+    {
+      print "Device request.\n";
+    }
+
+    elsif ($cmd =~ /^([PCD])(\d)$/)
+    {
+      print "Completion interrupt.\n";
+    }
+
+    else
+    {
+      print "CMD NOT RECOGNIZED: $cmd\n";
+    }
+
+
   }
 
   print RUN_BANNER;
