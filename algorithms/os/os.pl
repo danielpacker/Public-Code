@@ -7,16 +7,28 @@
 
 use strict;
 use warnings;
-#
-#package device;
-#
-#sub new($) {
-#  my $package = shift;
-#  my $data = {
-#    'name' => undef,
-#  };
-#  
-#}
+
+
+
+
+##############################################################################
+# 
+# PCB object
+
+package PCB;
+sub new($$) {
+  my $class = shift;
+  my $pid = shift or die "no pid";
+
+  my $self = {
+    'registers' => [],
+    'stack' => [],
+    'pid' => $pid,
+  };
+  bless $self, $class;
+  return $self;
+}
+
 
 package main; #default package namespace
 
@@ -54,6 +66,7 @@ for my $type (keys %{ DEV_TYPES() })
   $DEV_QUEUES->{$type} = [];
 }
 my $READY_QUEUE = [];
+my $PROCESS_COUNT = 1; # pid value increments with each new process
 
 
 ##############################################################################
@@ -174,6 +187,12 @@ sub run() {
     my $cmd = <STDIN>;
     chomp($cmd);
     print "CMD RECVD $cmd\n";
+
+    if (($cmd eq 'A') or ($cmd eq 'a'))
+    {
+      print "Process arrived.\n";
+      my $pcb = PCB->new($PROCESS_COUNT++);
+    }
   }
 
   print RUN_BANNER;
