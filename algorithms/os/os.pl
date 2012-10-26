@@ -60,18 +60,19 @@ sub new($$) {
 
 sub dump() {
   my $self = shift;
-  print "Printer ID: ", $self->{'id'}, "\n";
+  print "=== Printer ID: ", $self->{'id'}, " ===\n";
   if (scalar @{$self->{'queue'}})
   {
-    print "Contents of printer queue:\n";
-    use Data::Dumper; print Dumper $self;
+    print " Contents of printer queue:\n";
+    #use Data::Dumper; print Dumper $self;
     for my $dq (@{ $self->{'queue'} })
     {
       my $pcb = $dq->{'pcb'} or die "no pcb association found.";
-      print "Process ID: ", $pcb->{'pid'}, "\n";
-      print "Filename: ", $dq->{'filename'}, "\n";
-      print "Starting location: ", $dq->{'start_loc'}, "\n";
-      print "Mode (r/w): ", $dq->{'mode'}, "\n";
+      print "  Process ID: ", $pcb->{'pid'}, "\n";
+      print "  Filename: ", $dq->{'filename'}, "\n";
+      print "  Starting location: ", $dq->{'start_loc'}, "\n";
+      print "  Mode (r/w): ", $dq->{'mode'}, "\n";
+      print "\n";
     }
   }
 }
@@ -265,6 +266,21 @@ sub dev_queue($$$) {
   }
 }
 
+sub dev_dequeue($$$) {
+  my $pcb = shift or die "no pcb";
+  my $code = shift or die "no code";
+  my $num = shift or die "no num";
+
+  my $type = code2type($code) or die "invalid code";
+
+  if (exists $DEVICES->{$type}->{"$type$num"}->{'queue'}) # valid device
+  {
+    print "De-queueing item in device queue for $type$num\n";
+    shift @{ $DEVICES->{$type}->{"$type$num"}->{'queue'} };
+  }
+}
+
+
 # Run mode
 sub run() {
 
@@ -358,13 +374,12 @@ sub run() {
       if ($CPU_PCB)
       {
         print "Completion interrupt.\n";
-        dev_queue($CPU_PCB, $1, $2);
+        dev_dequeue($CPU_PCB, $1, $2);
       }
       else
       {
         print "No current process.\n";
       }
-      dev_queue($CPU_PCB, $1, $2);
     }
 
     else
