@@ -29,6 +29,11 @@ sub new($$) {
   return $self;
 }
 
+sub dump() {
+  my $self = shift;
+  print $self->{'pid'}, "\n";
+}
+
 
 package main; #default package namespace
 
@@ -65,8 +70,9 @@ for my $type (keys %{ DEV_TYPES() })
   $DEVICES->{$type} = [];
   $DEV_QUEUES->{$type} = [];
 }
-my $READY_QUEUE = [];
+my @READY_QUEUE = ();
 my $PROCESS_COUNT = 1; # pid value increments with each new process
+my $CPU_PCB = undef; # reference to PCB being worked on
 
 
 ##############################################################################
@@ -191,6 +197,14 @@ sub run() {
     {
       print "Process arrived with pid $PROCESS_COUNT.\n";
       my $pcb = PCB->new($PROCESS_COUNT++);
+      if ($CPU_PCB)
+      {
+        push @READY_QUEUE, $pcb;
+      }
+      else
+      {
+        $CPU_PCB = $pcb
+      }
     }
 
     elsif (($cmd eq 'T') or ($cmd eq 't'))
@@ -200,17 +214,24 @@ sub run() {
 
     elsif (($cmd eq 'S') or ($cmd eq 's'))
     {
-      print "Snapshot mode.\n";
+      print "Snapshot mode. Available subcommands: \"r\", \"p\"\n";
       my $subcmd = <STDIN>;
       chomp($subcmd);
 
       if ($subcmd eq 'r')
       {
-        print "Ready Queue Processes:\n";
+        print "Processes in the ready queue:\n";
+        for my $pcb (sort { $a->{'pid'} <=> $b->{'pid'} } @READY_QUEUE) {
+          $pcb->dump();
+        }
       }
       elsif ($subcmd eq 'p')
       {
         print "Printer Process Info:\n";
+      }
+      else
+      {
+        print "Subcommand not recongnized. Returning to run mode.\n";
       }
     }
 
