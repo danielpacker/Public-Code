@@ -10,6 +10,36 @@ use warnings;
 
 
 
+##############################################################################
+# 
+# DEV object
+
+package DEV;
+sub new($$) {
+  my $class = shift;
+  my $id = shift or die "no id";
+
+  my $self = {
+    'id' => $id,
+    'pcb_queue' => [],
+  };
+  bless $self, $class;
+  return $self;
+}
+
+sub dump() {
+  my $self = shift;
+  print "Printer ID: ", $self->{'id'}, "\n";
+  if (scalar @{$self->{'pcb_queue'}})
+  {
+    print "Contents of printer queue:\n";
+    for my $pcb (@{$self->{'pcb_queue'}})
+    {
+      print $pcb->{'pid'}, "\n";
+    }
+  }
+}
+
 
 ##############################################################################
 # 
@@ -64,11 +94,9 @@ use constant MAX_DEVS_PER_TYPE => 255; # max 255 of any one device
 # Initialize queues for devices. These empty arrays will be used as queues.
 # In perl arrays can act as simple FIFO queues with unshift() and pop()
 my $DEVICES = {}; 
-my $DEV_QUEUES  = {};
 for my $type (keys %{ DEV_TYPES() })
 {
   $DEVICES->{$type} = [];
-  $DEV_QUEUES->{$type} = [];
 }
 my @READY_QUEUE = ();
 my $PROCESS_COUNT = 1; # pid value increments with each new process
@@ -150,14 +178,13 @@ sub create_devices($) {
     {
       next if $dev_num == 0; # device numbering starts at 1
       push @{$DEVICES->{$dev_type}}, {
-        'ID' => lc($dev_type) . $dev_num
+        lc($dev_type) . $dev_num => DEV->new(lc($dev_type) . $dev_num)
         };
     }
   }
 
   use Data::Dumper;
   print Dumper $DEVICES;
-
 }
 
 # Interpret a run_mode command
@@ -253,6 +280,8 @@ sub run() {
     elsif ($cmd =~ /^([pcd])(\d)$/)
     {
       print "Device request.\n";
+
+      print "$1 $2\n";
     }
 
     elsif ($cmd =~ /^([PCD])(\d)$/)
@@ -262,7 +291,7 @@ sub run() {
 
     else
     {
-      print "CMD NOT RECOGNIZED: $cmd\n";
+      print "INVALID COMMAND: $cmd\n";
     }
 
 
