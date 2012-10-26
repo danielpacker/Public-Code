@@ -8,6 +8,37 @@
 use strict;
 use warnings;
 
+##############################################################################
+# 
+# DQ object (device queue entry)
+
+package DQ;
+sub new($$) {
+  my $class = shift;
+  my %args = @_;
+
+  my $self = {};
+  for my $arg (qw/pcb filename start_loc mode/)
+  {
+    if (not exists $args{$arg})
+    {
+      die "missing param $arg";
+    }
+    else
+    {
+      $self->{$arg} = $args{$arg};
+    }
+  }
+
+  bless $self, $class;
+  return $self;
+}
+
+sub dump() {
+  my $self = shift;
+}
+
+
 
 
 ##############################################################################
@@ -21,7 +52,7 @@ sub new($$) {
 
   my $self = {
     'id' => $id,
-    'pcb_queue' => [],
+    'queue' => [],
   };
   bless $self, $class;
   return $self;
@@ -30,12 +61,17 @@ sub new($$) {
 sub dump() {
   my $self = shift;
   print "Printer ID: ", $self->{'id'}, "\n";
-  if (scalar @{$self->{'pcb_queue'}})
+  if (scalar @{$self->{'queue'}})
   {
     print "Contents of printer queue:\n";
-    for my $pcb (@{$self->{'pcb_queue'}})
+    use Data::Dumper; print Dumper $self;
+    for my $dq (@{ $self->{'queue'} })
     {
-      print $pcb->{'pid'}, "\n";
+      my $pcb = $dq->{'pcb'} or die "no pcb association found.";
+      print "Process ID: ", $pcb->{'pid'}, "\n";
+      print "Filename: ", $dq->{'filename'}, "\n";
+      print "Starting location: ", $dq->{'start_loc'}, "\n";
+      print "Mode (r/w): ", $dq->{'mode'}, "\n";
     }
   }
 }
@@ -83,7 +119,7 @@ use constant RUN_PROMPT => "Enter Command> ";
 use constant RUN_CMDERR => "ERROR: Invalid command.\n";
 
 use constant DEV_TYPES => { # number refers to qty. 0 is ulimited (to max)
-  "Printer" => 0, "Disk" => 0, "CD/RW" => 0, "CPU" => 1
+  "printer" => 0, "disk" => 0, "CD/RW" => 0, "CPU" => 1
   };
 use constant MAX_DEVS_PER_TYPE => 255; # max 255 of any one device
 
@@ -96,7 +132,7 @@ use constant MAX_DEVS_PER_TYPE => 255; # max 255 of any one device
 my $DEVICES = {}; 
 for my $type (keys %{ DEV_TYPES() })
 {
-  $DEVICES->{$type} = [];
+  $DEVICES->{$type} = {};
 }
 my @READY_QUEUE = ();
 my $PROCESS_COUNT = 1; # pid value increments with each new process
@@ -177,9 +213,8 @@ sub create_devices($) {
     for my $dev_num (0..$num_devices)
     {
       next if $dev_num == 0; # device numbering starts at 1
-      push @{$DEVICES->{$dev_type}}, {
-        lc($dev_type) . $dev_num => DEV->new(lc($dev_type) . $dev_num)
-        };
+      $DEVICES->{$dev_type}->{$dev_type . $dev_num} = 
+        DEV->new(lc($dev_type) . $dev_num);
     }
   }
 
@@ -187,24 +222,47 @@ sub create_devices($) {
   print Dumper $DEVICES;
 }
 
-# Interpret a run_mode command
-sub interpret_command($) {
-  my $cmd = shift or die "No command given";
-  if (validate_command($cmd))
-  {
+sub code2type($) {
+  my $code = shift or die "no code";
+  my $type = undef;
 
-  }
-  else
+  if (($code eq 'D') or ($code eq 'd'))
   {
-    print RUN_CMDERR;
-    return 0;
+    $type = "disk";
   }
+  elsif (($code eq 'C') or ($code eq 'c'))
+  {
+    $type = "CD/RW";
+  }
+  elsif (($code eq 'P') or ($code eq 'p'))
+  {
+    $type = "printer";
+  }
+  return $type;
 }
 
-# Validate a run mode command
-sub validate_command($) {
-  my $cmd = shift or die "No command given";
-  return 1;
+sub dev_queue($$$) {
+  my $pcb = shift or die "no pcb";
+  my $code = shift or die "no code";
+  my $num = shift or die "no num";
+
+  my $type = code2type($code) or die "invalid code";
+
+  if (exists $DEVICES->{$type}->{"$type$num"})
+  {
+    print "Device valid. Issuing IO request.\n";
+    print "Enter filename: ";
+    my $filename = <STDIN>; chomp($filename);
+
+    print "Enter starting location: ";
+    my $start_loc = <STDIN>; chomp($start_loc);
+
+    print "Enter mode (r or w): ";
+    my $mode = <STDIN>; chomp($mode);
+
+    my $dq = DQ->new(pcb => $pcb, filename => $filename, start_loc => $start_loc, mode => $mode);
+    push @{ $DEVICES->{$type}->{"$type$num"}->{queue} }, $dq;
+  }
 }
 
 # Run mode
@@ -270,6 +328,11 @@ sub run() {
       elsif ($subcmd eq 'p')
       {
         print "Printer Process Info:\n";
+        for my $printer_id (keys %{ $DEVICES->{'printer'} })
+        {
+          my $printer = $DEVICES->{'printer'}->{$printer_id};
+          $printer->dump();
+        }
       }
       else
       {
@@ -279,14 +342,29 @@ sub run() {
 
     elsif ($cmd =~ /^([pcd])(\d)$/)
     {
-      print "Device request.\n";
-
-      print "$1 $2\n";
+      if ($CPU_PCB)
+      {
+        print "Device request.\n";
+        dev_queue($CPU_PCB, $1, $2);
+      }
+      else
+      {
+        print "No current process.\n";
+      }
     }
 
     elsif ($cmd =~ /^([PCD])(\d)$/)
     {
-      print "Completion interrupt.\n";
+      if ($CPU_PCB)
+      {
+        print "Completion interrupt.\n";
+        dev_queue($CPU_PCB, $1, $2);
+      }
+      else
+      {
+        print "No current process.\n";
+      }
+      dev_queue($CPU_PCB, $1, $2);
     }
 
     else
