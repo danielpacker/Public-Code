@@ -203,13 +203,28 @@ sub run() {
       }
       else
       {
-        $CPU_PCB = $pcb
+        $CPU_PCB = $pcb;
       }
     }
 
     elsif (($cmd eq 'T') or ($cmd eq 't'))
     {
-      print "Process terminating.\n";
+      if ($CPU_PCB)
+      {
+        print "Process terminating.\n";
+        $CPU_PCB = undef;
+      }
+      else
+      {
+        print "No current process.\n";
+      }
+
+      if (scalar @READY_QUEUE) # are there any pcb's left waiting?
+      {
+        $CPU_PCB = shift @READY_QUEUE; # first on list
+        print "Switching to process ", $CPU_PCB->{'pid'}, "\n";
+      }
+        
     }
 
     elsif (($cmd eq 'S') or ($cmd eq 's'))
