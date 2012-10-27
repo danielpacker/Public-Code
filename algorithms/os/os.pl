@@ -1,7 +1,8 @@
 #!/usr/bin/perl -w
 #
-# A program and objects that simulate an operating system
-
+# A program and objects that simulates an operating system
+# by Daniel Packer <dp@danielpacker.org>
+#
 
 
 
@@ -63,17 +64,19 @@ sub dump() {
   print "=== Printer ID: ", $self->{'id'}, " ===\n";
   if (scalar @{$self->{'queue'}})
   {
-    print " Contents of printer queue:\n";
     #use Data::Dumper; print Dumper $self;
+    print sprintf("%-15s%-15s%-20s%-10s", "Process ID", "Filename", "Starting Location", "Mode"), "\n";
     for my $dq (@{ $self->{'queue'} })
     {
       my $pcb = $dq->{'pcb'} or die "no pcb association found.";
-      print "  Process ID: ", $pcb->{'pid'}, "\n";
-      print "  Filename: ", $dq->{'filename'}, "\n";
-      print "  Starting location: ", $dq->{'start_loc'}, "\n";
-      print "  Mode (r/w): ", $dq->{'mode'}, "\n";
+      #print "Process ID    Filename      Starting Location     Mode\n";
+      print sprintf("%-15s", $pcb->{'pid'});
+      print sprintf("%-15s", $dq->{'filename'});
+      print sprintf("%-20s", $dq->{'start_loc'});
+      print sprintf("%-10s", $dq->{'mode'});
       print "\n";
     }
+    print "\n";
   }
 }
 
@@ -207,7 +210,7 @@ sub create_devices($) {
   my $devs_to_create = shift or die "No device specification received\n";
 
   # Create the devices from the spec generated in sys gen
-  while (my($dev_type,$num_devices) = each $devs_to_create)
+  while (my($dev_type,$num_devices) = each %{ $devs_to_create } )
   {
     my $suffix = ($num_devices > 1) ? "s" : "";
     print "Creating $num_devices $dev_type$suffix\n";
@@ -219,8 +222,7 @@ sub create_devices($) {
     }
   }
 
-  use Data::Dumper;
-  print Dumper $DEVICES;
+  #use Data::Dumper; print Dumper $DEVICES;
 }
 
 sub code2type($) {
@@ -258,16 +260,19 @@ sub dev_queue($$$) {
     print "Enter starting location: ";
     my $start_loc = <STDIN>; chomp($start_loc);
 
-    print "Enter mode (r or w): ";
-    my $mode = <STDIN>; chomp($mode);
+    my $mode = 'w';
+    if ($code ne 'p')
+    {
+      print "Enter mode (r or w): ";
+      $mode = <STDIN>; chomp($mode);
+    }
 
     my $dq = DQ->new(pcb => $pcb, filename => $filename, start_loc => $start_loc, mode => $mode);
     push @{ $DEVICES->{$type}->{"$type$num"}->{queue} }, $dq;
   }
 }
 
-sub dev_dequeue($$$) {
-  my $pcb = shift or die "no pcb";
+sub dev_dequeue($$) {
   my $code = shift or die "no code";
   my $num = shift or die "no num";
 
@@ -275,8 +280,10 @@ sub dev_dequeue($$$) {
 
   if (exists $DEVICES->{$type}->{"$type$num"}->{'queue'}) # valid device
   {
-    print "De-queueing item in device queue for $type$num\n";
-    shift @{ $DEVICES->{$type}->{"$type$num"}->{'queue'} };
+    print "De-queueing process in queue for $type$num\n";
+    my $dq = shift @{ $DEVICES->{$type}->{"$type$num"}->{'queue'} };
+    my $pcb = $dq->{'pcb'};
+    push @READY_QUEUE, $pcb; # back on ready queue
   }
 }
 
@@ -298,7 +305,7 @@ sub run() {
     {
       print "Process arrived with pid $PROCESS_COUNT.\n";
       my $pcb = PCB->new($PROCESS_COUNT++);
-      if ($CPU_PCB)
+      if (defined $CPU_PCB)
       {
         push @READY_QUEUE, $pcb;
       }
@@ -336,9 +343,15 @@ sub run() {
 
       if ($subcmd eq 'r')
       {
-        print "Processes in the ready queue:\n";
-        for my $pcb (sort { $a->{'pid'} <=> $b->{'pid'} } @READY_QUEUE) {
-          $pcb->dump();
+        print "=== Process List ===\n";
+
+        print sprintf("%-20s %-20s %-20s", "PROCESS ID", "STATUS", ""), "\n";
+        if (defined $CPU_PCB) 
+        { 
+        print sprintf("%-20s %-20s %-20s", $CPU_PCB->{'pid'}, "cpu", ""), "\n";
+          for my $pcb (@READY_QUEUE) {
+            print sprintf("%-20s %-20s %-20s", $pcb->{'pid'}, "ready", ""), "\n";
+          }
         }
       }
       elsif ($subcmd eq 'p')
@@ -362,6 +375,8 @@ sub run() {
       {
         print "Device request.\n";
         dev_queue($CPU_PCB, $1, $2);
+        # now change the cpu pcb
+        $CPU_PCB = shift @READY_QUEUE;
       }
       else
       {
@@ -374,7 +389,7 @@ sub run() {
       if ($CPU_PCB)
       {
         print "Completion interrupt.\n";
-        dev_dequeue($CPU_PCB, $1, $2);
+        dev_dequeue($1, $2);
       }
       else
       {
