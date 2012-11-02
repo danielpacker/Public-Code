@@ -92,6 +92,47 @@ class DisjSets
         cout << endl;
     }
 
+    int randSetMember(int set)
+    {
+      //cout << "getting random member of set " << set << endl;
+      vector<int> members = getSetMembers(set);
+      //cout << members.size() << " members in set " << set << endl;
+      int member = 0;
+      if (members.size() > 0)
+      {
+        int index = rand() % members.size();
+        member = members[index];
+      }
+      
+      return member;
+    }
+
+    vector<int> getSetMembers(int elem)
+    {
+      vector<int> members;
+      int set = find(elem);
+      //cout << "set for elem " << elem << " is " << set << endl;
+      if (set < 0)
+      {
+        //cout << "elem is a parent. adding to members" << endl;
+        members.push_back(elem);
+      }
+      if (set != -1)
+      {
+        for( int i = 0; i < s.size(); i++ )
+        {
+          //cout << i << " in set " << s[i] << endl;
+          if (find(i) == set)
+          {
+            members.push_back(i);
+            //cout << "member: " << i << endl;
+          }
+        }
+      }
+      return members;
+    }
+          
+
     private:
          std::vector<int> s;
 

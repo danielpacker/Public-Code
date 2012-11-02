@@ -46,24 +46,82 @@ class Maze
             cells[size-1] -= RIGHT;
         }
 
-        // randomly knock down a wall between cells
-        void randomKnockdown ( int c1_override = -1, int c2_override = -1 )
+        void cleanUp()
         {
-            int c1 = (rand() % size);
-            vector<int> adj = findAdjacentCells(c1);
-            int c2 = adj[rand() % adj.size()];
+          bool clean = false;
+          vector<int> dirtyCells;
 
+          while (! clean)
+          {
+            for (int i=0; i < size; i++)
+            {
+              // is this cell in a disjoint set?
+              int cellSet = sets.find(i);
+              int mainSet = sets.find(0);
+              if (cellSet != mainSet)
+              {
+                //cout << "Found a lonely cell: " << i << " in set " << cellSet << endl;
+                int randMember = sets.randSetMember(cellSet);
+                //cout << "Cleaning up neighbor: " << randMember << endl;
+                if (randMember)
+                {
+                  //cout << "Knocking down!" << endl;
+                  randomKnockdown(randMember, -1, true);
+                }
+              }     
+                
+            }
+            clean = true;
+          }
+        }
+
+        // randomly knock down a wall between cells
+        bool randomKnockdown ( int c1_override = -1, int c2_override = -1 , bool exhaustive = false)
+        {
+            bool success = false;
+            int c1 = (rand() % size);
             c1 = (c1_override != -1) ? c1_override : c1;
+            vector<int> adj = findAdjacentCells(c1);
+            /* cout << "neighbors: ";
+            for (int i=0; i < adj.size(); i++)
+            {
+              cout << adj[i] << ", ";
+            }
+            cout << endl;
+            */
+
+            int c2 = adj[rand() % adj.size()];
             c2 = (c2_override != -1) ? c2_override : c2;
 
             int c1_set = sets.find(c1), c2_set = sets.find(c2);
 
             //cout << "c1: " << c1 << " c1_set: " << c1_set << " c2: " << c2 << " c2_set: " << c2_set << endl;
 
+            // if exhaustive, find an adjacent cell not in our set
+            if (exhaustive)
+            {
+              while (c1_set == c2_set)
+              {
+                //cout << "oops " << c1_set << " equals " << c2_set << " so we're looking for another adjacent cell not in the set!" << endl;
+
+                for (int i=0; i < adj.size(); i++)
+                {
+                  int another_set = sets.find(adj[i]);
+                  if (c1_set != another_set)
+                  {
+                    c2 = i;
+                    c2_set = another_set;
+                    //cout << "finally settled on neighbor " << c2 << " in set " << c2_set << endl;
+                  }
+                }
+                break;
+              }
+            }
+
             // only connect if not already connected
             if (c1_set != c2_set)
             {
-                //cout << "knocking down wall\n";
+                //cout << "knocking down wall between " << c1 << " and " << c2 << endl;
 
                 // they're not already connected
                 // we have to find their common walls, knock them down
@@ -96,8 +154,10 @@ class Maze
                 }
 
                 sets.unionSets(c1_set, c2_set); // record relation
-
+                success = true;
             }
+
+            return success;
         }
 
         vector<int> findAdjacentCells ( int cell )

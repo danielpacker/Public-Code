@@ -127,6 +127,7 @@ use constant DEV_TYPES => { # number refers to qty. 0 is ulimited (to max)
   "printer" => 0, "disk" => 0, "CD/RW" => 0, "CPU" => 1
   };
 use constant MAX_DEVS_PER_TYPE => 255; # max 255 of any one device
+use constant TIME_SLICE_MSECS => 10;
 
 ##############################################################################
 # Define reusable data structures
@@ -139,10 +140,11 @@ for my $type (keys %{ DEV_TYPES() })
 {
   $DEVICES->{$type} = {};
 }
-my @READY_QUEUE = ();
-my $PROCESS_COUNT = 1; # pid value increments with each new process
-my $CPU_PCB = undef; # reference to PCB being worked on
-
+my @READY_QUEUE     = ();
+my $PROCESS_COUNT   = 1;     # pid value increments with each new process
+my $CPU_PCB         = undef; # reference to PCB being worked on
+my %AVG_BURST_TIMES = ();    # Track avg burst time by pid
+my %CUR_BURST_TIMES = ();    # Track current total burst time by pid
 
 ##############################################################################
 # Program subroutines
@@ -346,7 +348,15 @@ sub run() {
       }
     }
 
-    elsif (($cmd eq 'T') or ($cmd eq 't'))
+    elsif ($cmd eq 'T') # timer interrupt
+    {
+      print "Timer interrupt! ", TIME_SLICE_MSECS, " of burst time lapsed.\n";
+      $CUR_BURST_TIMES{$CPU_PCB->{'pid'}} += TIME_SLICE_MSECS;
+      # Move the current process to the back of the ready queue
+      push @READY_QUEUE, $CPU_PCB;
+      $CPU_PCB = shift @READY_QUEUE; # de-queue 1st pcb ready
+    }
+    elsif ($cmd eq 't') # terminate
     {
       if ($CPU_PCB)
       {
@@ -376,12 +386,12 @@ sub run() {
       {
         #print "=== Process List ===\n";
         print "\n";
-        print sprintf("%-20s %-20s %-20s", "PROCESS ID", "STATUS", ""), "\n";
+        print sprintf("%-20s %-20s %-20s", "PROCESS ID", "STATUS", "AVG BURST (s)"), "\n";
         if (defined $CPU_PCB) 
         { 
-        print sprintf("%-20s %-20s %-20s", $CPU_PCB->{'pid'}, "cpu", ""), "\n";
+        print sprintf("%-20s %-20s %-20s", $CPU_PCB->{'pid'}, "cpu", $AVG_BURST_TIMES{$CPU_PCB->{'pid'}} || 0), "\n";
           for my $pcb (@READY_QUEUE) {
-            print sprintf("%-20s %-20s %-20s", $pcb->{'pid'}, "ready", ""), "\n";
+            print sprintf("%-20s %-20s %-20s", $pcb->{'pid'}, "ready", $AVG_BURST_TIMES{$pcb->{'pid'}} || 0), "\n";
           }
         }
       }
