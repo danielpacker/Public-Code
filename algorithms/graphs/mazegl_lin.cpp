@@ -31,20 +31,35 @@ void ReSizeGLScene(int Width, int Height);
 vector<int> cells;
 int maze_height = DEFAULT_MAZE_HEIGHT, maze_width = DEFAULT_MAZE_WIDTH;
 int app_height=kWindowHeight,app_width=kWindowWidth;
+float appfac = 4.0;
 
 int main(int argc, char** argv)
 {
+ 
 	// first optional command line arg is height, second is width
-  if (argv[1] != NULL)
+  if (argc > 1)
   {
-    maze_height = atoi(argv[1]);
-    if (argv[2] != NULL)
-      maze_width = atoi(argv[2]);
-    else
-      maze_width = maze_height;
+    if (argv[1] != NULL)
+    {
+      maze_width = atoi(argv[1]);
+
+      if (argc > 2)
+      {
+        if (argv[2] != NULL)
+          maze_height = atoi(argv[2]);
+      }
+      else
+      {
+        cout << "setting width to " << maze_height << endl;
+        maze_height = maze_width;
+      }
+
+      if (argc > 3)
+        if (argv[3] != NULL)
+          appfac = (float)atoi(argv[3]);
+    }
   }   
 
-  int appfac = 4;
   int margin = 10;
   app_height = appfac*maze_height + margin*2;
   app_width = appfac*maze_width + margin*2;
@@ -114,10 +129,28 @@ void DrawGLScene()
   //glRotatef(5, 1, 0, 0);
   glTranslatef(-(app_width/2-10), (app_height/2-10), 0);
 
-	glColor3f(0.0f, 0.0f, 1.0f);
+  float red=0.0,blue=0.0,green=0.0;
+  float frequency = 0.3/(cells.size()/16);
+  bool rainbow = true;
+  bool rainbow2 = true;
+  float cVal = 0.0;
+      if (rainbow2) cVal = 128.0;
+  float sV = appfac / 4.0;
+
 	// Go through the cells of the maze and draw the glyphs
 	for (int x=1; x <= cells.size(); x++)
 	{
+    if (rainbow)
+    {
+      green = (float)sin(frequency*(float)x + 0.0) * 127.0 + cVal;
+      red   = (float)sin(frequency*(float)x + 2.0) * 127.0 + cVal;
+      blue  = (float)sin(frequency*(float)x + 4.0) * 127.0 + cVal;
+      //cout << "red " << red << " green " << green << " blue " << blue << endl;
+    }
+    red = red/255.0; blue = blue/255.0; green = green/255.0;
+    glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+    glColor3f(red, green, blue);
+
 		int c = cells[x-1];
 		
 		//cout << x << " c: " << c << " maze_width: " << maze_width << endl;
@@ -128,14 +161,14 @@ void DrawGLScene()
 			if ((c & TOP) == TOP)
 			{
 				glBegin(GL_QUADS);
-					glVertex3f(-1.0f, 1.0f, 0.0f);
-					glVertex3f( 1.0f, 1.0f, 0.0f);
-					glVertex3f( 1.0f,-1.0f, 0.0f);
-					glVertex3f(-1.0f,-1.0f, 0.0f);
+					glVertex3f(-1.0f*sV, 1.0f*sV, 0.0f*sV);
+					glVertex3f( 1.0f*sV, 1.0f*sV, 0.0f*sV);
+					glVertex3f( 1.0f*sV,-1.0f*sV, 0.0f*sV);
+					glVertex3f(-1.0f*sV,-1.0f*sV, 0.0f*sV);
 				glEnd();
 			}
 			if (i < 2)
-				glTranslatef(2.0f,0.0f,0.0f);	
+				glTranslatef(2.0f*sV,0.0f*sV,0.0f*sV);
 		}
 	
 		for (int i=0; i < 3; i++)
@@ -143,14 +176,14 @@ void DrawGLScene()
 			if ((c & RIGHT) == RIGHT)
 			{
 				glBegin(GL_QUADS);
-				glVertex3f(-1.0f, 1.0f, 0.0f);
-				glVertex3f( 1.0f, 1.0f, 0.0f);
-				glVertex3f( 1.0f,-1.0f, 0.0f);
-				glVertex3f(-1.0f,-1.0f, 0.0f);
+				glVertex3f(-1.0f*sV, 1.0f*sV, 0.0f*sV);
+				glVertex3f( 1.0f*sV, 1.0f*sV, 0.0f*sV);
+				glVertex3f( 1.0f*sV,-1.0f*sV, 0.0f*sV);
+				glVertex3f(-1.0f*sV,-1.0f*sV, 0.0f*sV);
 				glEnd();			
 			}
 			if (i < 2)
-				glTranslatef(0.0f,-2.0f,0.0f);
+				glTranslatef(0.0f*sV,-2.0f*sV,0.0f*sV);
 		}
 
 		for (int i=0; i < 3; i++)
@@ -158,14 +191,14 @@ void DrawGLScene()
 			if ((c & BOTTOM) == BOTTOM)
 			{
 				glBegin(GL_QUADS);
-				glVertex3f(-1.0f, 1.0f, 0.0f);
-				glVertex3f( 1.0f, 1.0f, 0.0f);
-				glVertex3f( 1.0f,-1.0f, 0.0f);
-				glVertex3f(-1.0f,-1.0f, 0.0f);
+				glVertex3f(-1.0f*sV, 1.0f*sV, 0.0f*sV);
+				glVertex3f( 1.0f*sV, 1.0f*sV, 0.0f*sV);
+				glVertex3f( 1.0f*sV,-1.0f*sV, 0.0f*sV);
+				glVertex3f(-1.0f*sV,-1.0f*sV, 0.0f*sV);
 				glEnd();
 			}
 			if (i < 2)
-				glTranslatef(-2.0f,0.0f,0.0f);
+				glTranslatef(-2.0f*sV,0.0f*sV,0.0f*sV);
 		}
 
 		for (int i=0; i < 3; i++)
@@ -173,22 +206,22 @@ void DrawGLScene()
 			if ((c & LEFT) == LEFT)
 			{
 				glBegin(GL_QUADS);
-				glVertex3f(-1.0f, 1.0f, 0.0f);
-				glVertex3f( 1.0f, 1.0f, 0.0f);
-				glVertex3f( 1.0f,-1.0f, 0.0f);
-				glVertex3f(-1.0f,-1.0f, 0.0f);
+				glVertex3f(-1.0f*sV, 1.0f*sV, 0.0f*sV);
+				glVertex3f( 1.0f*sV, 1.0f*sV, 0.0f*sV);
+				glVertex3f( 1.0f*sV,-1.0f*sV, 0.0f*sV);
+				glVertex3f(-1.0f*sV,-1.0f*sV, 0.0f*sV);
 				glEnd();
 			}
 			if (i < 2)
-				glTranslatef(0.0f,2.0f,0.0f);
+				glTranslatef(0.0f*sV,2.0f*sV,0.0f*sV);
 		}
 
 		// shift to the right for next glyph
-		glTranslatef(4.0f,0.0f,0.0f);
+		glTranslatef(4.0f*sV,0.0f*sV,0.0f*sV);
 
 		// new line (graphical carriage return)
 		if ((x % maze_width) == 0)
-			glTranslatef(-maze_width*4.0, -4.0f, 0.0f);
+			glTranslatef(-maze_width*4.0*sV, -4.0f*sV, 0.0f*sV);
   }
 	      
 	//glTranslatef(-(float)(app_width/2), (float)(app_height)/2, 0);
