@@ -50,6 +50,7 @@ class Maze
         {
           bool clean = false;
           vector<int> dirtyCells;
+          int last_unclean_index = -1;
 
           while (! clean)
           {
@@ -60,6 +61,7 @@ class Maze
               int mainSet = sets.find(0);
               if (cellSet != mainSet)
               {
+                last_unclean_index = i;
                 //cout << "Found a lonely cell: " << i << " in set " << cellSet << endl;
                 int randMember = sets.randSetMember(cellSet);
                 //cout << "Cleaning up neighbor: " << randMember << endl;
@@ -67,11 +69,16 @@ class Maze
                 {
                   //cout << "Knocking down!" << endl;
                   randomKnockdown(randMember, -1, true);
+                  // restart count
                 }
               }     
-                
             }
-            clean = true;
+            //cout << "last_unclean_index == " << last_unclean_index << endl;
+            if (last_unclean_index == -1)
+            {
+              clean = true;
+            }
+            last_unclean_index = -1;
           }
         }
 
@@ -82,7 +89,8 @@ class Maze
             int c1 = (rand() % size);
             c1 = (c1_override != -1) ? c1_override : c1;
             vector<int> adj = findAdjacentCells(c1);
-            /* cout << "neighbors: ";
+            /*
+            cout << "neighbors: ";
             for (int i=0; i < adj.size(); i++)
             {
               cout << adj[i] << ", ";
@@ -109,7 +117,7 @@ class Maze
                   int another_set = sets.find(adj[i]);
                   if (c1_set != another_set)
                   {
-                    c2 = i;
+                    c2 = adj[i];
                     c2_set = another_set;
                     //cout << "finally settled on neighbor " << c2 << " in set " << c2_set << endl;
                   }

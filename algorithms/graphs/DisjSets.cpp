@@ -1,5 +1,6 @@
 
-// DisjSets class (mostly from Mark Allan Weiss's textbook)
+// DisjSets class (somewhat borrowed from Mark Allan Weiss's textbook)
+// adapted by Daniel Packer
 //
 // CONSTRUCTION: with int representing initial number of sets
 //

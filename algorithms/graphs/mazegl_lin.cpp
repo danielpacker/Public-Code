@@ -131,8 +131,8 @@ void DrawGLScene()
 
   float red=0.0,blue=0.0,green=0.0;
   float frequency = 0.3/(cells.size()/16);
-  bool rainbow = true;
-  bool rainbow2 = true;
+  bool rainbow = false;
+  bool rainbow2 = false;
   float cVal = 0.0;
       if (rainbow2) cVal = 128.0;
   float sV = appfac / 4.0;
@@ -148,7 +148,8 @@ void DrawGLScene()
       //cout << "red " << red << " green " << green << " blue " << blue << endl;
     }
     red = red/255.0; blue = blue/255.0; green = green/255.0;
-    glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+    if (rainbow2)
+      glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
     glColor3f(red, green, blue);
 
 		int c = cells[x-1];
