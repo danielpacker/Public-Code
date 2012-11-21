@@ -32,6 +32,7 @@ vector<int> cells;
 int maze_height = DEFAULT_MAZE_HEIGHT, maze_width = DEFAULT_MAZE_WIDTH;
 int app_height=kWindowHeight,app_width=kWindowWidth;
 float appfac = 4.0;
+Maze m(maze_height, maze_width);
 
 int main(int argc, char** argv)
 {
@@ -69,7 +70,7 @@ int main(int argc, char** argv)
 	// create glut window and start rendering
   glutInit(&argc, argv);
   glutInitWindowSize (app_width, app_height); 
-  glutInitDisplayMode (GLUT_SINGLE | GLUT_RGB | GLUT_DEPTH);
+  glutInitDisplayMode (GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
   glutInitWindowPosition (20, 20);
   glutCreateWindow ("Maze render");
   //glutReshapeFunc(ReSizeGLScene); 
@@ -80,11 +81,13 @@ int main(int argc, char** argv)
 	// Randomly break down walls between adjacent cells 
 	//   until cell 0 is connected to cell size-1
 	srand(time(NULL));
-	Maze m(maze_height, maze_width);
+
+/*
 	while (! m.mazeComplete())
 		bool success = m.randomKnockdown();
   m.cleanUp(); // remove islands best we can
 	cells = m.getCells(); // grab cells for rendering
+  */
 	
   glutMainLoop(); // start drawing
     
@@ -115,6 +118,11 @@ void InitGL()
 // redraw the maze every frame (kind of a waste for a static image, huh)
 void DrawGLScene()
 {    
+	while (! m.mazeComplete())
+	  bool success = m.randomKnockdown();
+	cells = m.getCells(); // grab cells for rendering
+
+	
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);		
   glEnable(GL_DEPTH_TEST);
   glMatrixMode(GL_PROJECTION);
@@ -123,23 +131,24 @@ void DrawGLScene()
   glOrtho(-(app_width/2), (app_width/2), -(app_height/2), (app_height/2), -100.0, 100.0);
   glMatrixMode(GL_MODELVIEW);
   glLoadIdentity();
-  //glScalef(.005,.005,.005);
-  //glRotatef(20, 0, 1, 0);
+  //glScalef(.5,.5,.5);
   //glRotatef(30, 0, 0, 1);
-  //glRotatef(5, 1, 0, 0);
   glTranslatef(-(app_width/2-10), (app_height/2-10), 0);
 
   float red=0.0,blue=0.0,green=0.0;
   float frequency = 0.3/(cells.size()/16);
-  bool rainbow = false;
+  bool rainbow = true;
   bool rainbow2 = false;
   float cVal = 0.0;
-      if (rainbow2) cVal = 128.0;
+      if (rainbow) cVal = 128.0;
   float sV = appfac / 4.0;
+
 
 	// Go through the cells of the maze and draw the glyphs
 	for (int x=1; x <= cells.size(); x++)
 	{
+    //glRotatef((float)(360.0/(cells.size()/maze_width)), 0.0, 1.0, 0.0);
+    //glRotatef(5.0, 0.0, 1.0, 0.0);
     if (rainbow)
     {
       green = (float)sin(frequency*(float)x + 0.0) * 127.0 + cVal;
@@ -223,9 +232,14 @@ void DrawGLScene()
 		// new line (graphical carriage return)
 		if ((x % maze_width) == 0)
 			glTranslatef(-maze_width*4.0*sV, -4.0f*sV, 0.0f*sV);
+
+    //glRotatef(-5.0, 0.0, 1.0, 0.0);
   }
 	      
 	//glTranslatef(-(float)(app_width/2), (float)(app_height)/2, 0);
+
+  glutSwapBuffers();
+  //m.cleanUp(); // remove islands best we can
   glFlush();
 
 }

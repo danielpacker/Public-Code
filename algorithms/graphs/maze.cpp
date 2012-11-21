@@ -46,6 +46,12 @@ class Maze
             cells[size-1] -= RIGHT;
         }
 
+        void clear()
+        {
+          cells.clear();
+          cout << "cleared\n";
+        }
+
         void cleanUp()
         {
           bool clean = false;
