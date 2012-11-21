@@ -6,6 +6,8 @@ use warnings;
 use lib '.';
 use montyOO;
 
+use Benchmark qw(:all);
+
 
 my $help = q/
 *****************************************************************************
@@ -22,42 +24,55 @@ my $help = q/
 *****************************************************************************
 /;
 
-print "\n$help\n";
+sub main {
 
-# Get options
-my %cmd_params = (
-  'switch' => 'rand',
-  'sims'   => 10,
-  );
-my $cmd_str = join("|", keys %cmd_params);
-my @command_args = grep { /^($cmd_str)=[A-Za-z0-9]+$/ } @ARGV;
-map { my ($k,$v)=split("=", $_); $cmd_params{$k}=$v } @command_args;
-#use Data::Dumper; print Dumper \%cmd_params;
+  print "\n$help\n";
 
-## statistics ##
-my $num_sims = $cmd_params{'sims'};
-my $total_wins   = 0;
-my $total_losses = 0;
-my $mean_wins    = 0;
+  # Get options
+  my %cmd_params = (
+    'switch' => 'rand',
+    'sims'   => 10,
+    );
+  my $cmd_str = join("|", keys %cmd_params);
+  my @command_args = grep { /^($cmd_str)=[A-Za-z0-9]+$/ } @ARGV;
+  map { my ($k,$v)=split("=", $_); $cmd_params{$k}=$v } @command_args;
+  #use Data::Dumper; print Dumper \%cmd_params;
 
-# run some simulations
-for my $run (1..$cmd_params{'sims'})
-{
-  my $MHS = montyOO->new(%cmd_params);
-  $total_wins++ if $MHS->run(); # tally wins
-}
-$total_losses = $num_sims - $total_wins;
-$mean_wins = ( $total_wins / $num_sims ) * 100.0;
+  ## statistics ##
+  my $num_sims = $cmd_params{'sims'};
+  my $total_wins   = 0;
+  my $total_losses = 0;
+  my $mean_wins    = 0;
+  my $mean_losses  = 0;
 
-my $output = qq/
+  # run some simulations
+  for my $run (1..$cmd_params{'sims'})
+  {
+    my $MHS = montyOO->new(%cmd_params);
+    $total_wins++ if $MHS->run(); # tally wins
+  }
+  $total_losses = $num_sims - $total_wins;
+  $mean_wins = ( $total_wins / $num_sims ) * 100.0;
+  $mean_losses = 100 - $mean_wins;
+
+  my $output = qq/
 =============================== STATISTICS =============================== 
 
-     Number of sims:   $num_sims                                             
-     Number of wins:   $total_wins                                          
-     Number of losses: $total_losses                                          
-     Mean win percent: $mean_wins                                          
-/;
-print $output, "\n";
+      Number of sims:    $num_sims                                         
+      Number of wins:    $total_wins  
+      Number of losses:  $total_losses
+      Mean win percent:  $mean_wins 
+      Mean loss percent: $mean_losses
+  /;
+  print $output, "\n";
+}
 
+{
+  my $start = Time::HiRes::gettimeofday();
+  main();
+  my $end = Time::HiRes::gettimeofday();
+  print "Simulation runtime (sec): ", sprintf("%.2f\n", $end - $start), "\n";
+  exit(0);
+}
 
 
