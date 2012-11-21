@@ -36,17 +36,18 @@ map { my ($k,$v)=split("=", $_); $cmd_params{$k}=$v } @command_args;
 
 ## statistics ##
 my $num_sims = $cmd_params{'sims'};
-my $total_wins = 0;
-my $mean_wins = 0;
+my $total_wins   = 0;
+my $total_losses = 0;
+my $mean_wins    = 0;
 
 # run some simulations
 for my $run (1..$cmd_params{'sims'})
 {
-  my $MHS = montyOO->new();
+  my $MHS = montyOO->new(%cmd_params);
   $total_wins++ if $MHS->run(); # tally wins
 }
-my $total_losses = $num_sims - $total_wins;
-my $mean_wins = $total_wins / $num_sims;
+$total_losses = $num_sims - $total_wins;
+$mean_wins = ( $total_wins / $num_sims ) * 100.0;
 
 my $output = qq/
 =============================== STATISTICS =============================== 

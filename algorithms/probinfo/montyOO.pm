@@ -9,13 +9,17 @@ package montyOO;
 
 sub new {
   my $pkg = shift;
+  my %params = @_;
   my $self = {
     'doors'         => [1..3], # 3 doors
     'first_choice'  => undef,
     'final_choice'  => undef,
     'revealed_door' => undef,
     'winner_door'   => undef,
+    'switch'        => 'rand',
     };
+  # override defaults
+  map { $self->{$_} = $params{$_} if exists $self->{$_}} keys %params;
   bless $self, $pkg;
   return $self
 }
@@ -66,9 +70,20 @@ sub final_choice {
     ($_ != $self->{'revealed_door'}) && ($_ != $self->{'first_choice'}) 
     } @{ $self->{'doors'} };
 
-  # Flip a 1/0 coin. 1 we switch, 0 we don't.
-  $self->{'final_choice'} = int(rand(2)) ? 
-    $door_remaining : $self->{'first_choice'};
+  if ($self->{'switch'} eq 'rand')
+  {
+    # Flip a 1/0 coin. 1 we switch, 0 we don't.
+    $self->{'final_choice'} = int(rand(2)) ? 
+      $door_remaining : $self->{'first_choice'};
+  }
+  elsif ($self->{'switch'} eq 'true')
+  {
+    $self->{'final_choice'} = $door_remaining;
+  }
+  else # switch == false
+  {
+    $self->{'final_choice'} = $self->{'first_choice'};
+  }
 }
 
 sub game_result {
