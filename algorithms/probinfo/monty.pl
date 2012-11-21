@@ -1,4 +1,6 @@
 #!/usr/bin/perl
+# Monty Hall game
+# Author: Daniel Packer <dp@danielpacker.org>
 
 use strict;
 use warnings;
