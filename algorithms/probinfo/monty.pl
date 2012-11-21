@@ -10,8 +10,8 @@ my %doors = (1 => 0,
              3 => 0);
 
 # Put $100 behind a door:
-my $door_num = int(rand(3))+1; # {1,2,3}
-$doors{$door_num} = 1;
+my $winner_door = int(rand(3))+1; # {1,2,3}
+$doors{$winner_door} = 1;
 
 print "\n=== Welcome to the Monty Hall game where looks are deceiving! ===\n";
 
@@ -48,6 +48,6 @@ while ($switch_choice ne '' && $switch_choice ne 's')
 # Switch choice if need be
 $door_choice = ($switch_choice) ? $door_remaining : $door_choice;
 
-my $result = ($door_num == $door_choice) ? 'won' : 'lost';
+my $result = ($winner_door == $door_choice) ? 'won' : 'lost';
 
-print "You $result! The money was behind door #$door_num.\n";
+print "You $result! The money was behind door #$winner_door.\n";
