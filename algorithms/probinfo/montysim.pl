@@ -21,8 +21,9 @@ my $help = q/
 *    Options:                                                               *
 *        switch: switch choice after a door is revealed? (default=rand)     *
 *                (random is random switching, last is switch only last)     *
-*                                                                           *
 *          sims: number of simulations to run (default=1)                   *
+*        visual: display the status of each door at each step visually      *
+*     num_doors: number of doors in simulation                              *
 *                                                                           *
 *****************************************************************************
 /;
@@ -37,7 +38,7 @@ sub main {
     'sims'      => 10,
     'num_doors' => 3,
     'debug'     => 0,
-    'visual'    => 1,
+    'visual'    => 0,
     );
   my $cmd_str = join("|", keys %cmd_params);
   my @command_args = grep { /^($cmd_str)=[A-Za-z0-9]+$/ } @ARGV;
@@ -56,7 +57,7 @@ sub main {
   {
     my $MHS = montyOO->new(%cmd_params);
     $total_wins++ if $MHS->run(); # tally wins
-    print $MHS->output() if (exists $cmd_params{'visual'});
+    print $MHS->output() if (exists $cmd_params{'visual'} && $cmd_params{'visual'} == 1);
     #print Dumper $MHS;
   }
   $total_losses = $num_sims - $total_wins;
