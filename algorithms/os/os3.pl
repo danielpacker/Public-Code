@@ -9,6 +9,8 @@
 use strict;
 use warnings;
 
+use Data::Dumper;
+
 ##############################################################################
 # 
 # DQ object (device queue entry)
@@ -145,6 +147,7 @@ my $CPU_PCB         = undef; # reference to PCB being worked on
 my %AVG_BURST_TIMES = ();    # Track avg burst time by pid
 my %CUR_BURST_TIMES = ();    # Track current total burst time by pid
 my $TIME_SLICE_MSEC = 10;    # Time slice length (ms)
+my $DEFAULT_DISK_CYL = 10000; # Default disk cylinders
 
 ##############################################################################
 # Program subroutines
@@ -220,6 +223,7 @@ sub sys_gen() {
         }
       }
     }
+
   }
   return $devs_to_create;
  
@@ -234,9 +238,33 @@ sub create_devices($) {
   {
     my $suffix = ($num_devices > 1) ? "s" : "";
     print "Creating $num_devices $dev_type$suffix\n";
-    for my $dev_num (0..$num_devices)
+    for my $dev_num (1..$num_devices)
     {
-      next if $dev_num == 0; # device numbering starts at 1
+      #print "DeV TYPE: $dev_type\n";
+      if ($dev_type eq 'disk')
+      {
+
+        # Get disk size 
+        my $dc = 0;
+        while (length($dc) and ($dc < 1))
+        {
+          print "Enter number of cylinders for disk $dev_num. (Enter for $DEFAULT_DISK_CYL):";
+          $dc = <STDIN>; chomp $dc;
+          if (length($dc))
+          { # leave default value
+            if (($dc =~ /^\d+$/) and ($dc > 0))
+            {
+            } 
+            else 
+            {
+              print "ERROR: Please enter a number greater than 0\n";
+              $dc = 0;
+            }
+          }
+        }
+      }
+
+      #next if $dev_num == 0; # device numbering starts at 1
       $DEVICES->{$dev_type}->{$dev_type . $dev_num} = 
         DEV->new(lc($dev_type) . $dev_num);
     }
@@ -471,6 +499,12 @@ sub run() {
       {
         print "Aborting request. Device not valid.\n";
       }
+    }
+
+    elsif ($cmd eq 'dump')
+    {
+      print "DEVICES:\n";
+      print Dumper $DEVICES;
     }
 
     else
