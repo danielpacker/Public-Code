@@ -52,11 +52,22 @@ package DEV;
 sub new($$) {
   my $class = shift;
   my $id = shift or die "no id";
+  my %args = @_;
 
   my $self = {
     'id' => $id,
     'queue' => [],
+    'cylinders' => 0,
   };
+
+  for my $arg (keys %args)
+  {
+    if (exists $self->{$arg})
+    {
+      $self->{$arg} = $args{$arg};
+    }
+  }
+
   bless $self, $class;
   return $self;
 }
@@ -208,7 +219,7 @@ sub sys_gen() {
     my $ts = 0;
     while (length($ts) and ($ts < 1))
     {
-      print "Enter length of timeslice(ms). Hit enter to accept default ($TIME_SLICE_MSEC) ";
+      print "Enter length of timeslice(ms). Hit enter to accept default ($TIME_SLICE_MSEC): ";
       $ts = <STDIN>; chomp $ts;
       if (length($ts))
       { # leave default value
@@ -241,11 +252,11 @@ sub create_devices($) {
     for my $dev_num (1..$num_devices)
     {
       #print "DeV TYPE: $dev_type\n";
+      my $dc = 0;
       if ($dev_type eq 'disk')
       {
 
         # Get disk size 
-        my $dc = 0;
         while (length($dc) and ($dc < 1))
         {
           print "Enter number of cylinders for disk $dev_num. (Enter for $DEFAULT_DISK_CYL):";
@@ -261,12 +272,16 @@ sub create_devices($) {
               $dc = 0;
             }
           }
+          else
+          {
+            $dc = $DEFAULT_DISK_CYL;
+          }
         }
       }
 
       #next if $dev_num == 0; # device numbering starts at 1
       $DEVICES->{$dev_type}->{$dev_type . $dev_num} = 
-        DEV->new(lc($dev_type) . $dev_num);
+        DEV->new(lc($dev_type) . $dev_num, 'cylinders' => $dc);
     }
   }
 
