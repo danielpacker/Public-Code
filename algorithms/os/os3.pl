@@ -4,8 +4,6 @@
 # by Daniel Packer <dp@danielpacker.org>
 #
 
-
-
 use strict;
 use warnings;
 
@@ -491,7 +489,7 @@ sub run() {
         { 
         print sprintf("%-15s %-15s %-20s %-20s", $CPU_PCB->{'pid'}, "cpu", burst_time($CPU_PCB->{'pid'}), burst_time($CPU_PCB->{'pid'}, 'average')), "\n";
           for my $pcb (@READY_QUEUE) {
-            print sprintf("%-15s %-15s %-20s %-20s", $pcb->{'pid'}, "cpu", burst_time($pcb->{'pid'}), burst_time($pcb->{'pid'}, 'average')), "\n";
+            print sprintf("%-15s %-15s %-20s %-20s", $pcb->{'pid'}, "ready", burst_time($pcb->{'pid'}), burst_time($pcb->{'pid'}, 'average')), "\n";
           }
         }
       }
@@ -532,6 +530,14 @@ sub run() {
         print "Device request... ";
         if (dev_queue($CPU_PCB, $1, $2))
         {
+          my $ms = '';
+          while ($ms !~ /^\d+$/)
+          {
+            print "Enter time process bursted until syscall: ";
+            print "[$ms]\n";
+            $ms = <STDIN>; chomp $ms;
+          }
+          burst($CPU_PCB->{'pid'}, $ms);
           # now change the cpu pcb
           $CPU_PCB = shift @READY_QUEUE;
         }
@@ -570,9 +576,9 @@ sub run() {
   dX: new disk syscall
   cX: new CD/RW syscall
   T:  burst the CPU for one time slice
-  s:  system submenu
-      --> submenu options:
-      r:  show processes
+  s:  snapshot submenu
+      --> snapshot options:
+      r:  show processes in ready_queue/CPU
       a:  show all processes in device queues
       d:  show all processes in disk queues
       c:  show all processes in CD/RW queues
