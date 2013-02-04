@@ -155,8 +155,8 @@ for my $type (keys %{ DEV_TYPES() })
 my @READY_QUEUE     = ();
 my $PROCESS_COUNT   = 1;     # pid value increments with each new process
 my $CPU_PCB         = undef; # reference to PCB being worked on
-my %AVG_BURST_TIMES = ();    # Track avg burst time by pid
-my %CUR_BURST_TIMES = ();    # Track current total burst time by pid
+my %CUR_BURST_TIMES = ();    # Track avg burst time by pid
+my %NUM_BURST_TIMES = ();    # Track current total burst time by pid
 my $TIME_SLICE_MSEC = 10;    # Time slice length (ms)
 my $DEFAULT_DISK_CYL = 10000; # Default disk cylinders
 
@@ -324,10 +324,17 @@ sub dev_queue($$$) {
       return 0;
     }
 
-    print "Enter starting location: ";
+    if ($type eq 'disk')
+    {
+      print "Enter cylinder: ";
+    }
+    else
+    {
+      print "Enter starting location: ";
+    }
     my $start_loc = <STDIN>; chomp($start_loc);
     unless ($start_loc =~ /^\d+$/) {
-      print "Aborting request. Invalid location (must be an integer)!\n";
+      print "Aborting request. Input must be an integer!\n";
       return 0;
     }
 
@@ -380,6 +387,37 @@ sub dev_dequeue($$) {
   return 0;
 }
 
+sub burst {
+  my $pid = shift or die "no pcb";
+  my $ms = shift or die "no ms";
+
+  $NUM_BURST_TIMES{$pid}++;
+  $CUR_BURST_TIMES{$pid} += $ms;
+}
+  
+
+sub burst_time {
+  my $pid = shift or die "no pcb";
+  my $type = shift || 'total';
+
+  my $total = $CUR_BURST_TIMES{$pid};
+
+  if ($type eq 'average')
+  {
+    if (my $num = $NUM_BURST_TIMES{$pid})
+    { 
+      return $total/$num;
+    }
+    else
+    {
+      die "no nums found for pid"
+        unless exists($NUM_BURST_TIMES{$pid});
+    }
+  } 
+  return $total;
+}
+
+
 
 # Run mode
 sub run() {
@@ -399,7 +437,7 @@ sub run() {
       print "Process arrived with pid $PROCESS_COUNT.\n";
       my $pcb = PCB->new($PROCESS_COUNT++);
       $CUR_BURST_TIMES{$pcb->{'pid'}} = 0;
-      $AVG_BURST_TIMES{$pcb->{'pid'}} = 0;
+      $NUM_BURST_TIMES{$pcb->{'pid'}} = 0;
       if (defined $CPU_PCB)
       {
         push @READY_QUEUE, $pcb;
@@ -413,7 +451,7 @@ sub run() {
     elsif ($cmd eq 'T') # timer interrupt
     {
       print "Timer interrupt! $TIME_SLICE_MSEC of burst time lapsed.\n";
-      $CUR_BURST_TIMES{$CPU_PCB->{'pid'}} += $TIME_SLICE_MSEC;
+      burst($CPU_PCB->{'pid'}, $TIME_SLICE_MSEC);
       # Move the current process to the back of the ready queue
       push @READY_QUEUE, $CPU_PCB;
       $CPU_PCB = shift @READY_QUEUE; # de-queue 1st pcb ready
@@ -448,12 +486,12 @@ sub run() {
       {
         #print "=== Process List ===\n";
         print "\n";
-        print sprintf("%-20s %-20s %-20s", "PROCESS ID", "STATUS", "AVG BURST (s)"), "\n";
+        print sprintf("%-15s %-15s %-20s %-20s", "PROCESS ID", "STATUS", "TOTAL BURST (ms)", "AVG BURST (ms)"), "\n";
         if (defined $CPU_PCB) 
         { 
-        print sprintf("%-20s %-20s %-20s", $CPU_PCB->{'pid'}, "cpu", $CUR_BURST_TIMES{$CPU_PCB->{'pid'}}, $AVG_BURST_TIMES{$CPU_PCB->{'pid'}} || 0), "\n";
+        print sprintf("%-15s %-15s %-20s %-20s", $CPU_PCB->{'pid'}, "cpu", burst_time($CPU_PCB->{'pid'}), burst_time($CPU_PCB->{'pid'}, 'average')), "\n";
           for my $pcb (@READY_QUEUE) {
-            print sprintf("%-20s %-20s %-20s", $pcb->{'pid'}, "ready", $CUR_BURST_TIMES{$pcb->{'pid'}}, $AVG_BURST_TIMES{$pcb->{'pid'}} || 0), "\n";
+            print sprintf("%-15s %-15s %-20s %-20s", $pcb->{'pid'}, "cpu", burst_time($pcb->{'pid'}), burst_time($pcb->{'pid'}, 'average')), "\n";
           }
         }
       }
@@ -522,12 +560,31 @@ sub run() {
       print Dumper $DEVICES;
     }
 
+    elsif (($cmd =~ /^[hH]$/) or ($cmd =~ /help/i) or ($cmd eq '?'))
+    {
+      my $help = q(
+  COMMAND LIST:
+  a:  new process
+  t:  terminate current process
+  pX: new printer syscall
+  dX: new disk syscall
+  cX: new CD/RW syscall
+  T:  burst the CPU for one time slice
+  s:  system submenu
+      --> submenu options:
+      r:  show processes
+      a:  show all processes in device queues
+      d:  show all processes in disk queues
+      c:  show all processes in CD/RW queues
+      p:  show all processes in printer queues
+);
+        print $help, "\n";
+    }
+ 
     else
     {
-      print "INVALID COMMAND: $cmd\n";
-    }
-
-
+      print "COMMAND NOT RECOGNIZED. TYPE \"?\" FOR HELP.\n\n";
+   }
   }
 
   print RUN_BANNER;
