@@ -53,15 +53,24 @@ sub new($$) {
   my %args = @_;
 
   my $self = {
-    'id' => $id,
-    'queue' => [],
+    'id'        => $id,
+    'queue'     => [],
     'cylinders' => 0,
+    'type'      => '',
   };
 
   for my $arg (keys %args)
   {
     if (exists $self->{$arg})
     {
+      if (($arg eq 'type') && ($args{$arg} eq 'disk'))
+      {
+        delete $self->{'queue'};
+        $self->{'fwd_queue'} = [];
+        $self->{'rev_queue'} = [];
+        $self->{'last_cylinder'} = undef;
+        $self->{'queue_dir'} = 'fwd'; # read fwd or rev queue
+      }   
       $self->{$arg} = $args{$arg};
     }
   }
@@ -279,7 +288,7 @@ sub create_devices($) {
 
       #next if $dev_num == 0; # device numbering starts at 1
       $DEVICES->{$dev_type}->{$dev_type . $dev_num} = 
-        DEV->new(lc($dev_type) . $dev_num, 'cylinders' => $dc);
+        DEV->new(lc($dev_type) . $dev_num, 'cylinders' => $dc, 'type' => $dev_type);
     }
   }
 
@@ -311,8 +320,10 @@ sub dev_queue($$$) {
   my $num = shift or die "no num";
 
   my $type = code2type($code) or die "invalid code";
+  my $dev = $DEVICES->{$type}->{"$type$num"};
+  print "DEV ID: ", $dev->{'id'}, "\n";
 
-  if (exists $DEVICES->{$type}->{"$type$num"})
+  if (my $dev = $DEVICES->{$type}->{"$type$num"})
   {
     print "Device valid. Issuing IO request.\n";
     print "Enter filename: ";
@@ -349,7 +360,14 @@ sub dev_queue($$$) {
     }
 
     my $dq = DQ->new(pcb => $pcb, filename => $filename, start_loc => $start_loc, mode => $mode);
-    push @{ $DEVICES->{$type}->{"$type$num"}->{queue} }, $dq;
+    if ($type eq 'disk')
+    {
+      disk_queue($dev, $dq);
+    }
+    else
+    {
+      push @{ $DEVICES->{$type}->{"$type$num"}->{'queue'} }, $dq;
+    }
   }
   else
   {
@@ -359,6 +377,41 @@ sub dev_queue($$$) {
   return 1;
 }
 
+sub disk_dequeue($) {
+  my $dev = shift or die "no disk device";
+
+  my $dir = $dev->{'queue_dir'};
+
+  my $queue = $dev->{$dir.'_queue'};
+  my $dq = shift @$queue;
+
+  if (! scalar @$queue)
+  {
+    my $new_dir = ($dir eq 'fwd') ? 'rev' : 'fwd';
+  }
+
+  return $dq;
+}
+
+
+sub disk_queue($$) {
+  my $dev = shift or die "no disk device";
+  my $dq  = shift or die "no queue item";
+
+  my $dir = $dev->{'queue_dir'};
+  push @{ $dev->{$dir.'_queue'} }, $dq;
+  if ($dir eq 'fwd')
+  {
+    $dev->{$dir.'_queue'} = [ sort { $a->{'start_loc'} <=> $b->{'start_loc'} }  @{ $dev->{$dir.'_queue'} } ]; # sort queue
+  }
+  else
+  {
+    $dev->{$dir.'_queue'} = [ sort { $b->{'start_loc'} <=> $a->{'start_loc'} }  @{ $dev->{$dir.'_queue'} } ]; # sort queue
+  }
+  print "DIRECTION: $dir\n";
+}
+
+
 sub dev_dequeue($$) {
   my $code = shift or die "no code";
   my $num = shift or die "no num";
@@ -367,7 +420,16 @@ sub dev_dequeue($$) {
 
   if (exists $DEVICES->{$type}->{"$type$num"}->{'queue'}) # valid device
   {
-    my $dq = shift @{ $DEVICES->{$type}->{"$type$num"}->{'queue'} };
+    my $dq;
+    if ($type eq 'disk')
+    {
+      my $disk = $DEVICES->{$type}->{"$type$num"};
+      $dq = disk_dequeue($disk);
+    }
+    else
+    {
+      $dq = shift @{ $DEVICES->{$type}->{"$type$num"}->{'queue'} };
+    }
     my $pcb = $dq->{'pcb'};
 
     #if no process in cpu, return to cpu, otherwise put back in ready
@@ -531,10 +593,9 @@ sub run() {
         if (dev_queue($CPU_PCB, $1, $2))
         {
           my $ms = '';
-          while ($ms !~ /^\d+$/)
+          while (($ms !~ /^\d+$/) || ($ms > $TIME_SLICE_MSEC) || ($ms < 1))
           {
-            print "Enter time process bursted until syscall: ";
-            print "[$ms]\n";
+            print "Enter process burst time before syscall (1+ ms): ";
             $ms = <STDIN>; chomp $ms;
           }
           burst($CPU_PCB->{'pid'}, $ms);
@@ -570,6 +631,7 @@ sub run() {
     {
       my $help = q(
   COMMAND LIST:
+  ?:  command list
   a:  new process
   t:  terminate current process
   pX: new printer syscall
