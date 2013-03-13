@@ -19,7 +19,7 @@ lon="-80.6497"
 radius="0.15"
 
 # Set minimum magnitude on richter scale for query:
-minmag="1.0"
+minmag="0.0"
 
 # Get the data from the query
 cat = client.getEvents(starttime=starttime, endtime=endtime, minmag=minmag, lat=lat, lon=lon, maxradius=radius)
