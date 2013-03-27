@@ -51,7 +51,7 @@ sub main
   );
   die $usage unless (scalar(@ARGV)==2);
 
-  print timestamp(), "Reading sequences...\n";
+  print timestamp(), "Reading sequences...";
 
   for my $fn (@ARGV)
   {
@@ -67,12 +67,13 @@ sub main
 
       $seqs{$ss}++;
       $count++;
-  #    last if $count > 40*1000;
-      print timestamp, "$fn: $count sequences read\n" if ($count % $tickcount == 0);
+      print $tick if ($count % $tickcount == 0);
+      # last if $count > 40*1000;
+      #print timestamp, "$fn: $count sequences read\n" if ($count % $tickcount == 0);
     }
     $seqdicts{$fn} = [ $count, {%seqs} ];
   }
-  print timestamp(), "done reading sequences.\n";
+  print "done.\n";
 
   #print Dumper \%seqdicts;
 
