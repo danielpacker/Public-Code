@@ -16,7 +16,7 @@ my %seqdicts = (
   # filename => [ totalseqs, { SEQ => 1 } ]
 );
 
-die "provide two input filenames!" unless (scalar(@ARGV) == 2);
+die "Usage: compare_fasta.pl <file1> <file2>" unless (scalar(@ARGV) == 2);
 
 print "Reading sequences...";
 
@@ -66,8 +66,6 @@ for my $fn (@ARGV)
   }
   $lostseqs{$fn} = {%undefseqs};
 }
-
-
 
 for my $fn (keys %lostseqs)
 {
