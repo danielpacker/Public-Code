@@ -1,11 +1,47 @@
 #!/bin/perl -w
 # Daniel Packer <dp@danielpacker.org>
-# utility class to test sequences for cystein framework patterns
-# cysteine framework data from:
+# utility class to test sequences for cystein framework patterns in sea snails
+# cysteine framework data from the following URLs:
 # http://www.conoserver.org/?page=classification&type=cysteineframeworks
+# http://www.conoserver.org/?page=about_conotoxins&bpage=cononames
 
 use strict;
 use warnings;
+
+my %superfamilies = (
+'A superfamily' => 'I,II,IV,XIV',
+'B superfamily' => '',
+'C superfamily' => '',
+'D superfamily' => 'XX,XV',
+'Divergent M---L-LTVA' => 'XIV,IX,VI/VII',
+'Divergent MKFPLLFISL' =>  'VI/VII',
+'Divergent MKLCVVIVLL' => 'XIV',
+'Divergent MKLLLTLLLG' => '',
+'Divergent MKVAVVLLVS' => '',
+'Divergent MRCLSIFVLL' => 'XVI',
+'Divergent MRFLHFLIVA' => 'VI/VII',
+'Divergent MRFYIGLMAA' => 'V,I',
+'Divergent MSKLVILAVL' => 'IX',
+'Divergent MSTLGMTLL-' => 'XIX,XXII,IX',
+'Divergent MTAKATLLVL' => 'XIV',
+'Divergent MTFLLLLVSV' => 'IX',
+'Divergent MTLTFLLVVA' => 'VI/VII',
+'I1 superfamily' => ' XI,VI/VII',
+'I2 superfamily' => ' XII,XI',
+'I3 superfamily' => ' XI,VI/VII',
+'J superfamily' => 'XIV',
+'K superfamily' => 'XXIII',
+'L superfamily' => 'XIV',
+'M superfamily' => 'IV,III,XVI,VI/VII,IX,I,XIV,II',
+'O1 superfamily' => ' XII,VI/VII,I,XIV',
+'O2 superfamily' => ' VI/VII,XV',
+'O3 superfamily' => ' VI/VII',
+'P superfamily' => 'IX',
+'S superfamily' => 'VIII',
+'T superfamily' => 'X,V,XVI,I',
+'V superfamily' => 'XV',
+'Y superfamily' => 'XVII',
+);
 
 my %frameworks = (
 'I' => 'CC-C-C',
@@ -48,7 +84,7 @@ my %seq_patterns = (
 );
 
 # Return list of frameworks a sequence belongs to
-sub test_seq
+sub check_frameworks
 {
   my $seq = shift;
   my @frameworks = ();
@@ -60,8 +96,49 @@ sub test_seq
   return @frameworks;
 }
 
-#my $seq = "CDANIELCDANIELCDANIELCCDANIELCDANIEL";
-#my @fw = test_seq($seq);
-#print Dumper \@fw;
+sub check_super_fams($)
+{
+  my $patt = shift;
+  my @sfams = ();
+  for my $fam (keys %superfamilies)
+  {
+    for(split(',', $superfamilies{$fam}))
+    {
+      push(@sfams, $fam) if ($patt eq $_);
+    }
+  }
+  return @sfams;
+}
+
+sub check_seq($)
+{
+  my $seq = shift;
+  my (%sfams, %fws);
+  for my $fw (check_frameworks($seq))
+  {
+    $fws{$fw}++;
+    for my $sf (check_super_fams($fw))
+    {
+      $sfams{$sf}++;
+    }
+  }
+  return [ {%fws}, {%sfams} ];
+}
+
+
+sub show_check_seq($)
+{
+  my $seq = shift;
+  my ($fws_ref, $sfams_ref) = @{ check_seq($seq) };
+  my @fws = sort keys %$fws_ref;
+  my @sfams = sort keys %$sfams_ref;
+  print "Sequence: $seq\n";
+  print "Frameworks: ", join(", ", @fws), "\n";
+  print "Super-families: ", join(", ", @sfams), "\n";
+}
+
+my $seq = "CDANIELCDANIELCDANIELCCDANIELCDANIEL";
+show_check_seq($seq);
+
 
 1;
