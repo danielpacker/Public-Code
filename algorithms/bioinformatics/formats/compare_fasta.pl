@@ -47,7 +47,7 @@ sub main
 
   Both optional arguments have the effect of eliminating duplicate sequences, but substring is much more computationally intensive and is not ideal for a large number of similar sequences (quadratic time).
 
-  For peptide comparison with orfs the prefix search is ideal because it uses an index of the first N characters to speed up the process of finding matches. This isn't as easy to do with substring matches that can be anywhere in the string and would require a much larger index, so it is only implemented for prefixes.
+  For peptide comparison with orfs the prefix search is ideal because it uses an index of the first N characters to speed up the process of finding matches. This isn't as easy to do with substring matches that can be anywhere in the string and would require a much larger index, so it is only implemented for prefixes. The substring method only removes the sequences that were substrings, not the super sequences.
   );
   die $usage unless (scalar(@ARGV)==2);
 
@@ -116,6 +116,7 @@ sub main
   }
 
   # build the substring index for subsearch
+  my %foundseqs = (); # hold found seqs to delete after
   if ($prefixsearch)
   {
     for my $fn (@ARGV)
@@ -134,7 +135,6 @@ sub main
     #print Dumper \%subindex;
 
     # use subindex to remove substrings (duplicates)
-    my %foundseqs = (); # hold found seqs to delete after
     for my $fn (keys %lostseqs)
     {
       my $otherfn = ($fn eq $ARGV[0]) ? $ARGV[1] : $ARGV[0];
@@ -153,18 +153,30 @@ sub main
         }
       }
     }
+  }
 
-    # delete all the found seqs
-    for my $fn (keys %lostseqs)
-    {
+  if ($do_subsearch)
+  { 
+    for my $fn (@ARGV)
+      my $otherfn = ($fn eq $ARGV[0]) ? $ARGV[1] : $ARGV[0];
       my $lseqs = $lostseqs{$fn};
       for my $seq (keys %$lseqs)
       {
-        delete $lostseqs{$fn}->{$seq} if (defined $foundseqs{$fn}->{$seq});
-      }
+        my $otherseqs = $seqdicts{$otherfn}->[1];
+      
+   
+  }
+
+  # delete all the found seqs
+  for my $fn (keys %lostseqs)
+  {
+    my $lseqs = $lostseqs{$fn};
+    for my $seq (keys %$lseqs)
+    {
+      delete $lostseqs{$fn}->{$seq} if (defined $foundseqs{$fn}->{$seq});
     }
   }
-  print Dumper \%lostseqs;
+  #print Dumper \%lostseqs;
 
   for my $fn (keys %lostseqs)
   {

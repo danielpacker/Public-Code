@@ -5,6 +5,8 @@
 # http://www.conoserver.org/?page=classification&type=cysteineframeworks
 # http://www.conoserver.org/?page=about_conotoxins&bpage=cononames
 
+package cysfw;
+
 use strict;
 use warnings;
 
@@ -76,8 +78,8 @@ for my $type (keys %frameworks)
   $fwpatterns{$type} = $patt;
 }
 
-use Data::Dumper;
-print Dumper \%fwpatterns;
+#use Data::Dumper;
+#print Dumper \%fwpatterns;
 
 my %seq_patterns = (
   # SEQ => PATTERN TYPE
@@ -113,16 +115,16 @@ sub check_super_fams($)
 sub check_seq($)
 {
   my $seq = shift;
-  my (%sfams, %fws);
+  my (@sfams, @fws);
   for my $fw (check_frameworks($seq))
   {
-    $fws{$fw}++;
+    push @fws, $fw;
     for my $sf (check_super_fams($fw))
     {
-      $sfams{$sf}++;
+      push @sfams, $sf;
     }
   }
-  return [ {%fws}, {%sfams} ];
+  return [ [@fws], [@sfams] ];
 }
 
 
@@ -130,15 +132,16 @@ sub show_check_seq($)
 {
   my $seq = shift;
   my ($fws_ref, $sfams_ref) = @{ check_seq($seq) };
-  my @fws = sort keys %$fws_ref;
-  my @sfams = sort keys %$sfams_ref;
   print "Sequence: $seq\n";
-  print "Frameworks: ", join(", ", @fws), "\n";
-  print "Super-families: ", join(", ", @sfams), "\n";
+  print "Frameworks: ", join(", ", @$fws_ref), "\n";
+  print "Super-families: ", join(", ", @$sfams_ref), "\n";
 }
 
-my $seq = "CDANIELCDANIELCDANIELCCDANIELCDANIEL";
-show_check_seq($seq);
+sub test()
+{
+  my $seq = "CDANIELCDANIELCDANIELCCDANIELCDANIEL";
+  show_check_seq($seq);
+}
 
 
 1;
