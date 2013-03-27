@@ -44,8 +44,6 @@ print "done.\n";
 use Data::Dumper;
 #print Dumper \%seqdicts;
 
-print "Comparing sequences...\n";
-
 my %lostseqs = ();
 for my $fn (@ARGV)
 {
@@ -55,30 +53,33 @@ for my $fn (@ARGV)
   my $seqs = $seqdicts{$fn}->[1];
 
   # see if every seq in each file is in the other
+  my %undefseqs = ();
   for my $seq (keys %$seqs)
   {
     my $seqcount = $seqs->{$seq}; # number of occurances of seq
 
-	print "HRM $fn $seq\n" if ($seq =~ /XXDP/);
     # compare against the other
     my $otherfn = ($fn eq $ARGV[0]) ? $ARGV[1] : $ARGV[0];
     my $otherseqs = $seqdicts{$otherfn}->[1];
-    if (! defined $otherseqs->{$seq})
-    {
-      #print "$seq is in $fn but not in $otherfn!\n";
-      $lostseqs{$fn} = $seq;
-    }
+    $undefseqs{$seq}++ if not defined $otherseqs->{$seq};
+    
   }
+  $lostseqs{$fn} = {%undefseqs};
 }
 
-print "done.\n";
 
-my $numunique = scalar(keys %lostseqs);
-
-print "Found $numunique unique sequences:\n";
 
 for my $fn (keys %lostseqs)
 {
-  my $seq = $lostseqs{$fn};
-  print "$fn\t$seq\n";
+  my $numunique = scalar(keys %{ $lostseqs{$fn} });
+  print "Found $numunique unique sequences in $fn.\n";
+}
+
+for my $fn (keys %lostseqs)
+{
+  my $lseqs = $lostseqs{$fn};
+  for my $seq (keys %$lseqs)
+  {
+    print "$fn\t$seq\n";
+  }
 }
