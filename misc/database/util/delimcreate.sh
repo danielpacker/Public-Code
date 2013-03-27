@@ -13,3 +13,8 @@ echo -n $RESULT
 echo " );"
 
 
+if [[ $4 ]]; then
+  #echo "mysqlimport --fields-optionally-enclosed-by='\"' --fields-terminated-by='\$DELIM' --lines-terminated-by='\n' --user $4 --password $TABLE $FILE"
+  echo "LOAD DATA INFILE $FILE INTO TABLE $TABLE FIELDS TERMINATED BY '$DELIM' OPTIONALLY ENCLOSED BY '\"' LINES TERMINATED BY '\\n' IGNORE 1 LINES;"
+fi
+

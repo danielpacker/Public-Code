@@ -27,4 +27,4 @@ cat = client.getEvents(starttime=starttime, endtime=endtime, minmag=minmag, lat=
 print(cat); # show output for debugging purposes
 
 # Plot the query data on a world map centered on our point of interest
-cat.plot(projection="local", resolution="f");
+#cat.plot(projection="local", resolution="f");
