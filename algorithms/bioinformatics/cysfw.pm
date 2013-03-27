@@ -45,6 +45,11 @@ my %superfamilies = (
 'Y' => 'XVII',
 );
 
+sub get_sfams()
+{
+  return (%superfamilies);
+}
+
 my %frameworks = (
 'I' => 'CC-C-C',
 'II' => 'CCC-C-C-C',
@@ -69,6 +74,11 @@ my %frameworks = (
 'XXII' => 'C-C-C-C-C-C-C-C',
 'XXIII' => 'C-C-C-CC-C',
 );
+
+sub get_fws()
+{
+  return (%frameworks);
+}
 
 my %fwpatterns = ();
 for my $type (keys %frameworks)

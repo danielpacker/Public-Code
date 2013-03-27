@@ -34,6 +34,9 @@ sub main
 
   my $usage = "Usage: cys_report.pl [--output <file>] <file> ...";
   die $usage unless scalar(@ARGV);
+
+  my ($total_sfams, $total_fws);
+  my (%track_fws, %track_sfams);
   
   open my $OFH, ">$output" or die "Couldn't open output file $output\n";
 
@@ -49,12 +52,41 @@ sub main
     {
       my $ss = $seq->seq();
       my ($fws_ref, $sfams_ref) = @{ cysfw::check_seq($ss) };
+
+      # track the fws and sfams found
+      for my $fw (@$fws_ref)
+      {
+        $track_fws{$fw}++;
+        $total_fws++;
+      }
+      for my $sfam (@$sfams_ref)
+      {
+        $track_sfams{$sfam}++;
+        $total_sfams++;
+      }
+
       next unless (scalar(@$fws_ref));
       print $OFH join($delim, ($ss, join(',',@$fws_ref), join(',',@$sfams_ref))), "\n";
-      $count++;
     }
   }
   close $OFH;
+  
+  # report distribution
+  print "Frameworks distribution (proportion $total_fws sequences):\n";
+  my %fws = cysfw::get_fws();
+  for my $fw (sort keys %fws)
+  {
+    print "$fw:\t", ($track_fws{$fw} || 0)/$total_fws, "\n";
+  }
+
+# report distribution
+  print "Superfamilies distribution (proportion of $total_sfams sequences):\n";
+  my %sfams = cysfw::get_sfams();
+  for my $sfam (sort keys %sfams)
+  {
+    print "$sfam:\t", ($track_sfams{$sfam} || 0)/$total_sfams, "\n";
+  }
+
 
   print timestamp(), "cys_report.pl finished running\n";
 }
