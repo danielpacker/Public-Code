@@ -84,7 +84,7 @@ my %fwpatterns = ();
 for my $type (keys %frameworks)
 {
   my $patt = $frameworks{$type};
-  $patt =~ s/-/[^C]*/g;
+  $patt =~ s/-/[^C]+/g;
   $fwpatterns{$type} = $patt;
 }
 

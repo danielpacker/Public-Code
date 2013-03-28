@@ -8,6 +8,8 @@ use Bio::SeqIO;
 use File::Basename qw(basename);
 use Data::Dumper;
 use Getopt::Long;
+use lib '.';
+use fasta_utils;
 $|=1; # logging not buffered
 
 ##############################################################################
@@ -31,6 +33,8 @@ sub main
     # firstNchars => [ \seq, ... ]
   );
 
+  my %filestats = ();
+
   my $do_subsearch=0;
   my $prefixsearch=0;
   my $res = GetOptions(
@@ -51,29 +55,38 @@ sub main
   );
   die $usage unless (scalar(@ARGV)==2);
 
-  print timestamp(), "Reading sequences...";
 
   for my $fn (@ARGV)
   {
     die "File $fn not found." unless (-e $fn);
     my $in  = Bio::SeqIO->new(-file => $fn, '-format' => 'Fasta');
 
+    # Guess how many sequences are in this fasta file
+    my $guessed_num_seqs = fasta_utils::guess_num_seqs($fn);
+    print timestamp(), "Reading ~ $guessed_num_seqs sequences from $fn...\n";
+
     $seqdicts{$fn} = [];
     my %seqs = ();
-    my $count=0;
+    my $count=1;
+    print "Progress: [0%]";
+    my $breakdown = 10;
+    my $percent = $guessed_num_seqs/$breakdown;
     while (my $seq = $in->next_seq()) 
     {
       my $ss = $seq->seq();
+      $seqs{$ss}++; # keep track of sequence counts
+      
+      # Display a progress bar (useful for large files)
+      print " [", POSIX::ceil(($count/$percent)*$breakdown), "%]";
 
-      $seqs{$ss}++;
+      #print $tick if ($count % $tickcount == 0);
       $count++;
-      print $tick if ($count % $tickcount == 0);
       # last if $count > 40*1000;
       #print timestamp, "$fn: $count sequences read\n" if ($count % $tickcount == 0);
     }
+    print "\n";
     $seqdicts{$fn} = [ $count, {%seqs} ];
   }
-  print "done.\n";
 
   #print Dumper \%seqdicts;
 
@@ -145,13 +158,11 @@ sub main
     {
       my $otherfn = ($fn eq $ARGV[0]) ? $ARGV[1] : $ARGV[0];
       my $lseqs = $lostseqs{$fn};
-      print "LSEQS ", Dumper $lseqs;
       for my $seq (keys %$lseqs)
       {
         my $otherseqs = $seqdicts{$otherfn}->[1];
         for my $otherseq (keys %$otherseqs)
         {
-        print "OTHERSEQ: $otherseq\n";
           if ($otherseq =~ /$seq/)
           {
             delete $lostseqs{$fn}->{$seq};
