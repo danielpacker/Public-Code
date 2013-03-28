@@ -91,26 +91,10 @@ sub main
     {
       my $seqcount = $seqs->{$seq}; # number of occurances of seq
 
-      # compare against the other
+      # get filename for other file
       my $otherfn = ($fn eq $ARGV[0]) ? $ARGV[1] : $ARGV[0];
       my $otherseqs = $seqdicts{$otherfn}->[1];
-      if (not defined $otherseqs->{$seq})
-      {
-        $undefseqs{$seq}++;
-        if ($do_subsearch)
-        {
-          my $count=0;
-          my $total = scalar(keys %$otherseqs);
-          for my $otherseq (keys %$otherseqs)
-          {
-            if ($otherseq =~ /$seq/)
-            {
-              delete $undefseqs{$seq};
-              last;
-            }
-          }
-        }
-      }
+      $undefseqs{$seq}++ if (not defined $otherseqs->{$seq});
     }
     $lostseqs{$fn} = {%undefseqs};
   }
@@ -158,13 +142,25 @@ sub main
   if ($do_subsearch)
   { 
     for my $fn (@ARGV)
+    {
       my $otherfn = ($fn eq $ARGV[0]) ? $ARGV[1] : $ARGV[0];
       my $lseqs = $lostseqs{$fn};
+      print "LSEQS ", Dumper $lseqs;
       for my $seq (keys %$lseqs)
       {
         my $otherseqs = $seqdicts{$otherfn}->[1];
-      
-   
+        for my $otherseq (keys %$otherseqs)
+        {
+        print "OTHERSEQ: $otherseq\n";
+          if ($otherseq =~ /$seq/)
+          {
+            delete $lostseqs{$fn}->{$seq};
+            $foundseqs{$otherfn}->{$otherseq}++;
+            last;
+          }
+        } 
+      }
+    }
   }
 
   # delete all the found seqs
