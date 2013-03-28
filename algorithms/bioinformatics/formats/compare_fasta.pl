@@ -70,20 +70,25 @@ sub main
     my $count=1;
     print "Progress: [0%]";
     my $breakdown = 10;
-    my $percent = $guessed_num_seqs/$breakdown;
+    my $batchsize = $guessed_num_seqs/$breakdown;
+    my $progress=0;
     while (my $seq = $in->next_seq()) 
     {
       my $ss = $seq->seq();
       $seqs{$ss}++; # keep track of sequence counts
       
       # Display a progress bar (useful for large files)
-      print " [", POSIX::ceil(($count/$percent)*$breakdown), "%]";
+      $progress = ($count/$batchsize)*$breakdown;
+      my $progress_rounded = POSIX::ceil(($count/$batchsize)*$breakdown);
+      print " [", $progress_rounded, "%]"
+        if (($batchsize > 1) && ($count % $batchsize == 0));
 
       #print $tick if ($count % $tickcount == 0);
       $count++;
       # last if $count > 40*1000;
       #print timestamp, "$fn: $count sequences read\n" if ($count % $tickcount == 0);
     }
+    print "[100%]" if $progress < 100;
     print "\n";
     $seqdicts{$fn} = [ $count, {%seqs} ];
   }

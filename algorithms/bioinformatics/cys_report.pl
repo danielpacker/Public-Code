@@ -10,6 +10,7 @@ use Data::Dumper;
 use Getopt::Long;
 use lib '.';
 use cysfw;
+use formats::fasta_utils;
 $|=1; # logging not buffered
 
 ##############################################################################
@@ -35,7 +36,7 @@ sub main
   my $usage = "Usage: cys_report.pl [--output <file>] <file> ...";
   die $usage unless scalar(@ARGV);
 
-  my ($total_sfams, $total_fws, $total_seqs);
+  my ($total_sfams, $total_fws, $total_seqs) = (0,0,0);
   my (%track_fws, %track_sfams);
   
   open my $OFH, ">$output" or die "Couldn't open output file $output\n";
@@ -47,11 +48,23 @@ sub main
     die "File $fn not found." unless (-e $fn);
     my $in  = Bio::SeqIO->new(-file => $fn, '-format' => 'Fasta');
 
+    my $guessed_num_seqs = fasta_utils::guess_num_seqs($fn);
+    print timestamp(), "Analyzing ~ $guessed_num_seqs sequences...\n";
+
+    #print "Progress: [0%]";
+    my $breakdown = 10;
+    my $percent = $guessed_num_seqs/$breakdown;
+
     print $OFH "SEQUENCE${delim}FRAMEWORKS${delim}SUPERFAMILIES\n" if ($header);
+    my $progress=0;
     while (my $seq = $in->next_seq()) 
     {
       my $ss = $seq->seq();
       my ($fws_ref, $sfams_ref) = @{ cysfw::check_seq($ss) };
+
+
+      # Display a progress bar (useful for large files)
+      print " [", $progress, "%]";
 
       # track the fws and sfams found
       for my $fw (@$fws_ref)
@@ -65,10 +78,14 @@ sub main
         $total_sfams++;
       }
       $total_seqs++;
+      
+      $progress = POSIX::ceil(($total_seqs/$percent)*$breakdown);
 
       next unless (scalar(@$fws_ref));
       print $OFH join($delim, ($ss, join(',',@$fws_ref), join(',',@$sfams_ref))), "\n";
     }
+    print " [100%]" if ($progress < 100);
+    print "\n";
   }
   close $OFH;
   
