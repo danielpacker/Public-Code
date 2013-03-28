@@ -84,8 +84,8 @@ my %fwpatterns = ();
 for my $type (keys %frameworks)
 {
   my $patt = $frameworks{$type};
-  $patt =~ s/-/[^C]+/g;
-  $fwpatterns{$type} = qr/$patt/;
+  $patt =~ s/-/[^C]+/g; # dashes mean strings of non-C
+  $fwpatterns{$type} = qr/$patt/; #store compiled regexp
 }
 
 #use Data::Dumper;
@@ -103,7 +103,7 @@ sub check_frameworks
   for my $type (keys %fwpatterns)
   {
     my $patt = $fwpatterns{$type};
-    push(@frameworks, $type) if ($seq =~ $patt);
+    push(@frameworks, $type) if ($seq =~ $patt); #pre-compiled regexp
   }
   return @frameworks;
 }
@@ -136,7 +136,6 @@ sub check_seq($)
   }
   return [ [@fws], [@sfams] ];
 }
-
 
 sub show_check_seq($)
 {
