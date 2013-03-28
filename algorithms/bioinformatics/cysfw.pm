@@ -85,7 +85,7 @@ for my $type (keys %frameworks)
 {
   my $patt = $frameworks{$type};
   $patt =~ s/-/[^C]+/g;
-  $fwpatterns{$type} = $patt;
+  $fwpatterns{$type} = qr/$patt/;
 }
 
 #use Data::Dumper;
@@ -103,7 +103,7 @@ sub check_frameworks
   for my $type (keys %fwpatterns)
   {
     my $patt = $fwpatterns{$type};
-    push(@frameworks, $type) if ($seq =~ /$patt/);
+    push(@frameworks, $type) if ($seq =~ $patt);
   }
   return @frameworks;
 }
