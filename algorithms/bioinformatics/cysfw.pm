@@ -172,7 +172,7 @@ sub seq_has_framework(%)
 # Test framework checker by generating a set of test sequences
 # based on the patterns and running the frameowrk checker on each
 # sequence to see if we retrieve the expected framework.
-# Returns undef for passed test or array of failed frameworks.
+# Returns true for pass, false for fail
 sub test()
 {
   my %testseqs = map { $_ => $frameworks{$_} } (keys %frameworks);
@@ -192,25 +192,19 @@ sub test()
     $test_seq = $teststr . $test_seq . $teststr;
     $testseqs{$fw} = $test_seq;
   }
-  my $ok=0;
   my @fails;
   for my $fw (keys %testseqs)
   {
     my $seq = $testseqs{$fw};
-    if (seq_has_framework('seq' => $seq, 'framework' => $fw))
+    unless (seq_has_framework('seq' => $seq, 'framework' => $fw))
     {
-      $ok++;;
-    }
-    else
-    {
-      print "FAILED: $testseqs{$fw}\n";
       push @fails, $fw;
     }
   }
   #print Dumper \%testseqs;
   #print "NUMBER OK $ok VS TOTAL ", scalar(keys %testseqs), "\n";
-  #print "FRAMEWORKS THAT FAILED: @fails\n";
-  return @fails;
+  warn "Framework tests failed: @fails\n" if scalar(@fails);
+  return scalar(@fails) ? 0 : 1;
 }
 
 
