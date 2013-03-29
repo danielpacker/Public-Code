@@ -14,6 +14,7 @@ use Test::More;
 
 use constant DEFAULT_MAX_CYS_GAP => 20; # 20 non cysteine's max
 
+# Superfamilies and framework association from conoserver
 my %superfamilies = (
 'A' => 'I,II,IV,XIV',
 'B' => '',
@@ -54,6 +55,7 @@ sub get_sfams()
   return (%superfamilies);
 }
 
+# Framework patterns from conoserver
 my %frameworks = (
 'I' => 'CC-C-C',
 'II' => 'CCC-C-C-C',
@@ -87,6 +89,9 @@ sub get_fws()
 my %fwpatterns = (); # store the framework patterns
 my $max_gap_gen = DEFAULT_MAX_CYS_GAP; # track what gap was used for last gen
 
+
+# Turn the framework patterns into perl regular expressions.
+# If a max cys gap is provided, override the default.
 sub gen_fw_patterns
 {
   my $max_cys_gap = shift || DEFAULT_MAX_CYS_GAP;
@@ -101,9 +106,9 @@ sub gen_fw_patterns
 gen_fw_patterns(); # set up default patterns
 
 # Return list of frameworks a sequence belongs to
-sub check_frameworks
+sub check_frameworks($;$)
 {
-  my $seq = shift;
+  my $seq = shift or die "no sequence";
   my $max_cys_gap = shift;
   if (defined $max_cys_gap && $max_cys_gap != $max_gap_gen)
   { # re-gen patterns using specific max gap if not already done
@@ -118,6 +123,8 @@ sub check_frameworks
   return @frameworks;
 }
 
+# Probably not useful. Initial attempt to correlate superfamily.
+# Superfamily is probably meaningless, however.
 sub check_super_fams($)
 {
   my $patt = shift;
@@ -132,6 +139,9 @@ sub check_super_fams($)
   return @sfams;
 }
 
+# Given a sequence and optionally a max cys gap check it
+# to see what frameworks it belongs to and return the list.
+# Also attempt to find superfamily but this is deprecated.
 sub check_seq(%)
 {
   my %args = @_;
@@ -150,6 +160,7 @@ sub check_seq(%)
   return [ [@fws], [@sfams] ];
 }
 
+# show information returned by check_seq
 sub show_check_seq(%)
 {
   my %args = @_;
@@ -178,6 +189,8 @@ sub test()
   my %testseqs = map { $_ => $frameworks{$_} } (keys %frameworks);
   my $teststr = "DANIEL";
 
+  # Start with a copy of frameworks and turn it into a series of
+  # test sequences to check against expected framework matches
   for my $fw (keys %frameworks)
   {
     my $seq_orig = $testseqs{$fw};
@@ -192,13 +205,16 @@ sub test()
     $test_seq = $teststr . $test_seq . $teststr;
     $testseqs{$fw} = $test_seq;
   }
+
+  # Now that we have our test sequences, confirm they have the 
+  # expected framework matches
   my @fails;
   for my $fw (keys %testseqs)
   {
     my $seq = $testseqs{$fw};
     unless (seq_has_framework('seq' => $seq, 'framework' => $fw))
     {
-      push @fails, $fw;
+      push @fails, $fw; # record failure
     }
   }
   #print Dumper \%testseqs;
