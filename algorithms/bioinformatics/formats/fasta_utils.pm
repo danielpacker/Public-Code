@@ -32,7 +32,7 @@ sub fasta_stats
     $count++;
   }
   my %ret = (
-    'count' => $count, 
+    'count' => $count-1, 
     'avg_length' => $len/$count, 
     'total_length' => $len,
     'size_dist' => {%size_dist}
