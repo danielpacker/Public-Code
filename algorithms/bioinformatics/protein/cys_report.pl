@@ -9,9 +9,12 @@ use File::Basename qw(basename);
 use Data::Dumper;
 use Getopt::Long;
 use lib '.';
+use lib '..';
 use cysfw;
 use formats::fasta_utils;
 $|=1; # logging not buffered
+
+use constant DEFAULT_SP_MINVALUE => "0.85";
 
 ##############################################################################
 # subroutines
@@ -24,17 +27,35 @@ sub timestamp
 sub main
 {
 
-  my $output = "cys_report.txt";
-  my $delim = "\t";
-  my $header = 1;
+  my $output = "cys_report.txt"; # report name
+  my $delim = "\t"; # delimiter to use in report output
+  my $header = 1;   # show header in report output
+  my $spfile;  # signalp file (optional)
+  my $spminvalue = DEFAULT_SP_MINVALUE;
   my $res = GetOptions(
     'output=s' => \$output,
     'delim=s' => \$delim,
-    'header=i' => \$header
+    'header=i' => \$header,
+    'spfile' => \$spfile,
+    'spmin'  => \$spminvalue,
     );
 
-  my $usage = "Usage: cys_report.pl [--output <file>] <file> ...";
-  die $usage unless scalar(@ARGV);
+  my $usage = 'Usage: cys_report.pl [--output <file>] [--delim \t] [--header 1] [--spfile <file>] [--spmin #.## ] fasta_file ...';
+  unless (scalar(@ARGV)) { print $usage, "\n"; exit(1) }
+
+  # Collect sequence names from signalp output file if provided
+  my %spseqs;
+  if (defined $spfile)
+  {
+    open my $spf, "<$spfile" or die "Couldn't open file $spfile: $!";
+    my @lines = <$spf>;
+    close $spf or die $!;
+    for my $line (@lines)
+    {
+      my @cols = split($line);
+      $spseqs{$cols[0]}++ if ($cols[7] > $spminvalue);
+    }
+  }
 
   my ($total_sfams, $total_fws, $total_seqs) = (0,0,0);
   my (%track_fws, %track_sfams);
@@ -42,7 +63,6 @@ sub main
   open my $OFH, ">$output" or die "Couldn't open output file $output\n";
 
   print timestamp(), "cys_report.pl starting\n";
-  my $count=0;
   for my $fn (@ARGV)
   {
     die "File $fn not found." unless (-e $fn);
@@ -53,19 +73,22 @@ sub main
 
     #print "Progress: [0%]";
     my $breakdown = 10;
-    my $percent = $guessed_num_seqs/$breakdown;
+    my $batchsize = $guessed_num_seqs/$breakdown;
+    my $progress = 0;
+    my $count = 0;
 
     print $OFH "SEQUENCE${delim}FRAMEWORKS${delim}SUPERFAMILIES\n" if ($header);
-    my $progress=0;
+
     while (my $seq = $in->next_seq()) 
     {
       my $ss = $seq->seq();
-      my ($fws_ref, $sfams_ref) = @{ cysfw::check_seq($ss) };
-
+      my ($fws_ref, $sfams_ref) = @{ cysfw::check_seq('seq' => $ss) };
 
       # Display a progress bar (useful for large files)
-      print " [", $progress, "%]";
-
+      $progress = ($count/$batchsize)*$breakdown;
+      my $progress_rounded = POSIX::ceil(($total_seqs/$batchsize)*$breakdown);
+      print "[", $progress_rounded, "%] "
+                    if (($batchsize > 1) && ($count % $batchsize == 0));
       # track the fws and sfams found
       for my $fw (@$fws_ref)
       {
@@ -78,8 +101,7 @@ sub main
         $total_sfams++;
       }
       $total_seqs++;
-      
-      $progress = POSIX::ceil(($total_seqs/$percent)*$breakdown);
+      $count++; 
 
       next unless (scalar(@$fws_ref));
       print $OFH join($delim, ($ss, join(',',@$fws_ref), join(',',@$sfams_ref))), "\n";
