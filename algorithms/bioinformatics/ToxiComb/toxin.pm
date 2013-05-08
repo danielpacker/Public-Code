@@ -12,7 +12,7 @@ my %default_properties = (
   'mature_seq' => undef,
   'signalp_score' => undef,
   'signalp_seq' => undef,
-  'singalp_start' => undef,
+  'signalp_start' => undef,
   'signalp_end' => undef,
   'frameworks' => undef,
 );
@@ -98,7 +98,8 @@ sub mature_seq()
 sub frameworks()
 {
   my $self = shift;
-  my @fws = @_ || ();
+  my @fws = @_;
+  #print "FRAMEWORKS: @fws\n";
   $self->{'frameworks'} = [@fws] if (scalar @fws);
   return $self->{'frameworks'};
 }
@@ -114,6 +115,7 @@ sub validate()
   }
   else
   {
+    use Data::Dumper; print "INVALID: ", Dumper $self;
     return 0;
   }
 }

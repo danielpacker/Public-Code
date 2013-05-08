@@ -12,7 +12,7 @@ sub save(@)
 {
   my %args = @_;
 
-  use Data::Dumper; print Dumper \%args;
+  #use Data::Dumper; print Dumper \%args;
 
   die "Missing params" unless (
     $args{'format'} and $args{'filename'} and $args{'toxins'}
@@ -48,11 +48,13 @@ sub save_fasta(@)
 
   for my $tox (@toxins)
   {
-  use Data::Dumper; print Dumper $tox;
+    #use Data::Dumper; print Dumper $tox;
     die "Invalid toxin" unless $tox->validate();
+    my $fws = $tox->frameworks;
+    #use Data::Dumper; print "TOX: ", Dumper $fws;
     print $FASTA 
       ">", $tox->id(),
-      "|", join(',', $tox->frameworks()),
+      "|", join(',', @$fws),
       "|", $tox->signalp_seq(),
       "|", $tox->signalp_score(),
       "|", $tox->signalp_start(),
