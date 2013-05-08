@@ -31,6 +31,7 @@ sub main
   my $delim = "\t"; # delimiter to use in report output
   my $header = 1;   # show header in report output
   my $spfile;  # signalp file (optional)
+  my $fasta; # output fasta to file
   my $spminvalue = DEFAULT_SP_MINVALUE;
   my $res = GetOptions(
     'output=s' => \$output,
@@ -38,9 +39,10 @@ sub main
     'header=i' => \$header,
     'spfile' => \$spfile,
     'spmin'  => \$spminvalue,
+    'fasta=s' => \$fasta,
     );
 
-  my $usage = 'Usage: cys_report.pl [--output <file>] [--delim \t] [--header 1] [--spfile <file>] [--spmin #.## ] fasta_file ...';
+  my $usage = 'Usage: cys_report.pl [--output <file>] [--delim \t] [--header 1] [--spfile <file>] [--spmin #.## ] [--fasta <file>] fasta_file ...';
   unless (scalar(@ARGV)) { print $usage, "\n"; exit(1) }
 
   # Collect sequence names from signalp output file if provided
@@ -58,9 +60,15 @@ sub main
   }
 
   my ($total_sfams, $total_fws, $total_seqs) = (0,0,0);
-  my (%track_fws, %track_sfams);
+  my (%track_fws, %track_sfams, %track_sp);
   
   open my $OFH, ">$output" or die "Couldn't open output file $output\n";
+
+  my $FASTAH;
+  if ($fasta)
+  {
+    open my $FASTAH, ">$fasta" or die "Couldn't open output file $fasta\n";
+  }
 
   print timestamp(), "cys_report.pl starting\n";
   for my $fn (@ARGV)
@@ -81,15 +89,20 @@ sub main
 
     while (my $seq = $in->next_seq()) 
     {
-      my $ss = $seq->seq();
-      my ($fws_ref, $sfams_ref) = @{ cysfw::check_seq('seq' => $ss) };
+      my $ss = $seq->seq() or die "No sequence in $fn at count $count";
+      my $id = $seq->id() or die "No ID for sequence $ss in $fn at count $count";
 
       # Display a progress bar (useful for large files)
       $progress = ($count/$batchsize)*$breakdown;
       my $progress_rounded = POSIX::ceil(($total_seqs/$batchsize)*$breakdown);
       print "[", $progress_rounded, "%] "
                     if (($batchsize > 1) && ($count % $batchsize == 0));
+
+      # Track signal p matches
+      $track_sp{$id}++ if (exists $spseqs{$id} && $spseqs{$id} > 0);
+
       # track the fws and sfams found
+      my ($fws_ref, $sfams_ref) = @{ cysfw::check_seq('seq' => $ss) };
       for my $fw (@$fws_ref)
       {
         $track_fws{$fw}++;
@@ -105,11 +118,19 @@ sub main
 
       next unless (scalar(@$fws_ref));
       print $OFH join($delim, ($ss, join(',',@$fws_ref), join(',',@$sfams_ref))), "\n";
+
+      if ($FASTAH)
+      {
+        #next if ($spfile && not exists $track_sp{$id});
+        print "HRM\n";
+        print $FASTAH ">", $id, "|", join(',', @$fws_ref), "\n", $ss, "\n";
+      }
     }
     print " [100%]" if ($progress < 100);
     print "\n";
   }
   close $OFH;
+  close $FASTAH if $FASTAH;
   
   # report distribution
   print "Frameworks distribution (proportion of $total_seqs sequences):\n";
