@@ -57,6 +57,7 @@ sub main
     my $spcount=1;
     for my $line (@lines)
     {
+      next if ($line =~ /^\s*#/);
       my @cols = split(/\s+/, $line);
       # below are signalp 4.1 column names for short output
       my @labels = qw/name Cmax pos1 Ymax pos2 Smax pos3 Smean D ? Dmaxcut Networks-used/;
