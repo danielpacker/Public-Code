@@ -14,9 +14,10 @@ use cysfw;
 use formats::fasta_utils;
 use toxin;
 use output;
+use plugins;
 $|=1; # logging not buffered
 
-use constant DEFAULT_SP_MINVALUE => "0.85";
+use constant DEFAULT_SP_MINVALUE => "0.85"; #unused
 
 ##############################################################################
 # subroutines
@@ -66,6 +67,7 @@ sub main
   my $header = 1;   # show header in report output
   my $spfile;  # signalp file (optional)
   my $fasta; # output fasta to file
+  my $conoprec; # path to conoprec executable
   my $spminvalue = DEFAULT_SP_MINVALUE;
   my $res = GetOptions(
     'output=s' => \$output,
@@ -74,6 +76,7 @@ sub main
     'spfile=s' => \$spfile,
     'spmin=s'  => \$spminvalue,
     'fasta=s' => \$fasta,
+    'conoprec=s' => \$conoprec,
     );
 
   my $usage = 'Usage: comb.pl [--output <file>] [--delim \t] [--header 1] [--spfile <file>] [--spmin #.## ] [--fasta <file>] fasta_file ...';
@@ -134,6 +137,21 @@ sub main
         $mature_seq = substr($ss, $signalp_start);
       }
 
+      # call conoprec
+      my %conoprec_results;
+      if ($conoprec && $spseqs{$id})
+      {
+        die "conoprec not found at path $conoprec" unless (-e $conoprec);
+        die "not defined" unless (defined $ss && defined $conoprec);
+        %conoprec_results = plugins::process_sequence(
+          'plugin' => 'conoprec',
+          'path' => $conoprec,
+          'sequence' => $ss
+        );
+        use Data::Dumper;
+        print "RESULTS: ", Dumper \%conoprec_results;
+      }
+
       # track the fws and sfams found
       my $seq_to_check = $mature_seq || $ss;
       my ($fws_ref, $sfams_ref) = @{ cysfw::check_seq('seq' => $seq_to_check) };
@@ -155,6 +173,9 @@ sub main
         'id' => $id,
         'sequence' => $ss,
         'mature_seq' => $mature_seq,
+        'conoprec_mature_seq' => $conoprec_results{'conoprec_mature'},
+        'conoprec_mature_start' => $conoprec_results{'conoprec_mature_start'},
+        'conoprec_mature_end' => $conoprec_results{'conoprec_mature_end'},
         'signalp_start' => $signalp_start,
         'signalp_end' => $signalp_end,
         'signalp_score' => $signalp_score,
@@ -162,8 +183,9 @@ sub main
       );
 
       $tox->frameworks(@$fws_ref);
+      print "PUSHED TOX: ", Dumper $tox;
 
-      next unless (scalar(@$fws_ref) && exists $spseqs{$id} && ($signalp_start < $signalp_end) && ($spseqs{$id}->{'?'} eq 'Y'));
+      next unless (scalar(@$fws_ref) && exists $spseqs{$id} && ($signalp_start < $signalp_end) && ($spseqs{$id}->{'?'} eq 'Y') && $tox->conoprec_mature_seq());
 
       push @toxins, $tox;
 

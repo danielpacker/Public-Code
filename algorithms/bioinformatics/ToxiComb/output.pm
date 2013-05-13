@@ -52,14 +52,17 @@ sub save_fasta(@)
     die "Invalid toxin" unless $tox->validate();
     my $fws = $tox->frameworks;
     #use Data::Dumper; print "TOX: ", Dumper $fws;
+    my $mature_seq = $tox->conoprec_mature_seq() || $tox->mature_seq();
     print $FASTA 
       ">", $tox->id(),
-      "|", join(',', @$fws),
-      "|", $tox->signalp_seq(),
-      "|", $tox->signalp_score(),
-      "|", $tox->signalp_start(),
-      "|", $tox->signalp_end(), "\n";
-    print $FASTA $tox->mature_seq(), "\n";
+      " | ", join(',', @$fws),
+      " | ", $tox->signalp_seq(),
+      " | ", $tox->signalp_score(),
+      " | ", $tox->signalp_start(),
+      " | ", $tox->signalp_end(), "\n";
+      " | ", $tox->conoprec_mature_start(), "\n";
+      " | ", $tox->conoprec_mature_end(), "\n";
+    print $FASTA $mature_seq, "\n";
   }
 
   close $FASTA or die "Error closing $file: $!";
