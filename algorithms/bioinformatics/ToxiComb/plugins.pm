@@ -31,16 +31,41 @@ sub do_conoprec($)
 
   #print "OUTPUT $output\n";
 
-  $output =~ /^MAT\s+(\d+)\s+(\d+)\s+(\w+).*$/mg;
+  my %conoprec_vals = ();
+
+  my $string = $output;
+  $string =~ /^SIG\s+(\d+)\s+(\d+)\s+(\w+).*/mg;
+  if (defined $1 && defined $2)
+  {
+    $conoprec_vals{'conoprec_signalp_start'} = $1;
+    $conoprec_vals{'conoprec_signalp_end'} = $2;
+    $conoprec_vals{'conoprec_signalp'} = $3 || undef;
+  }
+  $string = $output;
+  $string =~ /^PRE\s+(\d+)\s+(\d+)\s+(\w+).*/mg;
+  if (defined $1 && defined $2)
+  {
+    $conoprec_vals{'conoprec_pre_start'} = $1;
+    $conoprec_vals{'conoprec_pre_end'} = $2;
+    $conoprec_vals{'conoprec_pre'} = $3 || undef;
+  }
+  $string = $output;
+  $string =~ /^POS\s+(\d+)\s+(\d+)\s+(\w+).*/mg;
+  if (defined $1 && defined $2)
+  {
+    $conoprec_vals{'conoprec_pos_start'} = $1;
+    $conoprec_vals{'conoprec_pos_end'} = $2;
+    $conoprec_vals{'conoprec_pos'} = $3 || undef;
+  }
+  $string = $output;
+  $string =~ /^MAT\s+(\d+)\s+(\d+)\s+(\w+).*$/mg;
   if (defined $1 && defined $2 && defined $3)
   {
-    return (
-      'conoprec_mature_start' => $1, 
-      'conoprec_mature_end' => $2, 
-      'conoprec_mature' => $3
-    );
+    $conoprec_vals{'conoprec_mature_start'} = $1;
+    $conoprec_vals{'conoprec_mature_end'} = $2;
+    $conoprec_vals{'conoprec_mature'} = $3;
   }
-  return ();
+  return %conoprec_vals;
 }
 
 1;

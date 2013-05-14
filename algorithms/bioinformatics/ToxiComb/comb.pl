@@ -133,7 +133,7 @@ sub main
         $signalp_start = $sprec->{'pos1'} or die "bad pos1";
         $signalp_end = length($ss);
         $signalp_score = $sprec->{'D'} or die "bad D";
-        $signalp_seq = substr($ss, 0, $signalp_start-1);
+        $signalp_seq = substr($ss, 0, $signalp_start);
         $mature_seq = substr($ss, $signalp_start);
       }
 
@@ -148,8 +148,7 @@ sub main
           'path' => $conoprec,
           'sequence' => $ss
         );
-        use Data::Dumper;
-        print "RESULTS: ", Dumper \%conoprec_results;
+        #use Data::Dumper; print "RESULTS: ", Dumper \%conoprec_results;
       }
 
       # track the fws and sfams found
@@ -176,6 +175,15 @@ sub main
         'conoprec_mature_seq' => $conoprec_results{'conoprec_mature'},
         'conoprec_mature_start' => $conoprec_results{'conoprec_mature_start'},
         'conoprec_mature_end' => $conoprec_results{'conoprec_mature_end'},
+        'conoprec_pre_start' => $conoprec_results{'conoprec_pre_start'},
+        'conoprec_pre_end' => $conoprec_results{'conoprec_pre_end'},
+        'conoprec_pre' => $conoprec_results{'conoprec_pre'},
+        'conoprec_pos_start' => $conoprec_results{'conoprec_pos_start'},
+        'conoprec_pos_end' => $conoprec_results{'conoprec_pos_end'},
+        'conoprec_pos' => $conoprec_results{'conoprec_pos'},
+        'conoprec_signalp_start' => $conoprec_results{'conoprec_signalp_start'},
+        'conoprec_signalp_end' => $conoprec_results{'conoprec_signalp_end'},
+        'conoprec_signalp' => $conoprec_results{'conoprec_signalp'},
         'signalp_start' => $signalp_start,
         'signalp_end' => $signalp_end,
         'signalp_score' => $signalp_score,
@@ -183,7 +191,7 @@ sub main
       );
 
       $tox->frameworks(@$fws_ref);
-      print "PUSHED TOX: ", Dumper $tox;
+      #print "PUSHED TOX: ", Dumper $tox;
 
       next unless (scalar(@$fws_ref) && exists $spseqs{$id} && ($signalp_start < $signalp_end) && ($spseqs{$id}->{'?'} eq 'Y') && $tox->conoprec_mature_seq());
 

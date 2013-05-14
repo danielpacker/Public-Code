@@ -18,6 +18,15 @@ my %default_properties = (
   'conoprec_mature_seq' => undef,
   'conoprec_mature_start' => undef,
   'conoprec_mature_end' => undef,
+  'conoprec_pos_start' => undef,
+  'conoprec_pos_end' => undef,
+  'conoprec_pos' => undef,
+  'conoprec_pre_start' => undef,
+  'conoprec_pre_end' => undef,
+  'conoprec_pre' => undef,
+  'conoprec_signalp_start' => undef,
+  'conoprec_signalp_end' => undef,
+  'conoprec_signalp' => undef,
 );
 
 sub new()
@@ -27,6 +36,7 @@ sub new()
   my $self = { %default_properties };        # get default vals
   map { $self->{$_} = $args{$_} } keys %$self; # override defaults
   bless $self, $class;
+  #use Data::Dumper; print Dumper $self;
 
   # if mature_seq not set, see if signalp_start is available
   $self->signalp_start($args{'signalp_start'});
@@ -68,7 +78,7 @@ sub signalp_start()
     $self->{'signalp_start'} = $start;
     
     # use signalp_start to get mature peptide
-    $self->{'mature_seq'} = substr($self->{'sequence'}, $start-1);
+    $self->{'mature_seq'} = substr($self->{'sequence'}, $start);
   }
 
   return $self->{'signalp_start'};
@@ -90,7 +100,6 @@ sub conoprec_mature_start()
   return $self->{'conoprec_mature_start'};
 }
 
-
 sub conoprec_mature_end()
 {
   my $self = shift;
@@ -98,7 +107,6 @@ sub conoprec_mature_end()
   $self->{'conoprec_mature_end'} = $end if ($end);
   return $self->{'conoprec_mature_end'};
 }
-
 
 sub sequence()
 {
@@ -123,6 +131,81 @@ sub conoprec_mature_seq()
   $self->{'conoprec_mature_seq'} = $seq if ($seq);
   return $self->{'conoprec_mature_seq'};
 }
+
+sub conoprec_pre()
+{
+  my $self = shift;
+  my $in = shift;
+  $self->{'conoprec_pre'} = $in if (defined $in);
+  return $self->{'conoprec_pre'};
+}
+
+sub conoprec_pre_start()
+{
+  my $self = shift;
+  my $in = shift;
+  $self->{'conoprec_pre_start'} = $in if (defined $in);
+  return $self->{'conoprec_pre_start'};
+}
+
+sub conoprec_pre_end()
+{
+  my $self = shift;
+  my $in = shift;
+  $self->{'conoprec_pre_end'} = $in if (defined $in);
+  return $self->{'conoprec_pre_end'};
+}
+
+sub conoprec_pos()
+{
+  my $self = shift;
+  my $in = shift;
+  $self->{'conoprec_pos'} = $in if (defined $in);
+  return $self->{'conoprec_pos'};
+}
+
+sub conoprec_pos_start()
+{
+  my $self = shift;
+  my $in = shift;
+  $self->{'conoprec_pos_start'} = $in if (defined $in);
+  return $self->{'conoprec_pos_start'};
+}
+
+sub conoprec_pos_end()
+{
+  my $self = shift;
+  my $in = shift;
+  $self->{'conoprec_pos_end'} = $in if (defined $in);
+  return $self->{'conoprec_pos_end'};
+}
+
+
+sub conoprec_signalp()
+{
+  my $self = shift;
+  my $in = shift;
+  $self->{'conoprec_signalp'} = $in if (defined $in);
+  return $self->{'conoprec_signalp'};
+}
+
+sub conoprec_signalp_start()
+{
+  my $self = shift;
+  my $in = shift;
+  $self->{'conoprec_signalp_start'} = $in if (defined $in);
+  return $self->{'conoprec_signalp_start'};
+}
+
+sub conoprec_signalp_end()
+{
+  my $self = shift;
+  my $in = shift;
+  $self->{'conoprec_signalp_end'} = $in if (defined $in);
+  return $self->{'conoprec_signalp_end'};
+}
+
+
 
 sub frameworks()
 {

@@ -1,5 +1,11 @@
 #!/usr/bin/perl
 
+=head1 NAME
+
+fasta_utils -- various fasta file utils 
+
+=cut
+
 package fasta_utils;
 
 use strict;
@@ -63,7 +69,45 @@ sub guess_num_seqs($)
   return int($guessed_num_seqs);
 }
 
+=head2 split_fasta('input' => 'in_file.fa', 'count' => 123)
 
+takes 'input' and 'count' named params. input is the input file and prefix of 
+output files which are named input.1, input.2, ... intput.N count is the max 
+number of sequences per file. If count is 0, only one file is created.
+
+=cut
+
+sub split_fasta(@)
+{
+  my %args = @_;
+  my $file_in = $args{'file'} || die "no file";    # fasta file
+  my $max = $args{'max'} || die "no count";        # num seqs per file
+
+  my $filenum = 1;
+  my $c=0;
+
+  my $in  = new Bio::SeqIO(-file  => $file_in) or die "can't open $file_in";
+  my $out = new Bio::SeqIO(-file => ">$file_in.$filenum", -format=>'fasta');
+
+  while (my $seq = $in->next_seq) 
+  {
+    if ($max && ($c % $max == 0)) # start a new file unless $count == 0
+    {
+      $out = new Bio::SeqIO(-file => ">$file_in.$filenum", -format=>'fasta');
+      $filenum++;
+    }
+    $out->write_seq($seq);
+    $c++;
+  }
+}
+
+
+
+=head1 AUTHOR
+
+Daniel Packer <dp@danielpacker.org>
+
+=cut
 
 
 1;

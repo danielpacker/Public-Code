@@ -52,16 +52,25 @@ sub save_fasta(@)
     die "Invalid toxin" unless $tox->validate();
     my $fws = $tox->frameworks;
     #use Data::Dumper; print "TOX: ", Dumper $fws;
-    my $mature_seq = $tox->conoprec_mature_seq() || $tox->mature_seq();
+    my $mature_seq = $tox->conoprec_signalp() ? $tox->conoprec_mature_seq() : $tox->mature_seq();
     print $FASTA 
       ">", $tox->id(),
-      " | ", join(',', @$fws),
-      " | ", $tox->signalp_seq(),
-      " | ", $tox->signalp_score(),
-      " | ", $tox->signalp_start(),
-      " | ", $tox->signalp_end(), "\n";
-      " | ", $tox->conoprec_mature_start(), "\n";
-      " | ", $tox->conoprec_mature_end(), "\n";
+      " | Frameworks: ", join(',', @$fws),
+      " | SignalP Sequence: ", $tox->signalp_seq(),
+      " | SignalP D Score: ", $tox->signalp_score(),
+      " | SignalP Cleavage Start: ", $tox->signalp_start(),
+      " | SignalP Sequence End: ", $tox->signalp_end(), 
+      " | Conoprec Mature Start: ", $tox->conoprec_mature_start(), 
+      " | Conoprec Mature End: ", $tox->conoprec_mature_end(),
+      " | Conoprec PRE Start: ", $tox->conoprec_pre_start(), 
+      " | Conoprec PRE End: ", $tox->conoprec_pre_end(), 
+      " | Conoprec PRE Sequence: ", $tox->conoprec_pre(),
+      " | Conoprec POS Start: ", $tox->conoprec_pos_start(), 
+      " | Conoprec POS End: ", $tox->conoprec_pos_end(), 
+      " | Conoprec POS Sequence: ", $tox->conoprec_pos(),
+      " | Conoprec SignalP Start: ", $tox->conoprec_signalp_start(), 
+      " | Conoprec SignalP End: ", $tox->conoprec_signalp_end(), 
+      " | Conoprec SignalP Sequence: ", $tox->conoprec_signalp(), "\n";
     print $FASTA $mature_seq, "\n";
   }
 
