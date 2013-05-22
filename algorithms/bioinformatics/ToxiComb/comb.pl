@@ -152,7 +152,7 @@ sub main
       }
 
       # track the fws and sfams found
-      my $seq_to_check = $mature_seq || $ss;
+      my $seq_to_check = $conoprec_results{'conoprec_mature'} || $mature_seq || $ss;
       my ($fws_ref, $sfams_ref) = @{ cysfw::check_seq('seq' => $seq_to_check) };
       for my $fw (@$fws_ref)
       {
