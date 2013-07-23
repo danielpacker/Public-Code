@@ -84,10 +84,21 @@ sub dump($) {
   my $no_header = shift or 0;
   #print "=== Printer ID: ", $self->{'id'}, " ===\n";
   print "\n", sprintf("%-15s%-15s%-15s%-20s%-10s", "DEVICE ID", "PROCESS ID", "FILENAME", "STARTING lOCATION", "MODE"), "\n" unless ($no_header);
-  if (scalar @{$self->{'queue'}})
+
+  my @queue; 
+  if ($self->{'type'} eq 'disk')
+  {
+    @queue = (@{ $self->{'fwd_queue'} }, @{ $self->{'rev_queue'} });
+  }
+  else
+  {
+    @queue = @{ $self->{'queue'} };
+  }
+
+  if (scalar @queue)
   {
     #use Data::Dumper; print Dumper $self;
-    for my $dq (@{ $self->{'queue'} })
+    for my $dq (@queue)
     {
       my $pcb = $dq->{'pcb'} or die "no pcb association found.";
       #print "Process ID    Filename      Starting Location     Mode\n";
@@ -164,6 +175,8 @@ my $PROCESS_COUNT   = 1;     # pid value increments with each new process
 my $CPU_PCB         = undef; # reference to PCB being worked on
 my %CUR_BURST_TIMES = ();    # Track avg burst time by pid
 my %NUM_BURST_TIMES = ();    # Track current total burst time by pid
+my $TOTAL_SYSTEM_BURST = 0;  # total ms of burst for all finished procs
+my $TOTAL_SYSTEM_PROCS = 0;  # total number of finished procs
 my $TIME_SLICE_MSEC = 10;    # Time slice length (ms)
 my $DEFAULT_DISK_CYL = 10000; # Default disk cylinders
 
@@ -380,15 +393,38 @@ sub dev_queue($$$) {
 sub disk_dequeue($) {
   my $dev = shift or die "no disk device";
 
-  my $dir = $dev->{'queue_dir'};
-
-  my $queue = $dev->{$dir.'_queue'};
-  my $dq = shift @$queue;
-
+  # we read from one queue while writing to the other
+  my $writing_dir = $dev->{'queue_dir'};
+  my $reading_dir = ($writing_dir eq 'fwd') ? 'rev' : 'fwd';
+  
+  # If reading queue is empty, switch queues
+  my $queue = $dev->{$reading_dir.'_queue'};
   if (! scalar @$queue)
   {
-    my $new_dir = ($dir eq 'fwd') ? 'rev' : 'fwd';
+    $dev->{'queue_dir'} = ($writing_dir eq 'fwd') ? 'rev' : 'fwd';
+    $reading_dir = $writing_dir;
   }
+
+  # If we're going fwd we want to sort the queue
+  # in terms of increasing cylinder
+  # if we're going rev we want to sort the queu
+  # in terms of decreasing cylinder
+  @{ $dev->{$reading_dir."_queue"} } = sort { $a->{'start_loc'} <=> $b->{'start_loc'} } @{ $dev->{$reading_dir."_queue"} };
+
+  print "QUEUE: " . Dumper $dev->{$reading_dir.'_queue'};
+
+  my $dq;
+  if ($reading_dir eq 'fwd')
+  {
+  print "fwd!";
+    $dq = shift @{ $dev->{$reading_dir.'_queue'} };
+  }
+  else
+  {
+    $dq = pop @{ $dev->{$reading_dir.'_queue'} };
+  }
+
+  print "DQ: " . Dumper $dq;
 
   return $dq;
 }
@@ -418,7 +454,7 @@ sub dev_dequeue($$) {
 
   my $type = code2type($code) or die "invalid code";
 
-  if (exists $DEVICES->{$type}->{"$type$num"}->{'queue'}) # valid device
+  if (exists $DEVICES->{$type}->{"$type$num"}) # valid device
   {
     my $dq;
     if ($type eq 'disk')
@@ -474,6 +510,14 @@ sub burst_time {
         unless exists($NUM_BURST_TIMES{$pid});
     }
   } 
+  elsif ($type eq 'system')
+  {
+    if ($TOTAL_SYSTEM_BURST)
+    {
+      return $TOTAL_SYSTEM_BURST/$TOTAL_SYSTEM_PROCS;
+    }
+    return 0;
+  }
   return $total;
 }
 
@@ -521,6 +565,8 @@ sub run() {
       if ($CPU_PCB)
       {
         print "Process terminating.\n";
+        $TOTAL_SYSTEM_BURST += $CUR_BURST_TIMES{$CPU_PCB->{'pid'}};
+        $TOTAL_SYSTEM_PROCS++;
         $CPU_PCB = undef;
       }
       else
@@ -542,8 +588,11 @@ sub run() {
       my $subcmd = <STDIN>;
       chomp($subcmd);
 
+      my $avgsys = burst_time(1, 'system');
+
       if ($subcmd eq 'r')
       {
+        print "Average CPU time for completed processes (ms): $avgsys\n"; 
         #print "=== Process List ===\n";
         print "\n";
         print sprintf("%-15s %-15s %-20s %-20s", "PROCESS ID", "STATUS", "TOTAL BURST (ms)", "AVG BURST (ms)"), "\n";
@@ -564,7 +613,9 @@ sub run() {
           for my $id (sort keys %{ $DEVICES->{$type} })
           {
             my $dev = $DEVICES->{$type}->{$id};
-            $dev->dump($no_header++);
+            print "DEVICE DUMPER: " . Dumper $dev;
+            $no_header++;
+            #$dev->dump($no_header++);
           }
         }
       }
@@ -595,7 +646,7 @@ sub run() {
           my $ms = '';
           while (($ms !~ /^\d+$/) || ($ms > $TIME_SLICE_MSEC) || ($ms < 1))
           {
-            print "Enter process burst time before syscall (1+ ms): ";
+            print "Enter process burst time before syscall (1 to $TIME_SLICE_MSEC ms): ";
             $ms = <STDIN>; chomp $ms;
           }
           burst($CPU_PCB->{'pid'}, $ms);
