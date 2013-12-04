@@ -1,0 +1,34 @@
+- monty hall game/sim - dp@danielpacker.org
+
+=== rules ===
+
+There are three doors and the prize is placed randomly behind one of the three doors. 
+
+You pick a door, and the host, who knows the winning door, opens a non-winning door.
+
+You can keep your original choice, or switch – there are two doors left.
+
+All doors are opened. If your choice wins, 
+you get the prize. 
+
+...otherwise you win a goat (really).
+
+=== Interface ===
+
+Press spacebar to proceed from step to step. If you win, you see a smiley face. If you lose, a frowny face.
+
+Press R to reset game inclding counters, ESC to exit.
+
+Press 1,2,3 to choose a door initially or switch a door. You cannot switch to a revealed door. Revealed doors turn red if they are empty or blue if they contain a prize.
+
+The number of wins and losses is recorded in two counters at the bottom of the screen. The number of total games is tallied between them. There are three counters total. Wins and losses add up to total games played. Resetting clears the counters.
+
+Press 'S' to toggle always switching your final choice. Press 'A' to enter auto simulation mode.
+
+=== Running ===
+
+python montyhallgame.py [full]
+
+To run in full screen mode (default is 640x480) type 'full' after program name when running
+
+
