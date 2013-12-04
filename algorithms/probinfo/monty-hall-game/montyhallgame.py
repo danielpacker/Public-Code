@@ -10,17 +10,21 @@ import random
 import sys
 from pygame.locals import *
 flags = FULLSCREEN | DOUBLEBUF
+
 # Define some colors
-black = ( 0, 0, 0)
-white = ( 255, 255, 255)
-green = ( 0, 255, 0)
-red = ( 255, 0, 0)
-pygame.init()
+black = (0, 0, 0)
+white = (255, 255, 255)
+green = (0, 255, 0)
+red = (255, 0, 0)
+
 # Set the height and width of the screen
 height=480
 width=640
 size=[width, height]
+pygame.init()
 screen=pygame.display.set_mode(size)
+
+# If any arg provided, attempt full screen display
 if len(sys.argv) > 1:
   modes = pygame.display.list_modes(32)
   if not modes:
@@ -29,34 +33,37 @@ if len(sys.argv) > 1:
     print 'Found Resolution:', modes[0]
   screen = pygame.display.set_mode(modes[0], flags, 16)
 size = screen.get_size()
-width,height = size
+width,height = size # update size
 pygame.display.set_caption("Monty Hall Game")
-#Loop until the user clicks the close button.
-done=False
-# Used to manage how fast the screen updates
 clock=pygame.time.Clock()
 
-counter_fontsize = width/10 #100;
-result_fontsize = width/10 #80;
-welcome_fontsize = width/20 #80;
+# variables for control/display
+
+done=False # Controls when main loop exited (ESC pressed)
+counter_fontsize = width/10 
+result_fontsize = width/10 
+welcome_fontsize = width/20 
 counter_font = pygame.font.Font(None, counter_fontsize)
 result_font = pygame.font.Font(None, result_fontsize)
 welcome_font = pygame.font.Font(None, welcome_fontsize)
 
+# Set background (image via wikipedia)
 background=pygame.image.load("2009lmadzonkgoat.jpg").convert()
 background=pygame.transform.scale(background,size)
 screen.blit(background, (0, 0))
 
+# Vars and initialization of door states
 # door states: 0-closed-loser, 1-closed-winner, 2-open-loser, 3-open-winner
 door_choice = -1
 doors = [0, 0, 0]
 def init_doors():
   global doors
-# init doors and set one of them to true
+  # choose a single door to be the winner (closed)
   doors = [0, 0, 0]
   index = random.randint(0,2)
   doors[index] = 1
 
+# Draw the 3 doors based on which is selected and their states
 def draw_doors():
   door_width = width/5;
   door_height = height-height/2;
@@ -93,9 +100,9 @@ def draw_doors():
       (x,y) = result_font.size(result_str)
       screen.blit(result_text, [x_offset+door_width/2 - x/2, y_offset+door_height/2 - y/2])
 
-     
     x_offset = x_offset + space_between_doors + door_width;
 
+# Print the door states to STDOUT
 def door_states():
   print("Door choice: "+str(door_choice))
   print"Door states: "
@@ -103,18 +110,20 @@ def door_states():
     print("[" + str(i) + ":"+str(doors[i]) +"] ")
   print("")
     
+# Choose a door that's closed
 def choose_door(i):
   global door_choice
   if (doors[i] < 2):
     door_choice = i
 
+# Choose any of the 3 doors
 def choose_random_door():
   global door_choice
   door = random.randint(0,2)
   door_choice = door
 
+# find a losing door to open for monty
 def open_door():
-  # find a losing door to open
   loserfound = False
   while (loserfound == False):
     door = random.randint(0,2)
@@ -123,6 +132,7 @@ def open_door():
       loserfound = True
       #print("opening door "+str(door))
 
+# reveal the final doors, won/lost info
 def reveal_winner():
   global games_lost, games_won, games_total
   for i in range(3):
@@ -134,6 +144,7 @@ def reveal_winner():
     games_lost += 1
   games_total += 1
 
+# Switch to other available door choich
 def swap_door_choice():
   global door_choice
   global swap
@@ -150,16 +161,19 @@ def swap_door_choice():
         break
     #if (i != door_choice) and (doors[i] < 2): door_choice = i
 
+# Reset the won/lost/total counters
 def reset_counters():
   global games_won, games_lost, games_total
   games_won, games_lost, games_total = 0, 0, 0
 
+# Reset the game state
 def reset_game():
   global game_state
   init_doors()
   door_choice = -1
   game_state = 1
 
+# Draw the welcome text w/ boder
 def draw_welcome():
   welcome1 = "Monty Hall Game"
   welcome2 = "Coded in Python with Pygame"
@@ -246,7 +260,7 @@ while done==False:
     if (proceed) or (auto):
       if (swap): swap_door_choice()
       reveal_winner()
-      print("done")
+      #print("done")
       game_state = 3
       proceed = False
   elif (game_state == 3):
