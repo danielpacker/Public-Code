@@ -30,5 +30,3 @@ Press 'S' to toggle always switching your final choice. Press 'A' to enter auto 
 python montyhallgame.py [full]
 
 To run in full screen mode (default is 640x480) type 'full' after program name when running
-
-
