@@ -1,5 +1,13 @@
+// SwagTop Nelson Swag inspired openscad desktop
+// by Daniel Packer <dp@danielpacker.org>
+// 
+// Parameterized for width, so far.
+//
+// Inspired by a blog post:
+// http://www.cyber-lane.com/blog/2014/furniture-design-with-openscad/
+
 //desktop
-dt_w=42;
+dt_w=96;
 dt_h=0.5;
 dt_d=24;
 
